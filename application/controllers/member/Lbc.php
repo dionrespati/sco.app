@@ -83,4 +83,8 @@ class Lbc extends MY_Controller {
 	public function lbcReportList() {
 		
 	}
+
+	public function tesReportList() {
+		
+	}
 }
