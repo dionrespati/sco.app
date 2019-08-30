@@ -20,6 +20,7 @@ class Lbc extends MY_Controller {
         } else {
            //echo sessionExpireMessage(false);
 		   $this->setTemplate('includes/inline_login', $data);
+		   /* tesss git*/
         }
 	}
 	
