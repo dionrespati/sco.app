@@ -173,7 +173,7 @@ class Member_registration_model extends MY_Model {
          
        	$next_seq = sprintf("%06s",$ss);
         $prefix = date('ym');
-        $y =  strval("MEMB".$prefix.$next_seq);
+        $y =  strval($prefix.$next_seq);
          
           if ($query->result() === FALSE)
             {

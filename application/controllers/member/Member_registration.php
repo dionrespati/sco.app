@@ -154,7 +154,7 @@ class Member_registration extends MY_Controller {
 						$arr = $this->processInputMember($lastkit, $data);						
 					 }
 					 
-					 $arr = jsonTrueResponse($insMemb);
+					 //$arr = jsonTrueResponse($insMemb);
 				  } else {
 					 $arr = jsonFalseResponse("Error Lastkitno..");
 				  }

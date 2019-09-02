@@ -26,7 +26,7 @@ if($result == null) {
 	    <?php
 		    $i = 1;
 		    foreach($result as $dta) {
-			echo "<tr id=\"$i\">
+			echo "<tr id=\"pvr-$dta->trcd\">
 				<td align=right>$i</td>
 				<td align=\"center\">
 				    <input type=hidden id=\"trcd$i\" value=\"$dta->trcd\" />
@@ -49,8 +49,9 @@ if($result == null) {
 				</td>";
 				if($dta->flag_batch == "0") {
 					echo "<td align=\"center\">
-					   <a class='btn btn-mini btn-primary' id=$dta->trcd onclick=\"javascript:All.ajaxShowDetailonNextForm('sales/stk/update/trcd/$dta->trcd')\">UPDATE</a>
-					</td>";
+						
+						<a class='btn btn-mini btn-danger' onclick=\"javascript:deleteTrx('$dta->trcd')\"><i class=\"icon-white icon-trash\"></i></a>
+						</td>";
 				}	else {
 				   echo "<td align=\"center\">
 				     &nbsp;
@@ -72,3 +73,32 @@ if($result == null) {
 setDatatable();
 }
 ?>
+<script>
+function deleteTrx(trcd) {
+	//var x = All.get_active_tab();
+
+	var r = confirm("Anda yakin ingin menghapus transaksi "+trcd);
+	if (r == true) {
+		$.ajax({
+		url: All.get_url('sales/stk/delete/trcd/') +trcd ,
+		type: 'GET',
+		dataType: "json",
+		success:
+		function(data){
+			if(data.response == "true") {
+				alert(data.message);
+				$(All.get_active_tab() + "tr#pvr-" +trcd).remove();
+			} else {
+
+			}
+		},
+		error: function (xhr, ajaxOptions, thrownError) {
+				alert(thrownError + ':' +xhr.status);
+				All.set_enable_button();
+		}
+    }); 
+	} 
+
+	
+}
+</script>

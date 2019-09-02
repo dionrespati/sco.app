@@ -8,13 +8,18 @@ class Sales_stockist_model extends MY_Model {
 	
 	function getListSalesStockist($data, $tipe) {
 		$param = "";
+		//if($data['flag_batch'])
+
 		if($data['searchby'] == "trcd" || $data['searchby'] == "orderno") {
 			$s = "a.".$data['searchby'];
-			$param .= "$s = '$data[paramValue]' and a.flag_batch = '0'";
+			$param .= "$s = '$data[paramValue]' and a.flag_batch = '".$data['flag_batch']."'";
 		} else if($data['searchby'] == "sc_dfno") {
-			$param .= "a.sc_dfno = '$data[paramValue]' and a.flag_batch = '0' 
+			$param .= "a.sc_dfno = '$data[paramValue]' AND a.loccd = '$data[loccd]' and a.flag_batch = '".$data['flag_batch']."' 
 			          and CONVERT(char(10), a.etdt,126) BETWEEN '$data[from]' AND '$data[to]'";
-		} else {
+		} else if($data['searchby'] == "") {
+			$param .= "a.loccd = '$data[loccd]' and a.flag_batch = '".$data['flag_batch']."' 
+			          and CONVERT(char(10), a.etdt,126) BETWEEN '$data[from]' AND '$data[to]'";
+	    } else {
 			$s = "a.".$data['searchby'];
 			$param .= "$s = '$data[paramValue]'";
 		}
@@ -32,12 +37,17 @@ class Sales_stockist_model extends MY_Model {
 				  a.tdp,
 				  a.tbv,
 				  a.entrytype,
-				  flag_batch
-				FROM sc_newtrh a
+				  a.flag_batch, a.no_deposit, a.id_deposit,
+				  CASE 
+				    WHEN flag_batch = '0' THEN 'Pending'
+					WHEN flag_batch = '1' THEN 'Generated'
+					WHEN flag_batch = '2' THEN 'Approved'
+				  end AS flag_batch_stt
+				FROM  klink_mlm2010.dbo.sc_newtrh a
 				   LEFT OUTER JOIN klink_mlm2010.dbo.msmemb b ON (a.dfno = b.dfno)  
 				WHERE $param AND a.trtype = '$tipe' ORDER BY a.trcd";	
 		//echo $qry;		
-		return $this->getRecordset($qry, null, $this->db1);
+		return $this->getRecordset($qry, null, $this->db2);
 	}	
 
 	function getTrxByTrcdHead($param, $id) {
@@ -46,7 +56,7 @@ class Sales_stockist_model extends MY_Model {
 	                 a.loccd, c.fullnm as loccdnm, c.sctype as sctype,
 	                 a.sc_co, c.fullnm as sc_conm, c.sctype as co_sctype,
 	                 a.sc_dfno, c.fullnm as sc_dfnonm, c.sctype as loccd_sctype,
-	                 a.tdp, a.tbv, a.bnsperiod,
+	                 a.tdp, a.tbv, a.bnsperiod, a.batchno, a.flag_batch,
 	                 CONVERT(char(10), a.etdt,126) as tglinput
                 FROM sc_newtrh a
 	                LEFT OUTER JOIN klink_mlm2010.dbo.msmemb b ON a.dfno = b.dfno
@@ -54,7 +64,7 @@ class Sales_stockist_model extends MY_Model {
 					LEFT OUTER JOIN klink_mlm2010.dbo.mssc d ON a.sc_co = d.loccd
 					LEFT OUTER JOIN klink_mlm2010.dbo.mssc e ON a.loccd = e.loccd
 				WHERE a.$param = '$id'";
-          return $this->getRecordset($qry, null, $this->db1);
+          return $this->getRecordset($qry, null, $this->db2);
 	}
 	
 	function getDetailProduct($param, $id) {
@@ -62,7 +72,7 @@ class Sales_stockist_model extends MY_Model {
 				  FROM sc_newtrd A
 				  LEFT OUTER JOIN klink_mlm2010.dbo.msprd b ON a.prdcd=b.prdcd
 				  WHERE a.$param = '$id'";	
-		  return $this->getRecordset($qry, null, $this->db1);
+		  return $this->getRecordset($qry, null, $this->db2);
 	}
 	
 	function getDetailPayment($param, $id) {
@@ -70,7 +80,7 @@ class Sales_stockist_model extends MY_Model {
 				  FROM sc_newtrp A
 				  LEFT OUTER JOIN klink_mlm2010.dbo.paytype b ON a.paytype=b.id
 				  WHERE a.$param = '$id'";	
-		  return $this->getRecordset($qry, null, $this->db1);
+		  return $this->getRecordset($qry, null, $this->db2);
 	}
 	
 	
@@ -101,7 +111,7 @@ class Sales_stockist_model extends MY_Model {
     
     function getListPaymentProductVoucher() {
     	$qry = "SELECT id, description
-    	        FROM paytype WHERE id IN ('10')"; //edit by hilal 28-06-2014
+    	        FROM paytype WHERE id IN ('01','10')"; //edit by hilal 28-06-2014
 		
         $res = $this->getRecordset($qry, null, $this->db2);
 		return $res;
@@ -156,24 +166,7 @@ class Sales_stockist_model extends MY_Model {
     }
     
     function saveTrx($data) {
-    	//CHECK apakah ID MEMBER valid
-    	$validMemb = $this->getValidDistributor($data['dfno']);
-    	if($validMemb != null) {
-    		$arr = array(
-	    		"table" => "sc_newtrh",
-	    		"param" => "orderno",
-	    		"value" => $data['orderno'],
-	    		"db" => $this->db2,
-	    	);
-	    	
-	    	//Check Order no apabila tipe sales adalah INPUT SALES
-	    	$checkOrderno = null;
-	    	if($data['ins'] == "1") {
-	    		$checkOrderno = $this->checkExistingRecord($arr);	
-	    	}
-			
-			//CHECK apakah ORDERNO double
-			if($checkOrderno == null) {
+    	
 				
 				/*---------------------------------------------------------------
 				 * PROSES PEMBAYARAN, SET values utk multiple insert ke sc_newtrp
@@ -289,18 +282,14 @@ class Sales_stockist_model extends MY_Model {
 					
                   	
 			   }
-			} else {
-				$return = jsonFalseResponse("No TTP sudah ada di database..");
-			}
-    	} else {
-    		$return = jsonFalseResponse("ID Member tidak valid..");
-    	}
+			
+    	
     	return $return;
     }
     
     function insertTrxStockist($arrQuery) {
     		$trcd = "";
-    		$db_qryx = $this->load->database('db_sco', true);
+    		$db_qryx = $this->load->database('klink_mlm2010', true);
     		//$db_qryx = $this->load->database('klink_mlm2010', true);
 			$db_qryx->trans_begin();
 			$datax = $arrQuery['data'];
@@ -424,7 +413,7 @@ class Sales_stockist_model extends MY_Model {
     
     function cek_seQ($tipe_pay) // dipake
     {
-        $this->db = $this->load->database('db_sco', true);
+        $this->db = $this->load->database('klink_mlm2010', true);
         $y1=date("y");
         $m=date("m");
         
@@ -468,7 +457,7 @@ class Sales_stockist_model extends MY_Model {
 
 	function get_idno($tipe_pay) // dipake
     {
-        $this->db = $this->load->database('db_sco', true);
+        $this->db = $this->load->database('klink_mlm2010', true);
         $y1=date("y");
         $m=date("m");
         
@@ -527,5 +516,62 @@ class Sales_stockist_model extends MY_Model {
             }   */   
        
          return $y;
-    }
+	}
+	
+	function deleteTrx($trcd) {
+		$db_qryx = $this->load->database('klink_mlm2010', true);	
+
+		$db_qryx->trans_begin();
+
+		$qry = "SELECT a.trcd, a.paytype, a.docno, a.vchtype, b.dfno 
+				FROM klink_mlm2010.dbo.sc_newtrp a
+				LEFT OUTER JOIN klink_mlm2010.dbo.sc_newtrh b ON (a.trcd = b.trcd)
+				WHERE a.trcd = '$trcd' and a.paytype != '01'";
+		$listVch = $this->getRecordset($qry, null, $this->db2);
+
+		//prosedur untuk mengaktifkan voucher cash/produk yang sudah claim/input agar bs diinput ulang
+		if($listVch != null) {
+			foreach($listVch as $dta) {
+				//paytype = 08 (vch cash/deposit/umroh)
+				//paytype = 10 (vch produk, P, ZVO, XPP, XPV, XHD)
+				if($dta->paytype == "08") {
+					$upd = "UPDATE klink_mlm2010.dbo.tcvoucher 
+								SET claimstatus = '0', claim_date = '', loccd = ''
+							WHERE DistributorCode = '$dta->dfno' and VoucherNo = '$dta->docno'";
+				} else if($dta->paytype == "10") {
+					$upd = "UPDATE klink_mlm2010.dbo.tcvoucher 
+								SET claimstatus = '0', claim_date = '', loccd = ''
+							WHERE DistributorCode = '$dta->dfno' and voucherkey = '$dta->docno'";
+				}
+				/* echo $upd;
+				echo "<br />"; */
+				$db_qryx->query($upd);
+			}
+		}
+
+		$trh = "DELETE FROM klink_mlm2010.dbo.sc_newtrh WHERE trcd = '$trcd'";
+		$trd = "DELETE FROM klink_mlm2010.dbo.sc_newtrd WHERE trcd = '$trcd'";
+		$trp = "DELETE FROM klink_mlm2010.dbo.sc_newtrp WHERE trcd = '$trcd'";
+
+		/* echo $trh;
+		echo "<br />";
+		echo $trd;
+		echo "<br />";
+		echo $trp;
+		echo "<br />"; */
+
+		$db_qryx->query($trh);
+		$db_qryx->query($trd);
+		$db_qryx->query($trp); 
+
+		if ($db_qryx->trans_status() === FALSE) {
+			$db_qryx->trans_rollback();
+			$return = array("response" => "false", "message" => "Data transaksi $trcd gagal dihapus..");
+			return $return; 
+		} else {
+			$db_qryx->trans_commit();
+			$return = array("response" => "true", "message" => "Data transaksi $trcd berhasil dihapus..");
+			return $return;  
+		}
+	}
 }

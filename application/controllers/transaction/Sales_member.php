@@ -60,7 +60,7 @@ class Sales_member extends MY_Controller {
     //$route['member/trx/detail/(:any)/(:any)'] = 'transaction/sales_member/memberTrxDetailProductByID/$1/$2';
 	function memberTrxDetailProductByID($param, $trcd){
 		if($this->username != null) {
-			$data['header'] = $this->m_sales_member->getTrxByTrcdHead($param, $trcd);
+			/*$data['header'] = $this->m_sales_member->getTrxByTrcdHead($param, $trcd);
 			$data['detail'] = $this->m_sales_member->geTrxByTrcdDet("trcd", $data['header'][0]->trcd);
 			if($data['header'] != null && $data['detail'] != null) {
 				$data['result'] = array("response" => "true", "header" => $data['header'], "detail" => $data['detail']);
@@ -75,12 +75,22 @@ class Sales_member extends MY_Controller {
 				$data['result'] = array("response" => "false", "message" => $msg);
 			}
 			$this->load->view($this->folderView.'memberTrxDetailProductByID', $data);
-			/*if($data['result'] == null) {
+			if($data['result'] == null) {
 				echo "false";
 			}else{
 				//var_dump($data);
 				
 			}*/
+
+			$data['back_button'] = "All.back_to_form(' .nextForm1',' .mainForm')";
+			$this->load->model('transaction/Sales_stockist_report_model', 'm_ssr');
+			if($param == "batchno") {
+				$data['result'] = $this->m_ssr->listTtpById($param, $trcd);
+				$this->load->view('transaction/stockist_report/listTTP', $data);
+			} else if($param == "trcd") {
+				$data['result'] = $this->m_ssr->detailTrxByTrcd($param, $trcd);
+				$this->load->view('transaction/stockist_report/detailTrx', $data);
+			}
 		} else {
 			echo sessionExpireMessage(false);
 		}	

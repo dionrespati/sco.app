@@ -15,6 +15,16 @@
       			&nbsp;<input type="text" class="dtpicker" id="to_stk_trx" name="to" placeholder="To" value="<?php echo $to; ?>" />
         		
      		</div>
+			 <label class="control-label" for="typeahead">Status Transaksi</label>                             
+			<div class="controls">
+				
+				<select id="flag_batch" class="input" name="flag_batch">
+					<option value="0" selected="selected">Belum di generate?Baru diinput</option>
+					<option value="1">Sudah di generate</option>
+					<option value="2">Sudah di Approve</option>
+		
+				</select>
+			</div>
       	<label class="control-label" for="typeahead">Pencarian</label>                             
         <div class="controls">
         	
@@ -30,7 +40,8 @@
         
       	<label class="control-label" for="typeahead">Value</label>                             
         <div class="controls">
-        	<input type="text" id="paramValue" name="paramValue" class="span4" value="<?php echo $sc_dfno; ?>" />
+		<input type="text" id="paramValue" name="paramValue" class="span4" value="" />
+			<input type="hidden" id="loccd" name="loccd" class="span4" value="<?php echo $sc_dfno; ?>" />
         </div>
         <label class="control-label" for="typeahead">&nbsp;</label>                             
         <div class="controls"  id="inp_btn">

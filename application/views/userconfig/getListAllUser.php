@@ -3,12 +3,13 @@
   	 echo emptyResultDiv();
   } else {
   	 echo "<form id=listUserGroup><table width=\"100%\" class=\"table table-striped table-bordered bootstrap-datatable datatable\">";
-       echo "<thead><tr><th colspan=6>DAFTAR USER</th></tr>";
+       echo "<thead><tr><th colspan=7>DAFTAR USER</th></tr>";
        echo "<tr bgcolor=#f4f4f4>";
        echo "<th width=10%>No</th>";
        echo "<th>User Name</th>";
-       echo "<th width=15%>Department</th>";
-	   echo "<th width=15%>Branch</th>";
+       echo "<th>Password</th>";
+       echo "<th width=15%>Member Prefix</th>";
+	   echo "<th width=15%>Last Kit</th>";
        echo "<th width=15%>Create Dt</th>";
        echo "<th width=15%>&nbsp;</th></thead></tr>";
        echo "<tbody>";
@@ -18,8 +19,9 @@
                 echo "<tr id=\"$i\">";
 		        echo "<td><div align=right>$i<div></td>";
                 echo "<td><div align=center><input type=\"hidden\" id=\"usrname$i\" value=\"$list->username\" />$list->username</div></td>";
-                echo "<td><div align=center>$list->departmentid</div></td>";
-				echo "<td><div align=center>$list->branchid</div></td>";  
+                echo "<td><div align=center>$list->password</div></td>";
+                echo "<td><div align=center>$list->memberprefix</div></td>";
+				echo "<td><div align=center>$list->lastkitno</div></td>";  
                 echo "<td><div align=center>$list->createdt</div></td>";
                 /*echo "<td><div align=\"center\">";
                 echo "<a class=\"btn btn-mini btn-info\" onclick=\"Gallery.getUpdateGallery($i)\"><i class=\"icon-edit icon-white\"></i></a>";

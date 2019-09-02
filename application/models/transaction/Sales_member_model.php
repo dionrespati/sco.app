@@ -52,12 +52,12 @@ class Sales_member_model extends MY_Model {
 		$qry = "SELECT  A.trcd, A.orderno, A.batchno, A.invoiceno, A.trtype, A.ttptype, 
 					    MAX(A.etdt) AS etdt,  MAX(A.createdt) AS createdt, 
 					    A.dfno, A.distnm, A.loccd, A.loccdnm, A.sc_co, A.sc_conm, A.sc_dfno, 
-					    A.sc_dfnonm, A.tdp, A.tbv, A.bnsperiod, A.statusTrx, a.distnm, a.remarks 
+					    A.sc_dfnonm, A.tdp, A.tbv, A.bnsperiod, A.statusTrx, a.distnm 
 	   			 FROM V_HILAL_CHECK_BV_ONLINE_HDR a
 	   			 WHERE $qryParam
 	   			 GROUP BY A.trcd, A.orderno, A.batchno, A.invoiceno, A.trtype, A.ttptype, 
 					    A.dfno, A.distnm, A.loccd, A.loccdnm, A.sc_co, A.sc_conm, A.sc_dfno, 
-					    A.sc_dfnonm, A.tdp, A.tbv, A.bnsperiod, A.statusTrx , a.distnm, a.remarks
+					    A.sc_dfnonm, A.tdp, A.tbv, A.bnsperiod, A.statusTrx , a.distnm
 				ORDER BY MAX(A.etdt), A.trcd" ;
 	   	//echo $qry;
 		$res = $this->getRecordset($qry, null, $this->db2);

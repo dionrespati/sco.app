@@ -2,12 +2,31 @@
   <form class="form-horizontal" enctype="multipart/form-data" id="formMemberSearch">
     <fieldset>      
       <div class="control-group">
+	   <label class="control-label" for="typeahead">Kategori</label>
+      	<div class="controls">
+      		<select id="kategori" name="kategori">
+      			<option value="vc_prd">Voucher Produk</option>
+      			<option value="vc_c">Voucher Cash</option>
+				<option value="vc_prm">Voucher Promo</option>
+				<option value="vc_umr">Voucher Umroh</option>
+      		</select>
+      			
+      	</div>
+		<label class="listM control-label" for="typeahead">No Voucher</label>
+      	<div class="listM controls">
+      		<input type="text" class="TabOnEnter span4" id="voucherno" name="voucherno" />	
+      	</div>
+		<label class="listM control-label" for="typeahead">ID Member</label>
+      	<div class="listM controls">
+      		<input type="text" class="TabOnEnter span4" id="memberid" name="memberid" />	
+      	</div>
+		 <!-- 
       	<label class="control-label" for="typeahead">Pencarian</label>
       	<div class="controls">
       		<select id="searchBy" name="searchBy">
       			<option value="VoucherNo">No Voucher</option>
       			<option value="DistributorCode">ID Member</option>
-      			<!--<option value="vchtype">Tipe Voucher</option>-->
+      			<option value="vchtype">Tipe Voucher</option>
       		</select>
       			
       	</div>
@@ -15,7 +34,7 @@
   		<label class="listM control-label" for="typeahead">Parameter/Nilai</label>
       	<div class="listM controls">
       		<input type="text" class="TabOnEnter span6" id="paramVchValue" name="paramVchValue" />	
-      	</div>
+      	</div>-->
       	<!--<label class="listByDate control-label" style="display: none;" for="typeahead">ID Stockist</label>
       	<div class="listByDate controls" style="display: none;">
       		<?php
@@ -35,7 +54,7 @@
       	-->
       	<label class="control-label" for="typeahead">&nbsp</label>                             
         <div class="controls"  id="inp_btn">
-            <input type="button" id="btn_input_user" class="btn btn-primary .submit" name="save" value="Submit" onclick="All.ajaxFormPost(this.form.id, '<?php echo $form_action; ?>')" />
+            <input type="button" id="btn_input_user" class="btn btn-primary .submit" name="save" value="Check" onclick="All.ajaxFormPost(this.form.id, '<?php echo $form_action; ?>')" />
             <input type="reset" class="btn btn-reset" value="Reset" />
             
          </div>

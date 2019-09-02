@@ -14,8 +14,8 @@
 		
 		<!--<th colspan="2">Harga Customer</th>-->
 		<th rowspan="2">BV</th>
-		<th rowspan="2">K-net</th>
-		<th rowspan="2">Inden</th>
+		<th rowspan="2">Stk Status Input</th>
+		
 	 </tr>
 	 <tr>
 		<th width="8%">12W</th>
@@ -39,19 +39,19 @@
 		//echo "<td align=right>".number_format($data->price_cw, 0, "", ".")."</td>";
 		//echo "<td align=right>".number_format($data->price_ce, 0, "", ".")."</td>";
 		echo "<td align=right>".number_format($data->bv, 0, "", ".")."</td>";  
-		if($data->ecomm_status == "1") {
+		if($data->scstatus == "1") {
 			$knet = "Y";
 		} else {
 			$knet = "N";
 		}
 		echo "<td align=center>$knet</td>";
 		
-		if($data->is_discontinue == "1") {
+		/* if($data->is_discontinue == "1") {
 			$ind = "Y";
 		} else {
 			$ind = "N";
 		}
-		echo "<td align=center>$ind</td>";
+		echo "<td align=center>$ind</td>"; */
 		echo "</tr>"; 
 		$no++; 
       }

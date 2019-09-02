@@ -29,8 +29,8 @@
             	<input type="hidden" id="sc_co" name="sc_co" value="<?php echo $header[0]->sc_co; ?>"/>
             	<?php echo $header[0]->sc_co; ?>
             </td>
-            <td>&nbsp</td>
-            <td>&nbsp;</td>
+            <td>DO</td>
+            <td><?php echo $header[0]->do_no." @".$header[0]->do_createnm." (".$header[0]->do_dt." )";?>&nbsp;</td>
         </tr>
         <tr>
             <td>C/O Stockist Name</td>

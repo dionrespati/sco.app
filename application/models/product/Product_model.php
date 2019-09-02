@@ -26,11 +26,12 @@ class Product_model extends MY_Model {
 		        WHERE
 		          (db_ecommerce.dbo.master_prd_pricetab.cat_inv_id = '$id')"; */
 				  
-		$qry = "SELECT * FROM V_Ecomm_PriceList_Dion_Baru a
+		$qry = "SELECT * FROM V_STK_PRODUCT a
 		        WHERE a.prdcd LIKE'$id%' 
-		        AND a.web_status = '1' AND a.status = '1' and a.price_w is not null and a.price_e is not null";
+				and a.price_w is not null 
+				and a.price_e is not null";
 		//echo $qry;
-		$res = $this->getRecordset($qry, NULL, $this->db3);
+		$res = $this->getRecordset($qry, NULL, $this->db2);
 		return $res;
 	}
 	
@@ -55,12 +56,11 @@ class Product_model extends MY_Model {
 	
 	function getProductByName($name) {
 		$name = strtoupper($name);
-		$qry = "SELECT * FROM V_Ecomm_PriceList_Dion_Baru a 
+		$qry = "SELECT * FROM V_STK_PRODUCT a 
 		        WHERE a.prdnm LIKE '%$name%' 
-				 AND a.web_status = '1' AND a.status = '1'
 				 and a.price_w is not null and a.price_e is not null";
 		//echo $qry;
-		$res = $this->getRecordset($qry, NULL, $this->db3);
+		$res = $this->getRecordset($qry, NULL, $this->db2);
 		return $res;
 	}
 	
@@ -69,11 +69,10 @@ class Product_model extends MY_Model {
 		if($value != "") {
 			$prdnm .= " AND a.prdnm LIKE '%$value%'";
 		} 
-		$qry = "SELECT * FROM V_Ecomm_PriceList_Dion_Baru_Baru a 
-				WHERE a.prdcd LIKE '%F' AND a.web_status = '1' 
-				AND a.status = '1' AND a.bv = 0 $prdnm and a.price_w is not null and a.price_e is not null";
+		$qry = "SELECT * FROM V_STK_PRODUCT a 
+				WHERE a.price_w = 0 AND a.scstatus = '1'";
 		//echo $qry;
-		$res = $this->getRecordset($qry, NULL, $this->db3);
+		$res = $this->getRecordset($qry, NULL, $this->db2);
 		return $res;
 	}
 	
@@ -120,17 +119,20 @@ class Product_model extends MY_Model {
 		$res = $this->getRecordset($qry, NULL, $this->db2);
 		return $res;
 	}
-	
+	*/
 	function getListProductBundling($value) {
-		$prdnm = "";
-		if($value != "") {
-			$prdnm .= " AND a.prdnm LIKE '%$value%'";
-		} 
-		$qry = "SELECT * FROM DION_msprd_pricetab a 
-		        WHERE a.webstatus = '1' AND a.status = '1' AND a.bv = 0 $prdnm";
+		
+		$qry = "SELECT a.*
+			FROM V_STK_PRODUCT a 
+			WHERE a.prdcd COLLATE SQL_Latin1_General_CP1_CI_AS  IN (
+				SELECT  
+				b.cat_inv_id_parent 
+				FROM db_ecommerce.dbo.master_prd_bundling b 
+				GROUP BY b.cat_inv_id_parent
+		    )";
 		//echo $qry;
 		$res = $this->getRecordset($qry, NULL, $this->db2);
 		return $res;
-	}*/
+	}
 	
 }

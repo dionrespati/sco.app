@@ -37,12 +37,20 @@
       	<div class="controls">
       		<input value="<?php echo $result[0]->tel_hm ?>"  type="text" class="TabOnEnter span6" id="tel_hm" name="tel_hm" />	
       	</div>
+		  <label class="control-label" for="typeahead">Latitude</label>
+      	<div class="controls">
+      		<input value="<?php echo $result[0]->latitude ?>"  type="text" class="TabOnEnter span6" id="latitude" name="latitude" />	
+      	</div>
+      	<label class="control-label" for="typeahead">Longitude</label>
+      	<div class="controls">
+      		<input value="<?php echo $result[0]->longitude ?>"  type="text" class="TabOnEnter span6" id="longitude" name="longitude" />	
+      	</div>
       	<?php
       	if($idstk == "BID06") {
       	?>
       	<label class="control-label" for="typeahead">Lastkit Member</label>
       	<div class="controls">
-      		<input value="<?php echo $result[0]->lastkitno ?>"  type="text" class="TabOnEnter span6" id="lastkitno" name="lastkitno" />	
+      		<input value="<?php echo $result[0]->lastkitno ?>" readonly="readonly"  type="text" class="TabOnEnter span6" id="lastkitno" name="lastkitno" />	
       	</div>
       	<label class="control-label" for="typeahead">Max Kuota Reg Member</label>
       	<div class="controls">
@@ -57,7 +65,7 @@
 		?>
 		<label class="control-label" for="typeahead">Lastkit Member</label>
       	<div class="controls">
-      		<input value="<?php echo $result[0]->lastkitno ?>"  type="text" readonly="readonly" class="TabOnEnter span6" id="lastkitno" name="lastkitno" />	
+      		<input value="<?php echo $result[0]->lastkitno ?>" readonly="readonly"  type="text" readonly="readonly" class="TabOnEnter span6" id="lastkitno" name="lastkitno" />	
       	</div>
       	<label class="control-label" for="typeahead">Max Kuota Reg Member</label>
       	<div class="controls">

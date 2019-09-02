@@ -14,7 +14,8 @@ class Sales_stockist_report extends MY_Controller {
         $data['form_action'] = 'sales/generated/report/list';
         $data['icon'] = "icon-search";
 		$data['form_reload'] = 'sales/generated/report';   		   
-		$data['sc_dfno'] 	= $this->stockist;		
+		$data['sc_dfno'] = $this->stockist;		
+		$data['main_stk'] = $this->stockist;
         if($this->username != null) {	
            $data['from'] 	= date("Y-m-d");
            $data['to'] 	= date("Y-m-d");
@@ -28,10 +29,26 @@ class Sales_stockist_report extends MY_Controller {
 	//$route['sales/generated/report/list'] = 'transaction/sales_stockist_report/getListGeneratedSales';
 	public function getListGeneratedSales() {
 		if($this->username != null) {
-			$data['form'] = $this->input->post(NULL, TRUE);
-			$data['result'] = $this->m_ssr->getListGeneratedSales($data['form']);
+			$data = $this->input->post(NULL, TRUE);
+			//$data['result'] = $this->m_ssr->getListGeneratedSales($data['form']);
 			//print_r($data['result']);
-			$this->load->view($this->folderView.'listGeneratedSales',$data);	
+			//$this->load->view($this->folderView.'listGeneratedSales',$data);	
+			$arr = array(
+				"from" => trim($data['from']),
+				"to" => trim($data['to']),
+				"main_stk" => trim($data['main_stk']),
+				"idstkk" => trim($data['idstkk']),
+				"searchs" => trim($data['searchs']),
+				"statuses" => trim($data['statuses']),
+			);
+			$data['idstk'] =  $this->m_ssr->getGenerateRPTByCahyono($arr);
+			/* echo "<pre>";
+			print_r($data['idstk'][0]);
+			echo "</pre>"; */
+			$data['tipe'] = $data['searchs'];
+			$data['action1'] = site_url('sco/sales/generate/pdf');
+            $data['action2'] = site_url('sco/sales/generate/excel');
+			$this->load->view($this->folderView.'salesReport',$data);	
 		} else {
            jsAlert();
         } 
@@ -68,7 +85,7 @@ class Sales_stockist_report extends MY_Controller {
     	if($this->username != null) {
             $x = $this->input->post(NULL, TRUE);
             //$username = $this->session->userdata('username');          
-            if($x['searchBy'] == "VoucherNo") {
+            /* if($x['searchBy'] == "VoucherNo") {
                 $x['result'] =  $this->m_ssr->getVoucherReportList($x['searchBy'], $x['paramVchValue']);
 				//print_r($x['result']);
                 $this->load->view($this->folderView.'listVchReportByVoucherNo',$x);
@@ -76,7 +93,14 @@ class Sales_stockist_report extends MY_Controller {
             	$x['result'] =  $this->m_ssr->getVoucherReportList($x['searchBy'], $x['paramVchValue']);
                 //print_r($x['result']);
                 $this->load->view($this->folderView.'listVchReportByIdMember',$x);
-            } 
+			}  */
+			if($x['kategori'] != "vc_umr") {
+				$x['result'] =  $this->m_ssr->getVoucherReportListV2($x['memberid'], $x['voucherno'], $x['kategori']);
+			} else {
+				$x['result'] =  $this->m_ssr->getVoucherUmrohReport($x['memberid'], $x['voucherno'], $x['kategori']);	
+			}
+			$this->load->view($this->folderView.'listVchReportStk',$x);
+			
         }else{
             echo sessionExpireMessage();
         }
@@ -87,5 +111,21 @@ class Sales_stockist_report extends MY_Controller {
 		$x['result'] =  $this->m_ssr->getVoucherReportList("VoucherNo", $id);
 		$this->load->view($this->folderView.'listVchReportByVoucherNo',$x);
 	}
+
+	//$route['sales/reportstk/(:any)/(:any)'] = 'transaction/sales_stockist_report/listTTP/$1/$2';
+  function listTTP($field, $value) {
+	
+	if($field == "batchno") {
+		$data['back_button'] = "All.back_to_form(' .nextForm1',' .mainForm')";
+		$data['result'] = $this->m_ssr->listTtpById($field, $value);
+		$this->load->view($this->folderView.'listTTP', $data);
+	} else if($field == "trcd") {
+		$data['back_button'] = "All.back_to_form(' .nextForm2',' .nextForm1')";
+		$data['result'] = $this->m_ssr->detailTrxByTrcd($field, $value);
+		$this->load->view($this->folderView.'detailTrx', $data);
+	}
+	
+	
+  }
 	
 }

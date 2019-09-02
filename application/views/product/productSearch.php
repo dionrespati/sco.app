@@ -8,10 +8,10 @@
       			<option value="prdcd">Kode Produk</option>
       			<option value="prdnm">Nama Produk</option>
       			<option value="F">Daftar Kode Produk Free</option>
-      			<option value="knet">Daftar Produk K-Net</option>
+      			<!--<option value="knet">Daftar Produk K-Net</option>
       			<option value="non_knet">Daftar Produk Non K-Net</option>
-      			<option value="dis">Daftar Produk Inden / Discontinue</option>
-      			<!--<option value="P">List Product Bundling</option>-->
+      			<option value="dis">Daftar Produk Inden / Discontinue</option>-->
+      			<option value="P">List Product Bundling</option>
       		</select>	
       	</div>
       	<label class="control-label" for="typeahead">Parameter/Nilai</label>

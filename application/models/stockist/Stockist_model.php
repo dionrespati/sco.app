@@ -15,7 +15,7 @@ class Stockist_model extends MY_Model {
 				   a.limitkit, a.arkit,
 				   a.limitkit - a.arkit as sisa_kuota,
 				   a.sfno as uplinestk, b.fullnm as uplinenm,
-				   a.lastkitno
+				   a.lastkitno, a.latitude, a.longitude
 				FROM mssc a 
 				INNER JOIN mssc b ON (a.sfno = b.loccd)
 				INNER JOIN [state] c ON (a.[state] = c.st_id)

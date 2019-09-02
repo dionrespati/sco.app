@@ -8,22 +8,32 @@
       			&nbsp;<input type="text" class="dtpicker" id="to_sub_trx" name="to" placeholder="To" value="<?php echo $to; ?>" />
         		
      		</div>
+			 <label class="control-label" for="typeahead">Status Transaksi</label>                             
+			<div class="controls">
+				
+				<select id="flag_batch" class="input" name="flag_batch">
+					<option value="0" selected="selected">Belum di generate</option>
+					<option value="1">Sudah di generate</option>
+					<option value="2">Sudah di Approve</option>
+				</select>
+			</div>	 
       	<label class="control-label" for="typeahead">Pencarian</label>                             
         <div class="controls">
         	
         	<select id="searchby" class="input" name="searchby">
-				<option value="">[Select One]</option>
+				<option selected="selected" value="">[Select One]</option>
 				<option value="trcd">No Trx</option>
-				<option selected="selected" value="sc_dfno">Kode Stockist</option>
+				<option value="sc_dfno">Kode Stockist</option>
 				<option value="batchno">No SSR / MSR</option>
 				<option value="orderno">No TTP</option>
 				<option value="csno">No CN</option>
 			</select>
         </div>
-     
+        
       	<label class="control-label" for="typeahead">Parameter/Nilai</label>                             
         <div class="controls">
-        	<input type="text" id="paramValue" name="paramValue" class="span4" value="<?php echo $sc_dfno; ?>" />
+        	<input type="text" id="paramValue" name="paramValue" class="span4" value="" />
+			<input type="hidden" id="loccd" name="loccd" class="span4" value="<?php echo $sc_dfno; ?>" />
         </div>
        	<label class="control-label" for="typeahead">&nbsp;</label>                             
         <div class="controls"  id="inp_btn">
@@ -39,3 +49,26 @@
   <div class="result"></div>
 </div><!--/end mainForm-->
 <?php setDatePicker(); ?>
+<script>
+function deleteTrx(trcd) {
+	//var x = All.get_active_tab();
+	$.ajax({
+		url: All.get_url('sales/stk/delete/trcd') +trcd ,
+		type: 'GET',
+		dataType: "json",
+		success:
+		function(data){
+			if(data.response == "true") {
+				alert(data.message);
+				$(All.get_active_tab() + "tr#ttp-" +trcd).remove();
+			} else {
+
+			}
+		},
+		error: function (xhr, ajaxOptions, thrownError) {
+				alert(thrownError + ':' +xhr.status);
+				All.set_enable_button();
+		}
+    }); 
+}
+</script>

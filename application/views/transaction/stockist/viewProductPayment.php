@@ -142,7 +142,7 @@
 					  if($ins == "2") {
 							$readonly = "";
 							$btn = "";
-							
+							if($payment != null) {
 							 foreach($payment as $pay) {
 							 	$payamt = number_format($pay->payamt, 0, ",", ".");
 							 	if($pay->paytype != "01") {
@@ -164,6 +164,7 @@
 								echo "</tr>";
 								$totPay += $pay->paytype;
 							 }
+							}
 					   }
 					?>
 				</tbody>	

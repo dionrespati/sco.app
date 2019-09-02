@@ -39,49 +39,56 @@
                 <td style="width: 13%">ID Member</td>
                 <td style="width: 38%"><?php echo $dfno;?></td>
                  
-                <td style="width: 13%">ID No</td>
+                <td style="width: 13%">No KTP</td>
                 <td style="width: 38%"><?php echo $idno;?></td>
             </tr>
 			<tr>
-                <td>Member Name</td>
+                <td>Nama Member</td>
                 <td><?php echo $fullnm;?></td>
             	 
-            	<td>Sex</td>
-            	<td><?php echo $sex;?></td>
+            	<td>JEnis Kelamin</td>
+                <td><?php 
+                  if($sex == "M")  {
+                    $kel = "Pria";
+                  } else {
+                    $kel = "Wanita";  
+                  }
+                  echo $kel;
+                  ?></td>
             </tr>
 			<tr>
-                <td valign="top">Address</td>
+                <td valign="top">Alamat</td>
                 <td valign="top"><?php echo $addr1." ".$addr2." ".$addr3;?></td>
 				 
-            	<td valign="top">Cell Phone</td>
+            	<td valign="top">No HP</td>
                 <td valign="top"><?php echo $tel_hp;?></td>
             </tr>
 			<tr>
                 <td>ID Sponsor</td>
                 <td><?php echo $idsp." / ".$spnm;?></td>
 				 
-            	<td>Birth Date</td>
+            	<td>Tgl Lahir</td>
                 <td><?php echo $birthdt;?></td>
             </tr>
 			<tr>
                 <td>ID Recruiter</td>
                 <td><?php echo $recruiter." / ".$recruitnm;?></td>
                  
-            	<td>Join Date</td>
+            	<td>Tgl Join</td>
             	<td><?php echo $join;?></td>
             </tr>
             <tr>
-                <td>Phone</td>
+                <td>No Telp</td>
                 <td><?php echo $tel_hp;?></td>
                 
-                <td>City</td>
+                <td>Negara</td>
                 <td><?php echo $country;?></td>
             </tr>
             <tr>
-                <td>Registered in</td>
+                <td>Stockist Reff</td>
                 <td id="upd_loccd"><?php echo $stckst;?></td>
 				 
-            	<td>Card & Bonus Stt</td>
+            	<td>Bonus Stt & Kartu</td>
                 <td id="upd_bnsstmt"><?php echo $row->bnsstmsc;?></td>
             </tr>
             <?php
@@ -107,7 +114,7 @@
 			  }
             ?>
             <tr>
-                <td>No. VA</td>
+                <td>No. Virtual Account</td>
                 <td><?php echo $novac;?></td>
                 <td>Input By</td>
                 <td><?php echo $userinput;?></td>
@@ -119,7 +126,7 @@
                 <td><?php echo $result[0]->vchkey;?></td>
             </tr>
             <tr>
-                <td>Registered using</td>
+                <td>Keterangan Registrasi</td>
                 <td><?php echo $result[0]->keteranganx;?></td>
                 <td>&nbsp;</td>
                 <td>&nbsp;</td>

@@ -39,6 +39,36 @@ class Sales_stockist extends MY_Controller {
         } 
 	}
 
+	//$route['sales/stk/delete/(:any)/(:any)'] = 'transaction/sales_stockist/deleteTrx/$1/$2';
+	public function deleteTrx($param, $id) {
+		if($this->username != null) {	
+			$this->load->model('transaction/Sales_stockist_model', 'm_sales_stk');
+			$data['header'] = $this->m_sales_stk->getTrxByTrcdHead($param, $id);
+			if($data['header'] == null) {
+				$res = jsonFalseResponse("No Transaksi : $id tidak valid..");
+				echo json_encode($res);
+				return;
+			} 
+
+			$header = $data['header'][0];
+			if($header->flag_batch == "1" OR $header->batchno != null) {
+				$res = jsonFalseResponse("No Transaksi : $id sudah di generate dengan no : ".$header->batchno);
+				echo json_encode($res);
+				return;
+			} 
+
+			$res = $this->m_sales_stk->deleteTrx($id);
+			echo json_encode($res);
+			/* $res = jsonTrueResponse(null, "Data $id berhasil dihapus..");
+			echo json_encode($res);
+			return; */
+		} else {
+			$res = jsonFalseResponse("Sesi anda habis, silahkan login kembali..");
+			echo json_encode($res);
+			return;
+		} 	
+	}
+
     //$route['sales/stk/update/(:any)/(:any)'] = 'transaction/sales_stockist/updateTrx/$1/$2';
 	public function updateTrx($param, $id) {
 		if($this->username != null) {
@@ -124,17 +154,45 @@ class Sales_stockist extends MY_Controller {
 			$data = $this->input->post(NULL, TRUE);
 			
 			if ($this->form_validation->run('inputTtpStockist') === TRUE) {
-    			
+    			//check apakah produk ada yang kosong
 				$jum = count($data['prdcd']);
 				if($jum == 0) {
 					echo json_encode(jsonFalseResponse("Produk tidak boleh kosong.."));
-				} else if(!isset($data['payChooseType'])) {
+					return;
+				} 
+				//check apakah pembayaran kosong
+				if(!isset($data['payChooseType'])) {
 					echo json_encode(jsonFalseResponse("Pembayaran tidak boleh kosong.."));
-				} else {
-					$this->load->model('transaction/Sales_stockist_model', 'm_sales_stk');
-					$res = $this->m_sales_stk->saveTrx($data);	
-					echo json_encode($res);
+					return; 
+				} 
+				//check apakah distributor valid
+				$this->load->model('transaction/Sales_stockist_model', 'm_sales_stk');
+				$ifMemberExist = $this->m_sales_stk->getValidDistributor($data['dfno']);
+				if($ifMemberExist == null) {
+					echo json_encode(jsonFalseResponse("ID Member tidak valid.."));
+					return;
 				}
+
+				$arr = array(
+					"table" => "sc_newtrh",
+					"param" => "orderno",
+					"value" => $data['orderno'],
+					"db" => "klink_mlm2010",
+				);
+				if($data['ins'] == "1") {
+					$checkOrderno = $this->m_sales_stk->checkExistingRecord($arr);	
+					//CHECK apakah ORDERNO double
+					if($checkOrderno != null) {
+						echo jsonFalseResponse("No TTP sudah ada di database..");
+						return;
+					}
+				}
+
+				
+
+				$res = $this->m_sales_stk->saveTrx($data);	
+				echo json_encode($res);
+				
 			} else {
 				$this->form_validation->set_error_delimiters("","");
 			    echo json_encode(jsonFalseResponse(validation_errors()));

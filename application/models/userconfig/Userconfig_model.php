@@ -16,7 +16,7 @@ class Userconfig_model extends MY_Model {
 	
 	function getListUserGroup($param, $value) {
 		$qry = "SELECT * FROM ecomm_usergroup WHERE $param = '$value'";
-		$res = $this->getRecordset($qry, NULL, $this->db1);
+		$res = $this->getRecordset($qry, NULL, $this->db2);
 		if($res == null) {
 			throw new Exception("No result", 1);
 		}
@@ -25,7 +25,7 @@ class Userconfig_model extends MY_Model {
 	
 	function getListAllUserGroup() {
 		$qry = "SELECT * FROM ecomm_usergroup";
-		$res = $this->getRecordset($qry, NULL, $this->db1);
+		$res = $this->getRecordset($qry, NULL, $this->db2);
 		if($res == null) {
 			throw new Exception("Data user group is empty..!", 1);
 		}
@@ -34,7 +34,7 @@ class Userconfig_model extends MY_Model {
 	
 	function getListAllUserGroupByID($id) {
 		$qry = "SELECT * FROM ecomm_usergroup WHERE groupid = $id";
-		$res = $this->getRecordset($qry, NULL, $this->db1);
+		$res = $this->getRecordset($qry, NULL, $this->db2);
 		if($res == null) {
 			throw new Exception("Data user group is empty..!", 1);
 		}
@@ -77,16 +77,20 @@ class Userconfig_model extends MY_Model {
 	 * --------------*/
 	 function getListAllUser() {
 	 	$qry = "SELECT 
-				  dbo.ecomm_usergroup.groupname,
-				  dbo.ecomm_user.username,
-				  dbo.ecomm_user.departmentid,
-				  dbo.ecomm_user.branchid,
-				  CONVERT(VARCHAR(30),dbo.ecomm_user.createdt, 103) AS createdt
+				  b.groupname,
+				  a.username,
+				  a.password,
+				  a.departmentid,
+				  a.branchid,
+				  c.lastkitno, c.memberprefix, c.lastkitno,
+				  CONVERT(VARCHAR(30),a.createdt, 103) AS createdt
 				FROM
-				  dbo.ecomm_user
-				  INNER JOIN dbo.ecomm_usergroup 
-				  ON (dbo.ecomm_user.groupid = dbo.ecomm_usergroup.groupid)";
-		$res = $this->getRecordset($qry, NULL, $this->db1);
+				   ecomm_user a
+				  INNER JOIN ecomm_usergroup b
+				  	ON (a.groupid = b.groupid)
+				  LEFT OUTER JOIN dbo.mssc c
+				    ON (a.branchid COLLATE SQL_Latin1_General_CP1_CS_AS = c.loccd)";
+		$res = $this->getRecordset($qry, NULL, $this->db2);
 		if($res == null) {
 			throw new Exception("Data user is empty..!", 1);
 		}
@@ -105,7 +109,7 @@ class Userconfig_model extends MY_Model {
 				  INNER JOIN dbo.ecomm_usergroup 
 				  ON (dbo.ecomm_user.groupid = dbo.ecomm_usergroup.groupid)
 				WHERE dbo.ecomm_user.$param = '$value'";
-		$res = $this->getRecordset($qry, NULL, $this->db1);
+		$res = $this->getRecordset($qry, NULL, $this->db2);
 		if($res == null) {
 			throw new Exception("Data user is empty..!", 1);
 		}
@@ -114,7 +118,7 @@ class Userconfig_model extends MY_Model {
 	 
 	 function getListUser($param, $value) {
 		$qry = "SELECT * FROM ecomm_user WHERE $param = '$value'";
-		$res = $this->getRecordset($qry, NULL, $this->db1);
+		$res = $this->getRecordset($qry, NULL, $this->db2);
 		if($res == null) {
 			throw new Exception("No result", 1);
 		}
@@ -168,7 +172,7 @@ class Userconfig_model extends MY_Model {
 				  CONVERT(VARCHAR(30),a.createdt, 103) AS createdt
 				FROM
 				  app_table a";
-		$res = $this->getRecordset($qry, NULL, $this->db1);
+		$res = $this->getRecordset($qry, NULL, $this->db2);
 		if($res == null) {
 			throw new Exception("Data Application is empty..!", 1);
 		}
@@ -177,7 +181,7 @@ class Userconfig_model extends MY_Model {
 	 
 	 function getListApplication($param, $value) {
 		$qry = "SELECT * FROM app_table WHERE $param = '$value'";
-		$res = $this->getRecordset($qry, NULL, $this->db1);
+		$res = $this->getRecordset($qry, NULL, $this->db2);
 		if($res == null) {
 			throw new Exception("No result", 1);
 		}
@@ -234,7 +238,7 @@ class Userconfig_model extends MY_Model {
 				  dbo.app_tabprg
 				  INNER JOIN dbo.app_table ON (dbo.app_table.app_id = dbo.app_tabprg.app_id)
 				WHERE dbo.app_tabprg.app_menu_parent_id = '0'";
-		$res = $this->getRecordset($qry, NULL, $this->db1);
+		$res = $this->getRecordset($qry, NULL, $this->db2);
 		if($res == null) {
 			throw new Exception("Data Application is empty..!", 1);
 		}
@@ -243,7 +247,7 @@ class Userconfig_model extends MY_Model {
 	 
 	 function getListGroupMenu($param, $value) {
 		$qry = "SELECT * FROM app_tabprg WHERE $param = '$value'";
-		$res = $this->getRecordset($qry, NULL, $this->db1);
+		$res = $this->getRecordset($qry, NULL, $this->db2);
 		if($res == null) {
 			throw new Exception("No result", 1);
 		}
@@ -256,7 +260,7 @@ class Userconfig_model extends MY_Model {
 				FROM app_tabprg a
 				WHERE app_menu_id LIKE '$prefix%'";	
 		//echo $qry;	
-		$res = $this->getRecordset($qry, NULL, $this->db1);	
+		$res = $this->getRecordset($qry, NULL, $this->db2);	
 		$jumlah = substr($res[0]->jum, 2, 3);
 		$next_id = $jumlah + 1;
         
@@ -326,7 +330,7 @@ class Userconfig_model extends MY_Model {
 				  app_tabprg a
 				  INNER JOIN app_tabprg b 
 				  ON (a.app_menu_parent_id = b.app_menu_id)";
-		 $res = $this->getRecordset($qry, NULL, $this->db1);
+		 $res = $this->getRecordset($qry, NULL, $this->db2);
 		 if($res == null) {
 			throw new Exception("Data Application is empty..!", 1);
 		 }
@@ -335,7 +339,7 @@ class Userconfig_model extends MY_Model {
 	  
 	 function getListSubMenu($param, $value) {
 			$qry = "SELECT * FROM app_tabprg WHERE $param = '$value'";
-			$res = $this->getRecordset($qry, NULL, $this->db1);
+			$res = $this->getRecordset($qry, NULL, $this->db2);
 			if($res == null) {
 				throw new Exception("No result", 1);
 			}
@@ -374,7 +378,7 @@ class Userconfig_model extends MY_Model {
 	 * ACCESS MENU
 	 *---------------------------- */
 	 function deleteUserAuthByID($groupid) {
-	 	$qry = "DELETE FROM ecomm_userauthority WHERE groupid = '$groupid'";
+	 	$qry = "DELETE FROM klink_mlm2010.dbo.ecomm_scoauth WHERE groupid = '$groupid'";
 		//echo $qry;
 		$query = $this->executeQuery($qry);
 		
@@ -406,7 +410,7 @@ class Userconfig_model extends MY_Model {
                 } else {
                 	$delete = "0";
                 }
-                $qry2 = "INSERT INTO ecomm_userauthority (groupid, menuid, toggle_add, toggle_edit, toggle_delete, toggle_view, createnm) 
+                $qry2 = "INSERT INTO ecomm_scoauth (groupid, menuid, toggle_add, toggle_edit, toggle_delete, toggle_view, createnm) 
                        VALUES ('$data[grpid]', '".$data['menuid'][$i]."', '$add', '$edit', '$view', '$delete', '".$this->username."')";
                 
 				//echo $qry2;
