@@ -253,14 +253,16 @@ class Sales_generate_model extends MY_Model
         $data['month'] = $folderGets[0];
         $data['year'] = $folderGets[1];
         $bonusperiod = $data['year']."-".$data['month']."-"."01";
-        $slc = " SELECT * FROM klink_mlm2010.dbo.ALDI_22022018 A
+        $slc = " SELECT a.trcd, (CONVERT(VARCHAR(10), a.etdt, 120)) AS etdt, 
+                a.dfno, a.fullnm, a.totpay, a.tbv, a.sc_dfno, a.loccd
+                FROM klink_mlm2010.dbo.ALDI_22022018 A
               WHERE A.loccd ='$scco'
               AND bnsperiod = '$bonusperiod'
               AND sc_co LIKE '%$scco%'
               AND sc_dfno LIKE '%$scdfno%'
               AND tipe = '$searchBy'
               ORDER BY trcd ";
-        //echo $slc;
+        //echo $slc."<br />";
         //return $this->getRecordset($slc, null, $this->db2);
         $trcd = "";
         $query = $this->db->query($slc);
@@ -268,7 +270,7 @@ class Sales_generate_model extends MY_Model
 			if($query->num_rows() > 0)  {
             $nilai = $query->result();
             foreach($nilai as $dtax) {
-                $trcd .= $dtax->trcd.",";
+                $trcd .= "'".$dtax->trcd."',";
             }
 
             $trcd = substr($trcd, 0, -1);
@@ -277,7 +279,17 @@ class Sales_generate_model extends MY_Model
         
         $prd = "SELECT prdcd";
 
-        $trp = "SELECT ";
+        $trp = "SELECT a.trcd, b.dfno, b.orderno, a.paytype, a.docno, a.payamt 
+                FROM sc_newtrp a
+                LEFT OUTER JOIN sc_newtrh b ON (a.trcd = b.trcd) 
+                WHERE a.trcd IN ($trcd) ";
+        //echo $trp;
+        $payment = $this->getRecordset($trp, null, $this->db2);
+        $arr = array(
+            "header" => $nilai,
+            "payment" => $payment
+        );
+        return $arr;
     }
 
     public function get_SSRno($tipeSales, $bnsperiod, $username, $scDfnoo) {

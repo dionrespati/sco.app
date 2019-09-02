@@ -298,61 +298,14 @@ class Sales_generate extends MY_Controller
 
 
 
-        $data['result'] = $this->m_sales_generate->getDetailTrx($idstkk, $bnsperiod, $tipe, $sc_co, $sc_dfno);
-        backToMainForm();
+        $data['result'] = $this->m_sales_generate->getDetailTrxV2($idstkk, $bnsperiod, $tipe, $sc_co, $sc_dfno);
+        /* backToMainForm();
         echo "<pre>";
         print_r($data['result']);
         echo "<pre>";
-        backToMainForm();
-        // print_r($this->input->post(NULL, TRUE));
+        backToMainForm(); */
 
-        /* $data['table']=  '<thead>
-                            <tr>
-                                    <th><b>No</b></th>
-                                    <th><b>No TRX</b></th>
-
-                                    <th><b>MEMBER</b></th>
-                                    <th><b>ID STOCKIST</b></th>
-                                    <th><b>BONUS PERIOD</b></th>
-                                    <th><b>TANGGAL TRX</b></th>
-                                    <th><b>TOTAL PAY</b></th>
-                                    <th><b>TOTAL BV</b></th>
-
-                            </tr>
-                            </thead>
-                            	<tbody>';
-        if (count($table) > 0) {
-            $i=1;
-            $sx=0;
-            $sz=0;
-            foreach ($table as $row) {
-                $data['table'] .='<tr>
-                                    <td>'.$i.'</td>
-                                    <td align=center>'.$row->trcd.'</td>
-
-                                    <td>'.$row->dfno.' / '.$row->fullnm.'</td>
-                                    <td align=center>'.$row->loccd.'</td>
-                                    <td align=center>'.date("d-M-Y", strtotime($row->bnsperiod)).'</td>
-                                    <td align=center>'.date("d-M-Y", strtotime($row->etdt)).'</td>
-                                    <td><div align=right>'.number_format($row->totpay, 0, "", ",").'</div></td>
-                                    <td><div align=right>'.number_format($row->tbv, 0, "", ",").'</div></td>
-                                </tr>';
-                $i++;
-                $sx=$sx+$row->totpay;
-                $sz=$sz+$row->tbv;
-                //$data['table'] .= '<option value="'.$row->ID_CLUSTER.'">'.$row->NAMA_CLUSTER.'</option>';
-            }
-            $data['table'].='
-                            <tr>
-                            <td colspan="6" style="text-align: right;">Total</td>
-                            <td style="text-align: right;">'.number_format($sx, 0, "", ",").'</td>
-                            <td style="text-align: right;">'.number_format($sz, 0, "", ",").'</td>
-                            </tr>
-                            ';
-            $data['table'].='</tbody>';
-            if ('IS_AJAX') {
-                echo json_encode($data);
-            }
-        } */
+        $this->load->view('transaction/generate/previewListTtp', $data);
+        
     }
 }
