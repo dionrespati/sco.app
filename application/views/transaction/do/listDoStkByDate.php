@@ -31,7 +31,7 @@ if($result == null) {
 				<td align=right>$i</td>
 				<td align=\"center\">
 				    <input type=hidden id=\"batchno$i\" value=\"$dta->trcd\" />
-					<a id=$dta->trcd onclick=\"javascript:All.ajaxShowDetailonNextForm('sales/generated/ssr/$dta->trcd')\">$dta->trcd</a>
+					$dta->trcd
 				</td>
 				<td align=\"center\">
 				    $dta->do_date

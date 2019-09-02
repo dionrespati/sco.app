@@ -231,7 +231,8 @@ class Sales_stockist_report_model extends MY_Model {
         //$username = $this->session->userdata('username');
         $froms = date('Y-m-d', strtotime($from));
         $tos = date('Y-m-d', strtotime($to));
-        $usertype="";
+		$usertype="";
+		$bnsperiod = $arr['bnsperiod'];
 
         if($searchBy == "ALL") {
             $usertype="";
@@ -244,7 +245,7 @@ class Sales_stockist_report_model extends MY_Model {
             $usertype2="";
         }
         else {
-            $usertype2 = "and A.flag_batch like '".$status."%' ";
+            $usertype2 = "and A.flag_batch = '".$status."' ";
 		}
 		
 		$kodestk = "";
@@ -324,6 +325,7 @@ class Sales_stockist_report_model extends MY_Model {
 										LEFT OUTER JOIN intrh D2 ON (D1.receiptno = D2.applyto)
 								WHERE A.createnm ='$username'
 								AND A.batchdt BETWEEN '$froms 00:00:00' AND '$tos 23:59:59'
+								AND A.bnsperiod = '$bnsperiod'
 								$usertype
 								$usertype2
 								$kodestk
@@ -375,6 +377,20 @@ class Sales_stockist_report_model extends MY_Model {
         //echo $slc;
 		//return $this->get_recordset($slc, $type, "alternate");
 		return $this->getRecordset($slc, null, $this->db2);
+	}
+
+	function summaryProductBySSR($value) {
+		$qry = "SELECT a.prdcd, c.prdnm, d.pricecode, 
+					SUM(a.qtyord) as total_qty, d.dp, d.bv, 
+					SUM(a.qtyord * d.dp) as total_dp,
+					SUM(a.qtyord * d.bv) as total_bv
+				FROM sc_newtrd a
+				LEFT OUTER JOIN sc_newtrh b ON (a.trcd = b.trcd)
+				LEFT OUTER JOIN msprd c ON (a.prdcd = c.prdcd)
+				LEFT OUTER JOIN pricetab d ON (a.prdcd = d.prdcd AND b.pricecode = d.pricecode) 
+				WHERE b.batchno = '$value'
+				GROUP BY a.prdcd, c.prdnm, d.pricecode, d.dp, d.bv";
+		return $this->getRecordset($qry, null, $this->db2);
 	}
 	
 	function listTtpById($field, $value) {

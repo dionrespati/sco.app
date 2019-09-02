@@ -12,6 +12,11 @@
 		if($do !== null && $do != "") {
 			$tampilan_do = $do." by ".$do_createnm." ( @".$do_dt." )";
 		}
+
+		$tampilan_ssr = "Belum di generate";
+		if($batchno !== null && $batchno != "") {
+			$tampilan_ssr = $batchno;
+		}
 		//$trtype = $data->trtype;
 		//$ttptype = $data->ttptype;
 		$etdt = $data->etdt;
@@ -56,23 +61,23 @@
 
 	echo "<form id=\"formDetailTrxByID\">";
 	echo "<table class='table table-striped table-bordered' width='100%'>
-			<tr><th >HEADER TRANSACTION</th></tr></table>";
+			<tr><th >Rekap Transaksi</th></tr></table>";
 	echo "<table class='table table-striped table-bordered' width='100%'>";
 	echo "<tbody>
-			<tr><td width=12% align='right'><strong>Transaction No&nbsp;&nbsp;</strong></td>
+			<tr><td width=12% align='right'><strong>Trx No&nbsp;&nbsp;</strong></td>
 				<td width=25%><strong>$trcd</strong></td>
-				<td width=8% align='right'>Order No&nbsp;&nbsp;</td>
+				<td width=8% align='right'>No TTP&nbsp;&nbsp;</td>
 				<td width=25%>$orderno</td>
 			</tr>
 			<tr><td width=12% align='right'>Distributor&nbsp;&nbsp;</td>
 				<td width=25%>$dfno - $distnm</td>
-				<td width=8% align='right'>Period&nbsp;&nbsp;</td>
+				<td width=8% align='right'>Periode Bonus&nbsp;&nbsp;</td>
 				<td width=25%>$bnsperiod</td>
 			</tr>
 			<tr><td width=12% align='right'>Stockist&nbsp;&nbsp;</td>
 				<td width=25%>$sc_dfno - $sc_dfnonm</td>
-				<td width=8% align='right'>Batch No&nbsp;&nbsp;</td>
-				<td width=25%>$batchno</td>
+				<td width=8% align='right'>SSR No&nbsp;&nbsp;</td>
+				<td width=25%>$tampilan_ssr</td>
 			</tr>
 			<tr><td width=12% align='right'>C/O Stockist&nbsp;&nbsp;</td>
 				<td width=25%>$sc_co - $sc_conm</td>
@@ -107,10 +112,10 @@
 	
 	echo "<table class='table table-striped table-bordered' width='100%'>
 		  	<thead>
-		  		<tr><th colspan=8>DETAIL TRANSACTION PRODUCT</th></tr>
+		  		<tr><th colspan=8>Detail Transaksi Produk</th></tr>
 		  		<tr><th width=5%>No</th>
-		  			<th width=15%>Code</th>
-		  			<th>Name</th>
+		  			<th width=15%>Kode Produk</th>
+		  			<th>Nama Produk</th>
 		  			<th width=5%>Qty</th>
 		  			<th width=10%>DP</th>
 		  			<th width=8%>BV</th>

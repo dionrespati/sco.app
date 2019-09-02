@@ -60,6 +60,7 @@ class Do_stockist extends MY_Controller {
 		if($field == "batchno") {
 			$data['back_button'] = "All.back_to_form(' .nextForm2',' .nextForm1')";
 			$data['result'] = $this->m_ssr->listTtpById($field, $value);
+			$data['rekapPrd'] = $this->m_ssr->summaryProductBySSR($value);
 			$this->load->view('transaction/stockist_report/listTTP', $data);
 		} else if($field == "trcd") {
 			$data['back_button'] = "All.back_to_form(' .nextForm3',' .nextForm2')";

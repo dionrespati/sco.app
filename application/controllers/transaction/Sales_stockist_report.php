@@ -33,6 +33,7 @@ class Sales_stockist_report extends MY_Controller {
 			//$data['result'] = $this->m_ssr->getListGeneratedSales($data['form']);
 			//print_r($data['result']);
 			//$this->load->view($this->folderView.'listGeneratedSales',$data);	
+			$bns = $data['year_bns']."-".$data['month_bns']."-01";
 			$arr = array(
 				"from" => trim($data['from']),
 				"to" => trim($data['to']),
@@ -40,6 +41,7 @@ class Sales_stockist_report extends MY_Controller {
 				"idstkk" => trim($data['idstkk']),
 				"searchs" => trim($data['searchs']),
 				"statuses" => trim($data['statuses']),
+				"bnsperiod" => trim($bns)
 			);
 			$data['idstk'] =  $this->m_ssr->getGenerateRPTByCahyono($arr);
 			/* echo "<pre>";
@@ -118,6 +120,7 @@ class Sales_stockist_report extends MY_Controller {
 	if($field == "batchno") {
 		$data['back_button'] = "All.back_to_form(' .nextForm1',' .mainForm')";
 		$data['result'] = $this->m_ssr->listTtpById($field, $value);
+		$data['rekapPrd'] = $this->m_ssr->summaryProductBySSR($value);
 		$this->load->view($this->folderView.'listTTP', $data);
 	} else if($field == "trcd") {
 		$data['back_button'] = "All.back_to_form(' .nextForm2',' .nextForm1')";

@@ -32,8 +32,17 @@ class Sales_stockist extends MY_Controller {
 		if($this->username != null) {
 			$this->load->model('transaction/Sales_stockist_model', 'm_sales_stk');
 			$data['form'] = $this->input->post(NULL, TRUE);
-			$data['result'] = $this->m_sales_stk->getListSalesStockist($data['form'], "SB1");
-			$this->load->view($this->folderView.'inputTTPListResult',$data);	
+			if($data['form']['searchby'] == "receiptno") {
+				$data['result'] = $this->m_sales_stk->getListSsrByKW($data['form'], "SB1");
+				if($data['result'] ==  null) {
+					echo setErrorMessage("Data ".$data['paramValue']." tidak ditemukan atau bukan milik ".$this->stockist);
+				} else {
+					$this->load->view($this->folderView.'inputTTPListResultByKW',$data);
+				}	
+			} else {
+				$data['result'] = $this->m_sales_stk->getListSalesStockist($data['form'], "SB1");
+				$this->load->view($this->folderView.'inputTTPListResult',$data);
+			}	
 		} else {
            jsAlert();
         } 

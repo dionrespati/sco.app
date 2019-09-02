@@ -29,7 +29,9 @@ class Sales_online extends MY_Controller {
     public function searchOnlineRedemp() {
     	$data = $this->input->post(NULL, TRUE);
     	$data['trans'] = $this->m_sales_online->getListOnlineTrx($this->stockist,$data['bnsmonth'],$data['searchs']);
-	    //print_r($data['trans']);
+        /* echo "<pre>";
+        print_r($data['trans']);
+        echo "</pre>"; */
 	    $this->load->view($this->folderView.'onlineTrxRedempList',$data);
     }
 	

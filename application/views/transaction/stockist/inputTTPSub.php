@@ -26,7 +26,7 @@
 				<option value="sc_dfno">Kode Stockist</option>
 				<option value="batchno">No SSR / MSR</option>
 				<option value="orderno">No TTP</option>
-				<option value="csno">No CN</option>
+				<option value="receiptno">No KW</option>
 			</select>
         </div>
         

@@ -4,12 +4,10 @@
 ?>
 <script>
     function f1(objButton){
-
-        {
+            All.set_disable_button();
             $.ajax({
                 type : "POST",
                 url  : "<?php echo site_url('sales/search/list/detail');?>",
-                dataType : 'json',
                 data : {
                   ID_KW:objButton.value,
                   from: $('#from').val(),
@@ -19,11 +17,13 @@
                 },
                 success: function(data){
 
-                    $("#box-table-b").html(data.table);
+                    All.set_enable_button();
+                    $(All.get_active_tab() + ".mainForm").hide();
+                    All.clear_div_in_boxcontent(".nextForm1");
+                    $(All.get_active_tab() + ".nextForm1").html(data);
 
                 }
             });
-        }
     }
 </script>
 <div class="row-fluid">
@@ -42,14 +42,15 @@
                 <thead>
                     <tr bgcolor="#f4f4f4">
                         <th><input type="checkbox" name="checkall" onclick="checkAll(this);"/></th>
-                        <th>TIPE</th>
-                        <th>SC DFNO</th>
-                        <th>BONUS PERIOD</th>
-                        <th>TOTAL CASH</th>
-                        <th>TOTAL VOUCHER</th>
-                        <th>TOTAL PAY</th>
-                        <th>TOTAL BV</th>
-                        <th>ACTION</th>
+                        <th>Tipe</th>
+                        <th>Stockist</th>
+                        <th>Periode Bonus</th>
+                        <th>Total Cash</th>
+                        <th>Total Vch Cash</th>
+                        <th>Total Vch Prd</th>
+                        <th>Total Pay</th>
+                        <th>Total BV</th>
+                        <th>Action</th>
 
                     </tr>
                 </thead>
@@ -71,10 +72,11 @@
                        <td align=\"center\">$bnsperiod</td>
                        <td><div align=right>".number_format($row->cash,0,".",".")."</div></td>
                        <td><div align=right>".number_format($row->vcash,0,".",".")."</div></td>
+                       <td><div align=right>".number_format($row->pvch,0,".",".")."</div></td>
                        <td><div align=right>".number_format($row->totpay,0,".",".")."</div></td>
                        <td><div align=right>".number_format($row->tbv,0,".",".")."</div></td>
                        <td align=\"center\">
-                            <button type=\"button\" class=\"btn btn-primary\" data-toggle=\"modal\" data-target=\".bs-example-modal-lg\" onclick=\"f1(this)\"  value='$row->tipe|$row->sc_dfno|$row->sc_co' > View </button>
+                            <button type=\"button\" class=\"btn btn-success\" onclick=\"f1(this)\"  value='$row->tipe|$row->sc_dfno|$row->sc_co' > List TTP </button>
                        </td>
 
                     </tr>";
@@ -83,7 +85,7 @@
                 }
                 ?>
                     <tr>
-                        <td colspan="6" style="text-align: right;"><strong>TOTAL</strong></td>
+                        <td colspan="7" style="text-align: right;"><strong>TOTAL</strong></td>
                         <td style="text-align: right;"><?php echo number_format($totalDp,0,".",".");?></td>
                         <td style="text-align: right;"><?php echo number_format($totalbv,0,".",".");?></td>
                         <td>&nbsp;</td>
@@ -101,7 +103,7 @@
         </form>
     </div>
 
-</div>
+<!--</div>
     <div class="modal fade bs-example-modal-lg" role="dialog" aria-hidden="true" style="left: 30%; width: 80%; max-height: 80%;">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -122,7 +124,7 @@
 
             </div>
         </div>
-    </div>
+    </div> -->
 
 <?php }?>
 <script type="text/javascript">

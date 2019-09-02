@@ -9,19 +9,28 @@ if($result == null) {
 		//if($form['searchby'] == "sc_dfno" ||) {
 		?>	
 			<tr bgcolor=#f4f4f4>
-				<th colspan="10">List Transaction By Stockist <?php echo $form['paramValue']; ?></th>
+				<th colspan="10">List Transaksi Stockist <?php echo $form['paramValue']; ?></th>
 			</tr>
 			<tr bgcolor=#f4f4f4>
 				<th width="5%">No</th>
 				<th width="13%">Trx No</th>
 				<th width="8%">Stockist</th>
-				<th width="13%">Order No</th>
-				<th width="10%">Trx Date</th>
-				<th>Member Name</th>
-				<th width="10%">Payment</th>
+				<th width="13%">No TTP</th>
+				<th width="10%">Tgl Trx</th>
+				<th>Nama Member</th>
+				<th width="10%">DP</th>
 				<th width="6%">BV</th>
 				<th width="6%">Status</th>
-				<th width="10%">Action</th>
+				<?php
+				if($form['flag_batch'] == "0") {
+					echo "<th width=\"10%\">Action</th>";
+				} else if($form['flag_batch'] == "1") {
+					echo "<th width=\"10%\">No SSR</th>";
+				} else {
+					echo "<th width=\"10%\">Action</th>";
+				}	
+				?>
+				
 			</tr>
 		</thead>
 		<tbody>
@@ -63,7 +72,11 @@ if($result == null) {
 					} else {
 						echo "<td align=\"center\">VC Deposit</td>";
 					}	
-				}	else {
+				} else if($dta->flag_batch == "1") {
+					echo "<td align=\"center\">
+					  $dta->batchno
+					</td>";
+				 }	else {
 				   echo "<td align=\"center\">
 				     &nbsp;
 				   </td>";

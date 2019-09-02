@@ -1,45 +1,48 @@
 <?php
 echo "
 <form name=\"oke\" method=\"POST\" action=\"".site_url()."sales/ol/redemp/save\" target=\"_blank\">
-<table width=\"80%\" align=\"center\" class=\"table table-striped table-bordered bootstrap-datatable datatable\">
+<table width=\"95%\" align=\"center\" class=\"table table-striped table-bordered bootstrap-datatable datatable\">
       <tr>
-        <th colspan=2>REKAP TRANSAKSI PEMBELANJAAN</th>
+        <th colspan=4>REKAP TRANSAKSI PEMBELANJAAN</th>
       </tr>
       <tr>
-        <td width=\"20%\" >ID STOCKIST </td>
+        <td width=\"15%\" >ID STOCKIST </td>
         <td>".$main[0]->idstk. " / ".$main[0]->nmstkk."</td>
-        
+        <td width=\"15%\" >NO SSR </td>
+        <td>".$main[0]->SSRno."</td>
       </tr>
       <tr>
         <td>ID MEMBER</td>
         <td>".$main[0]->id_memb. " / ".$main[0]->nmmember."</td>
-		
+        <td>NO KW </td>
+        <td>".$main[0]->KWno."</td>
       </tr>
       
       <tr>
         <td>USER LOGIN</td>
         <td>".$main[0]->usr_login. " / ".$main[0]->nmsponsor. " ( ". $main[0]->tel_hp. " ) "."</td>
-		
+        <td colspan=2>&nbsp;</td>
       </tr>
       
       <tr>
         <td>NO TRANSAKSI</td>
         <td>".$main[0]->orderno."</td>
-		
+        <td colspan=2>&nbsp;</td>
       </tr>
       <tr>
         <td>TOTAL HARGA</td>
         <td>".number_format($main[0]->total_pay,0,",",".")."</td>
-		</tr>
+        <td colspan=2>&nbsp;</td>
+		  </tr>
       
       <tr>
         <td>PERIODE BONUS</td>
         <td>".$main[0]->bonusmonth."</td>
-		
+		    <td colspan=2>&nbsp;</td>
       </tr>
     </table>
     
-	<table width=\"80%\" class=\"table table-striped table-bordered bootstrap-datatable datatable\" align=\"center\">
+	<table width=\"95%\" class=\"table table-striped table-bordered bootstrap-datatable datatable\" align=\"center\">
 	  <tr>
         <th colspan=8>DETAIL PEMBELANJAAN PRODUK</th>
       </tr>

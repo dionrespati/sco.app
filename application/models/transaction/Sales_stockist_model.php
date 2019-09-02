@@ -4,7 +4,20 @@ class Sales_stockist_model extends MY_Model {
 	function __construct() {
         // Call the Model constructor
         parent::__construct();
-    }
+	}
+	
+	function getListSsrByKW($data) {
+		$qry = "SELECT a.batchscno, a.invoiceno, 
+					a.dfno, b.fullnm as dfno_name, a.sc_dfno, 
+					a.loccd, CONVERT(char(10), a.etdt,126) as cn_date, a.tdp, a.tbv, c.GDO, 
+					a.receiptno, CONVERT(char(10), c.etdt,126) as gdo_dt, 
+					c.createnm as gdo_createnm
+				FROM ordivtrh a
+				LEFT OUTER JOIN mssc b ON (a.dfno = b.loccd) 
+				LEFT OUTER JOIN intrh c ON (a.receiptno = c.applyto)
+				WHERE a.receiptno = '".$data['paramValue']."' and a.loccd = '".$this->stockist."'";
+		return $this->getRecordset($qry, null, $this->db2);
+	}
 	
 	function getListSalesStockist($data, $tipe) {
 		$param = "";
@@ -37,6 +50,7 @@ class Sales_stockist_model extends MY_Model {
 				  a.tdp,
 				  a.tbv,
 				  a.entrytype,
+				  a.batchno,
 				  a.flag_batch, a.no_deposit, a.id_deposit,
 				  CASE 
 				    WHEN flag_batch = '0' THEN 'Pending'
@@ -157,7 +171,7 @@ class Sales_stockist_model extends MY_Model {
 		$res = $this->getRecordset($qry, null, $this->db2);
 		
 		$res2 = null;
-		if($res != null && $threeDigit == "XPV" || $threeDigit == "ZVO" || $threeDigit == "XPP") {
+		if($res != null && $threeDigit == "XPV" || $threeDigit == "ZVO" || $threeDigit == "XPP" || $threeDigit == "XHD") {
 			$detProd = "SELECT * FROM TWA_KLPromo_Oct17_D WHERE Voucherno = '$vchnoo'";
 			$res2 = $this->getRecordset($detProd, null, $this->db2);
 		}
@@ -175,8 +189,12 @@ class Sales_stockist_model extends MY_Model {
 				$totalNilaiVoucher = 0;
 				$totalCash = 0;
 				$totalBayar = 0;
+				//set tipe2 voucher
 				$cv = 0;
 				$pv = 0;
+				$pv_hadiah = 0;
+				$pv_hydro = 0;
+				//end
 				$qryAddPay = "";
 				$qryUpdVoucher = "";
 				$j = 0;
@@ -190,7 +208,16 @@ class Sales_stockist_model extends MY_Model {
 						//BV = 0
 						if($data['payChooseType'][$i] == "10") {
 							$no_bv = true;
-							$pv++;
+							$pref_vch = strtoupper(substr($data['payReff'][$i], 0, 3));
+							if($pref_vch == "XPV" || $pref_vch == "ZVO" || $pref_vch == "XPP") {
+								$pv_hadiah++;
+							} else if($pref_vch == "XHD") {
+								$pv_hydro++;
+							} else {
+								$pv++;
+							}
+							
+							
 						} else {
 							$cv++;							
 						}
@@ -262,7 +289,11 @@ class Sales_stockist_model extends MY_Model {
 						$jenis = "cv";
 					} else if($pv > 0) {
 						$jenis = "pv";
-					} 
+					} else if($pv_hadiah > 0) {
+						$jenis = "pv_hadiah";	
+					} else if($pv_hydro > 0) {
+						$jenis = "pv_hydro";
+					}
 					//$res['cek_seQ'] = $this->cek_seQ($jenis);
                     //$data['idnoo'] = $this->get_idno($jenis);
                     
@@ -338,7 +369,9 @@ class Sales_stockist_model extends MY_Model {
 			
 			if($arrQuery['updVoucher'] != "") {
 				//UPDATE VOUCHER
-				$updVc = "UPDATE tcvoucher SET claimstatus = '1', updatenm = '".$this->stockist."', updatedt = '$this->dateTime' 
+				$updVc = "UPDATE tcvoucher SET claimstatus = '1', 
+							updatenm = '".$this->stockist."', 
+							updatedt = '$this->dateTime' 
 				          WHERE VoucherNo IN ($arrQuery[updVoucher])";
 				//echo $updVc;
 				$query2 = $db_qryx->query($updVc); 
@@ -354,6 +387,7 @@ class Sales_stockist_model extends MY_Model {
 			$trdt = date('Y-m-d');
 			
 			$ttptype = "SC";
+			//SUBSC = untuk sub / mobile stockist, SC = untuk stockist
 			if($datax['sctype'] == "3" || $datax['sctype'] == "2") {
 				$ttptype = "SUBSC";
 			} 
@@ -420,14 +454,15 @@ class Sales_stockist_model extends MY_Model {
         //$this->db->trans_begin();
         
         //if(in_array('p',$tipe_pay))
-        if($tipe_pay == 'pv')
-        {
+        if($tipe_pay == 'pv' || $tipe_pay == 'pv_hadiah') {
             $tbl = "SEQ_PV"."$y1"."$m";
-        }elseif($tipe_pay == 'cv'){
+        } elseif($tipe_pay == 'cv') {
         	$tbl = "SEQ_CV"."$y1"."$m";
-        }else{
+        } else if($tipe_pay == 'pv_hydro') {
             $tbl = "SEQ_ID"."$y1"."$m";
-        }
+        } else {
+			$tbl = "SEQ_ID"."$y1"."$m";
+		}
  
         $cek = "select * from $tbl";
         
@@ -464,14 +499,15 @@ class Sales_stockist_model extends MY_Model {
         //$this->db->trans_begin();
         
         //if(in_array('p',$tipe_pay))
-        if($tipe_pay == 'pv')
-        {
+        if($tipe_pay == 'pv' || $tipe_pay == 'pv_hadiah') {
             $tbl = "SEQ_PV"."$y1"."$m";
-        }elseif($tipe_pay == 'cv'){
+        } elseif($tipe_pay == 'cv'){
         	$tbl = "SEQ_CV"."$y1"."$m";
-        }else{
+        } else if($tipe_pay == 'pv_hydro') {
             $tbl = "SEQ_ID"."$y1"."$m";
-        }
+        } else {
+			$tbl = "SEQ_ID"."$y1"."$m";
+		}
  
         $qry = "SELECT * FROM $tbl 
            		 WHERE SeqID = ( SELECT MAX(SeqID) FROM $tbl )";
@@ -493,29 +529,17 @@ class Sales_stockist_model extends MY_Model {
        	$next_seq = sprintf("%06s",$ss);
         $prefix = date('ym');
         
-        if($tipe_pay == 'pv')
-        //if(in_array('10',$tipe_pay))
-        {
+        if($tipe_pay == 'pv' || $tipe_pay == 'pv_hadiah') {
             $y =  strval("PV".$prefix.$next_seq);
-		}elseif($tipe_pay == 'cv'){
+		} elseif($tipe_pay == 'cv'){
 			$y =  strval("CV".$prefix.$next_seq);
-		}else{
+		} else if($tipe_pay == 'pv_hydro') {
+            $y =  strval("IDH".$prefix.$next_seq);
+        } else{
             $y =  strval("ID".$prefix.$next_seq);
-        }
-            /*echo "<br>";
-            echo $y;
-            echo "<br>";*/
-         
-         /* if ($this->db->trans_status() === FALSE)
-            {
-                $this->db->trans_rollback();
-            }
-            else
-            {
-                $this->db->trans_commit();
-            }   */   
+        } 
        
-         return $y;
+        return $y;
 	}
 	
 	function deleteTrx($trcd) {

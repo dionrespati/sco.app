@@ -18,21 +18,27 @@ class Sales_online_model extends MY_Model {
         //$this->db = $this->load->database('alternate', true);
         if($tipe == 'xx')
         {
-            $zx = "idstk = '".$idstk."'";
+            $zx = "a.idstk = '".$idstk."'";
         }
         elseif($tipe == '1')
         {
-            $zx = "idstk = '".$idstk."' and bonusmonth = '".$bonusmonth."' and status = '".$tipe."'";
+            $zx = "a.idstk = '".$idstk."' and a.bonusmonth = '".$bonusmonth."' and a.status = '".$tipe."'";
         }
         else
         {
-            $zx = "idstk = '".$idstk."' and bonusmonth = '".$bonusmonth."' and status = '".$tipe."'";
+            $zx = "a.idstk = '".$idstk."' and a.bonusmonth = '".$bonusmonth."' and a.status = '".$tipe."'";
         }
 		
-        $rr = "select orderno,id_memb,nmmember,flag_trx,
-                total_pay,bonusmonth,idstk,nmstkk,status
-                from webol_trans_ok 
-                where $zx and sentto = '0' order by bonusmonth";
+        $rr = "select a.orderno,a.id_memb,a.nmmember,a.flag_trx, 
+                    a.total_pay,a.bonusmonth,a.idstk,a.nmstkk,a.status,
+                    b.CNno, b.KWno, c.GDO as do_no, 
+                    CONVERT(VARCHAR(10), c.etdt, 126) as do_date,
+                    c.createnm as do_createnm,
+                    CONVERT(VARCHAR(10), b.datetrans, 126) as datetrans
+                from webol_trans_ok a
+                INNER JOIN db_ecommerce.dbo.ecomm_trans_hdr b ON (a.orderno = b.orderno)
+                LEFT OUTER JOIN klink_mlm2010.dbo.intrh c ON (b.KWno COLLATE SQL_Latin1_General_CP1_CS_AS = c.applyto)
+                WHERE $zx and a.sentto = '0' order by bonusmonth";
         //echo $rr;
         //echo "<br>";
         return $this->getRecordset($rr, null, $this->db2);
@@ -49,8 +55,9 @@ class Sales_online_model extends MY_Model {
 	function olTrxHeader($orderno) {
         $rr =  "select a.orderno,a.id_memb,a.nmmember,a.total_pay,c.datetrans,
 			    	a.total_bv,a.bonusmonth,a.idstk,a.nmstkk ,b.tel_hp,
-			    	c.usr_login,b.fullnm as nmsponsor
-			    from webol_trans_ok a
+			    	c.usr_login,b.fullnm as nmsponsor, d.KWno, d.SSRno
+                from webol_trans_ok a
+                    INNER JOIN db_ecommerce.dbo.ecomm_trans_hdr d ON (a.orderno = d.orderno)
 			    	INNER JOIN webol_logs_trans c on a.orderno = c.orderno
 			        LEFT OUTER JOIN msmemb b on (c.usr_login = b.dfno COLLATE SQL_Latin1_General_CP1_CS_AS)
 			    where a.orderno = '$orderno' and (b.dfno = c.usr_login COLLATE SQL_Latin1_General_CP1_CS_AS) ";

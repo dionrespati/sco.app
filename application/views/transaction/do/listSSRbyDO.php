@@ -1,7 +1,5 @@
 <?php
-echo "<input type=\"button\" value=\"&lt;&lt; Kembali\" 
-onclick=\"$back_button\" 
-class=\"btn btn-mini btn-warning span20\">";
+
 if($result == null) {
     echo setErrorMessage("No Result Found..");
     
@@ -17,10 +15,11 @@ if($result == null) {
 		//if($form['searchby'] == "sc_dfno" ||) {
 		?>	
 			<tr bgcolor=#f4f4f4>
-				<th colspan="8">LIST SSS/MSR ( <?php echo $no_do; ?> )</th>
+				<th colspan="9">LIST SSS/MSR ( <?php echo $no_do; ?> )</th>
 			</tr>
 			<tr bgcolor=#f4f4f4>
 				<th width="5%">No</th>
+				<th  width="15%">No KW</th>
 				<th  width="15%">No SSR</th>
                 <th>Stockist</th>
 				<th width="8%">Tgl SSR</th>
@@ -38,6 +37,9 @@ if($result == null) {
 		   
 			echo "<tr id=\"$i\">
 				<td align=right>$i</td>
+				<td align=\"center\">
+				    $dta->applyto
+				</td>
 				<td align=\"center\">
 				    <input type=hidden id=\"batchno$i\" value=\"$dta->batchscno\" />
 					<a id=$dta->batchscno onclick=\"javascript:All.ajaxShowDetailonNextForm2('do/stk/trx/batchno/$dta->batchscno')\">$dta->batchscno</a>
@@ -70,6 +72,11 @@ if($result == null) {
 	?>	
 	</tbody>
 </table>
+<?php
+echo "<input type=\"button\" value=\"&lt;&lt; Kembali\" 
+onclick=\"$back_button\" 
+class=\"btn btn-mini btn-warning span3\">";
+?>
 </form>
 <?php
 
