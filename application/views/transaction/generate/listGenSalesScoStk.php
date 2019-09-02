@@ -4,10 +4,10 @@
 ?>
 <script>
     function f1(objButton){
+            All.set_disable_button();
             $.ajax({
                 type : "POST",
                 url  : "<?php echo site_url('sales/search/list/detail');?>",
-                dataType : 'json',
                 data : {
                   ID_KW:objButton.value,
                   from: $('#from').val(),
@@ -17,7 +17,10 @@
                 },
                 success: function(data){
 
-                    $("#box-table-b").html(data.table);
+                    All.set_enable_button();
+                    $(All.get_active_tab() + ".mainForm").hide();
+                    All.clear_div_in_boxcontent(".nextForm1");
+                    $(All.get_active_tab() + ".nextForm1").html(data);
 
                 }
             });
@@ -73,7 +76,7 @@
                        <td><div align=right>".number_format($row->totpay,0,".",".")."</div></td>
                        <td><div align=right>".number_format($row->tbv,0,".",".")."</div></td>
                        <td align=\"center\">
-                            <button type=\"button\" class=\"btn btn-success\" data-toggle=\"modal\" data-target=\".bs-example-modal-lg\" onclick=\"f1(this)\"  value='$row->tipe|$row->sc_dfno|$row->sc_co' > List TTP </button>
+                            <button type=\"button\" class=\"btn btn-success\" onclick=\"f1(this)\"  value='$row->tipe|$row->sc_dfno|$row->sc_co' > List TTP </button>
                        </td>
 
                     </tr>";
@@ -100,7 +103,7 @@
         </form>
     </div>
 
-</div>
+<!--</div>
     <div class="modal fade bs-example-modal-lg" role="dialog" aria-hidden="true" style="left: 30%; width: 80%; max-height: 80%;">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -121,7 +124,7 @@
 
             </div>
         </div>
-    </div>
+    </div> -->
 
 <?php }?>
 <script type="text/javascript">

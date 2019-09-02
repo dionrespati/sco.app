@@ -95,7 +95,7 @@ class Sales_generate extends MY_Controller
             $x['tipeSales'] = $this->input->post('typee');
             $username = $this->session->userdata('username');
             $x['cek'] = $this->input->post('cek');
-            $x['bnsperiod'] = date('d/m/Y',strtotime($this->input->post('bnsperiod')));
+            $x['bnsperiod'] = date('Y-m-d',strtotime($this->input->post('bnsperiod')));
             $bnsperiod = $this->input->post('bnsperiod');
             $scDfno = $this->input->post('scDfno');
             $x['scDfno'] = $this->input->post('scDfno');
@@ -130,6 +130,7 @@ class Sales_generate extends MY_Controller
         $x['tipechmlm'] = $this->input->post('tipechmlm');
         $x['scdfnomlm'] = $this->input->post('scdfnomlm');
         $x['tipech'] = $this->input->post('tipech');
+        //$bnsx = explode('/', $this->input->post('bonusperiod'));
         $x['bonusperiod'] = $this->input->post('bonusperiod');
         $x['scCO']=$this->input->post('scCO');
         $x['sccomlm']=$this->input->post('sccomlm');
@@ -167,7 +168,8 @@ class Sales_generate extends MY_Controller
                         foreach ($lastApl as $row) {
                             $new_id = $row->hasil;
                             $x['new_id'] = $row->hasil;
-                            $generate = $this->m_sales_generate->generate_sales_save2($new_id, $x['trcd'][$a], $x['bonusperiod'], $username);
+                            //$generate = $this->m_sales_generate->generate_sales_save2($new_id, $x['trcd'][$a], $x['bonusperiod'], $username);
+                            $generate = $this->m_sales_generate->updateSSR($new_id, $x['trcd'][$a], $x['bonusperiod'], $username);
                             $arrayy .= "'".$new_id."', ";
                         }
                     }
@@ -202,15 +204,16 @@ class Sales_generate extends MY_Controller
                         foreach ($lastVCD as $row) {
                             $new_id = $row->hasil;
                             $x['new_id'] = $row->hasil;
-                            $generates = $this->m_sales_generate->generate_sales_save2($new_id, $x['trcd'][$d], $x['bonusperiod'], $username);
+                            //$generates = $this->m_sales_generate->generate_sales_save2($new_id, $x['trcd'][$d], $x['bonusperiod'], $username);
+                            $generates = $this->m_sales_generate->updateSSR($new_id, $x['trcd'][$d], $x['bonusperiod'], $username);
                             $arrayy .= "'".$new_id."', ";
                         }
                         $sdss=$d;
                     }
                 }
-                if ($generates > 0) {
+                /* if ($generates > 0) {
                     $this->m_sales_generate->incoming_paymentV($new_id, $username, $x['scCOxd'][$sdss], $x['scCO'][$sdss]);
-                }
+                } */
             }
 
 
@@ -222,14 +225,15 @@ class Sales_generate extends MY_Controller
                             $new_id = $row->hasil;
                             $arrayy .= "'".$new_id."', ";
                             $x['new_id'] = $row->hasil;
-                            $generatemsr = $this->m_sales_generate->generate_sales_saveMS2($new_id, $x['trcd'][$g], $x['bonusperiod'], $username);
+                            //$generatemsr = $this->m_sales_generate->generate_sales_saveMS2($new_id, $x['trcd'][$g], $x['bonusperiod'], $username);
+                            $generatemsr = $this->m_sales_generate->updateSSR($new_id, $x['trcd'][$g], $x['bonusperiod'], $username);
                         }
                         $sdss=$g;
                     }
                 }
-                if ($generatemsr > 0) {
+                /* if ($generatemsr > 0) {
                     $this->m_sales_generate->incoming_paymentH($new_id, $username, $x['scCOxd'][$sdss], $x['scCO'][$sdss]);
-                }
+                }  */
             }
             if ($x['tipechmlm'][$k]=="SSSR") {
                 $lastsub = $this->m_sales_generate->get_SSRno('sub', $x['bonusperiod'], $username, $x['scdfnomlm'][$k]);
@@ -239,16 +243,17 @@ class Sales_generate extends MY_Controller
                         foreach ($lastsub as $row) {
                             $new_id = $row->hasil;
                             $x['new_id'] = $row->hasil;
-                            $generate = $this->m_sales_generate->generate_sales_saveSub2($new_id, $x['trcd'][$j], $x['bonusperiod'], $username);
+                            //$generate = $this->m_sales_generate->generate_sales_saveSub2($new_id, $x['trcd'][$j], $x['bonusperiod'], $username);
+                            $generate = $this->m_sales_generate->updateSSR($new_id, $x['trcd'][$j], $x['bonusperiod'], $username);
                             $arrayy .= "'".$new_id."', ";
                         }
                         $sdss=$j;
                     }
                 }
 
-                if ($generate > 0) {
+                /* if ($generate > 0) {
                     $this->m_sales_generate->incoming_paymentH($new_id, $username, $x['scCOxd'][$sdss], $x['scCO'][$sdss]);
-                }
+                } */
             }
             if ($x['tipechmlm'][$k]=="Voucher Product (Deposit)") {
                 $lastVCD = $this->m_sales_generate->get_SSRno('voucher', $x['bonusperiod'], $username, $x['scdfnomlm'][$k]);
@@ -293,8 +298,12 @@ class Sales_generate extends MY_Controller
 
 
 
-        $table = $this->m_sales_generate->getDetailTrx($idstkk, $bnsperiod, $tipe, $sc_co, $sc_dfno);
-        
+        $data['result'] = $this->m_sales_generate->getDetailTrx($idstkk, $bnsperiod, $tipe, $sc_co, $sc_dfno);
+        backToMainForm();
+        echo "<pre>";
+        print_r($data['result']);
+        echo "<pre>";
+        backToMainForm();
         // print_r($this->input->post(NULL, TRUE));
 
         /* $data['table']=  '<thead>

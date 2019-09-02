@@ -243,8 +243,41 @@ class Sales_generate_model extends MY_Model
               AND sc_dfno LIKE '%$scdfno%'
               AND tipe = '$searchBy'
               ORDER BY trcd ";
-        echo $slc;
+        //echo $slc;
         return $this->getRecordset($slc, null, $this->db2);
+    }
+
+    public function getDetailTrxV2($idstk, $bnsperiod, $searchBy, $scco, $scdfno) {
+        $username = $this->session->userdata('username');
+        $folderGets = explode('/', $bnsperiod);
+        $data['month'] = $folderGets[0];
+        $data['year'] = $folderGets[1];
+        $bonusperiod = $data['year']."-".$data['month']."-"."01";
+        $slc = " SELECT * FROM klink_mlm2010.dbo.ALDI_22022018 A
+              WHERE A.loccd ='$scco'
+              AND bnsperiod = '$bonusperiod'
+              AND sc_co LIKE '%$scco%'
+              AND sc_dfno LIKE '%$scdfno%'
+              AND tipe = '$searchBy'
+              ORDER BY trcd ";
+        //echo $slc;
+        //return $this->getRecordset($slc, null, $this->db2);
+        $trcd = "";
+        $query = $this->db->query($slc);
+		if ($query !== FALSE) {
+			if($query->num_rows() > 0)  {
+            $nilai = $query->result();
+            foreach($nilai as $dtax) {
+                $trcd .= $dtax->trcd.",";
+            }
+
+            $trcd = substr($trcd, 0, -1);
+          }
+        }
+        
+        $prd = "SELECT prdcd";
+
+        $trp = "SELECT ";
     }
 
     public function get_SSRno($tipeSales, $bnsperiod, $username, $scDfnoo) {
@@ -301,7 +334,7 @@ class Sales_generate_model extends MY_Model
             batchdt = '".$createdt."',flag_batch='1',updatenm = '".$username."',updatedt = '".$updatedt."'
             WHERE trcd = '".$trcd."' AND createnm = '".$username."'
             AND bnsperiod = '".$bonusperiod."' AND flag_batch='0'";
-        // echo $updte."</br>";
+        //echo $updte."</br>";
         $query = $this->db->query($updte);
     }
 
@@ -320,7 +353,7 @@ class Sales_generate_model extends MY_Model
                     FROM deposit_H where no_trx in (SELECT docno COLLATE SQL_Latin1_General_CP1_CI_AI
                                                     FROM sc_newtrp
                                                     WHERE trcd = '$trcd' GROUP BY docno) ";
-        echo $cek_depo."</br>";
+        //echo $cek_depo."</br>";
         $query_cek = $this->db->query($cek_depo);
 
         if ($query_cek->result() != null) {
@@ -358,14 +391,15 @@ class Sales_generate_model extends MY_Model
 
         $slc = "SELECT sc_dfno, sc_co, batchno, updatedt, loccd, SUM(tdp) AS tdp, SUM(tbv) AS tbv, CONVERT(VARCHAR(10), bnsperiod, 23) as bnsperiod FROM (
                     SELECT sc_dfno,sc_co,batchno,CONVERT(varchar(10), updatedt, 120) AS updatedt,loccd,SUM(tdp) AS tdp,SUM(tbv) AS tbv,bnsperiod
-                    FROM sc_newtrh
+                    FROM klink_mlm2010.dbo.sc_newtrh
                     WHERE batchno IN ($newid)
                     AND bnsperiod = '".$bnsperiod."' AND createnm = '".$username."' AND flag_batch='1'
                     GROUP BY sc_dfno,updatedt,sc_co,batchno,loccd,bnsperiod)
                     sup
                 GROUP BY sc_dfno, sc_co, batchno, updatedt, loccd, bnsperiod";
-        echo $slc;
-        return $this->get_recordset($slc, $type, $this->setDB(2));
+        //echo $slc;
+        //return $this->get_recordset($slc, $type, $this->setDB(2));
+        return $this->getRecordset($slc, null, $this->db2);
     }
 
     public function incoming_paymentH($new_id, $username, $sc_co, $scdfno) {
@@ -648,8 +682,8 @@ class Sales_generate_model extends MY_Model
                         batchdt = '".$createdt."',flag_batch='1',updatenm = '".$username."',updatedt = '".$updatedt."'
                         WHERE trcd = '".$scdfno."' AND createnm = '".$username."'
                         AND bnsperiod = '".$bonusperiod."' AND flag_batch='0' ";
-        echo "query ".$updte."<br>";
-        // $query = $this->db->query($updte);
+        //echo "query ".$updte."<br>";
+         $query = $this->db->query($updte);
 
         $uptrep="UPDATE deposit_H SET status = 0 WHERE no_trx IN (
                   SELECT docno COLLATE SQL_Latin1_General_CP1_CI_AI FROM sc_newtrp WHERE trcd = '".$scdfno."')";
