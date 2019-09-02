@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <?php if (! defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
@@ -310,7 +309,6 @@ class Sales_generate extends MY_Controller
         
     }
 }
-=======
 <?php if (! defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
@@ -622,4 +620,3 @@ class Sales_generate extends MY_Controller
         
     }
 }
->>>>>>> devel
