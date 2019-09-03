@@ -7,12 +7,13 @@ if($result['header'] == null) {
 ?>
 <table style="width: 100%;" class="table table-striped table-bordered bootstrap-datatable datatable" align="center">
     <thead>
-       <tr><th colspan="6">Data List Transaksi Stokist <?php echo $header[0]->sc_dfno; ?></th></tr>
+       <tr><th colspan="7">Data List Transaksi Stokist <?php echo $header[0]->sc_dfno; ?></th></tr>
        <tr>
         <th width="5%">No</th>
         <th width="10%">No Trx</th>
         <th>Member</th>
         <th width="10%">Tgl Trx</th>
+        <th width="10%">Periode Bonus</th>
         <th width="15%">DP</th>
         <th width="15%">BV</th>
        </tr>  
@@ -28,6 +29,7 @@ if($result['header'] == null) {
            echo "<td align=center>".$dtahead->trcd."</td>";
            echo "<td>".$dtahead->dfno." / ".$dtahead->fullnm."</td>";
            echo "<td align=center>".$dtahead->etdt."</td>";
+           echo "<td align=center>".$dtahead->bnsperiod."</td>";
            echo "<td align=right>".number_format($dtahead->totpay,0,".",".")."</td>";
            echo "<td align=right>".number_format($dtahead->tbv,0,".",".")."</td>";
            echo "</tr>";
@@ -37,13 +39,18 @@ if($result['header'] == null) {
        }
        ?>
        <tr>
-        <td colspan="4" align="center">T O T A L</td>
+        <td colspan="5" align="center">T O T A L</td>
         <td align="right"><?php echo number_format($sub_totpay,0,".","."); ?></td>
         <td align="right"><?php echo number_format($sub_totbv,0,".","."); ?></td>
        </tr>
     </tbody>
 </table>
 <?php
+if($result['payment'] != null) {
+?>
+
+<?php
+}
 backToMainForm();
 }
 ?>

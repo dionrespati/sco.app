@@ -306,6 +306,6 @@ class Sales_generate extends MY_Controller
         backToMainForm(); */
 
         $this->load->view('transaction/generate/previewListTtp', $data);
-        
+
     }
 }

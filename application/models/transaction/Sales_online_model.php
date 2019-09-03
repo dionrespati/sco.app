@@ -18,7 +18,7 @@ class Sales_online_model extends MY_Model {
         //$this->db = $this->load->database('alternate', true);
         if($tipe == 'xx')
         {
-            $zx = "a.idstk = '".$idstk."'";
+            $zx = "a.idstk = '".$idstk."' and a.bonusmonth = '".$bonusmonth."'";
         }
         elseif($tipe == '1')
         {

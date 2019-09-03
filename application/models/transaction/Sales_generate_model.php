@@ -254,7 +254,7 @@ class Sales_generate_model extends MY_Model
         $data['year'] = $folderGets[1];
         $bonusperiod = $data['year']."-".$data['month']."-"."01";
         $slc = " SELECT a.trcd, (CONVERT(VARCHAR(10), a.etdt, 120)) AS etdt, 
-                a.dfno, a.fullnm, a.totpay, a.tbv, a.sc_dfno, a.loccd
+                a.dfno, a.fullnm, a.totpay, a.tbv, a.sc_dfno, a.loccd, (CONVERT(VARCHAR(10), a.bnsperiod, 120)) as bnsperiod
                 FROM klink_mlm2010.dbo.ALDI_22022018 A
               WHERE A.loccd ='$scco'
               AND bnsperiod = '$bonusperiod'
