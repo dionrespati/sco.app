@@ -19,7 +19,7 @@
                                 <th>No</th>
                                 <th>No TTP</th>
                                 <th>ID Member</th>
-                                <th>Member Name</th>
+                                <th>No SSR</th> 
                                 <th>Total Belanja</th>
                                 <th>Penggunaan Deposit</th>
                                 <th>Penggunaan Cash</th>
@@ -41,10 +41,10 @@
         } */
         $sisa=$row->voucher + $row->cash; ?>
         <tr class="record" id="<?php echo $n; ?>">
-            <td><?php echo $n; ?></td>
-            <td><?php echo $row->transaksi; ?></td>
-            <td><?php echo $row->dfno; ?></td>
-            <td><?php echo $row->member; ?></td>
+            <td style="text-align: right"><?php echo $n; ?></td>
+            <td style="text-align: center"><?php echo $row->transaksi; ?></td>
+            <td><?php echo $row->dfno. " / ".$row->member; ?></td>
+            <td style="text-align: center"><?php echo $row->batchno; ?></td>
             <td style="text-align: right"><?php echo number_format($sisa, 0, ".", "."); ?></td>
             <td style="text-align: right"><?php echo number_format($row->voucher, 0, ".", "."); ?></td>
             <td style="text-align: right"><?php echo number_format($row->cash, 0, ".", "."); ?></td>
@@ -54,7 +54,7 @@
                         </tbody>
                     </table>
                     <input type="button" class="btn btn-warning" name="back" value="Kembali"
-                        onclick="All.back_to_form(' .nextForm1', ' #div_isi')" />
+                        onclick="All.back_to_form(' .nextForm1', ' .mainForm')" />
                 </span>
                 <!-- /form -->
         </div>

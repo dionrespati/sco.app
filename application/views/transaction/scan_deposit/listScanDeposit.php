@@ -22,8 +22,21 @@
             if (person == null || person == "") {
                 alert("User cancelled the prompt.");
             } else {
-                window.location.href = "<?php echo base_url()?>scan/HapusDeposit/" + el.value + "/" + person;
+                // window.location.href = "<?php echo base_url()?>scan/HapusDeposit/" + el.value + "/" + person;
+                console.log(el.value);
+                console.log(person);
             }
+
+            /* $.ajax({
+                type: 'POST',
+                url: All.get_url('klink_mlm2010/product/update/price'),
+                dataType: 'json',
+                data: formData,
+                success: function(data) {
+                All.set_enable_button();
+                console.log(formData);
+                }
+            }); */
         }
     </script>
 
@@ -63,7 +76,7 @@
     foreach($list as $row) {
         $sisa=$row->total_deposit - $row->total_keluar;
         $dd="'$row->id'";
-        $datess = date('d-m-Y', strtotime($row->createdt));
+        $datess = $row->createdt;
         $statusx = 'Sudah di Generate';
         $action1='<a class="btn btn-sm btn-danger" onclick="Stockist.detailVoucher(\'scan/list/detail/voucher/'.$row->id.'\')" title="Edit">View Voucher</a>';
         $action2='<a class="btn btn-sm btn-success" onclick="Stockist.detailTtp(\'scan/list/detail/ttp/'.$row->id.'\')" title="TTP">View TTP</a>';
@@ -81,12 +94,12 @@
         echo "
         <tr class =\"record\" id=\"$n\">
             <td>$n</td>
-            <td>&nbsp;$row->no_trx</td>
-            <td>".date("d-M-Y",strtotime($row->createdt))."</td>
+            <td align=center>&nbsp;$row->no_trx</td>
+            <td align=center>".$row->createdt."</td>
             <td>$row->stokis</td>
-            <td style=\"text-align:right\">".number_format($row->total_deposit,0,"",",")."</td>
-            <td style=\"text-align:right\">".number_format($sisa,0,"",",")."</td>
-            <td>$statusx</td>
+            <td style=\"text-align:right\">".number_format($row->total_deposit,0,"",".")."</td>
+            <td style=\"text-align:right\">".number_format($sisa,0,"",".")."</td>
+            <td align=center>$statusx</td>
             <td style=\"text-align:center\">$action1 $action2 $action3 $action4</td>
         </tr>";
         $n++;

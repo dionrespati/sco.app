@@ -16,7 +16,7 @@ class Login extends MY_Controller {
 	
 	//$route['auth'] = 'login/auth';
 	public function auth() {
-		echo "ok";
+		//echo "ok";
 		$data['formAction'] = $this->formAction;	
 		try {
 		    $srvReturn = $this->s_login->getValidateLogin();

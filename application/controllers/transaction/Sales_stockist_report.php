@@ -96,12 +96,18 @@ class Sales_stockist_report extends MY_Controller {
                 //print_r($x['result']);
                 $this->load->view($this->folderView.'listVchReportByIdMember',$x);
 			}  */
-			if($x['kategori'] != "vc_umr") {
-				$x['result'] =  $this->m_ssr->getVoucherReportListV2($x['memberid'], $x['voucherno'], $x['kategori']);
-			} else {
+			if($x['kategori'] == "vc_umr") {
 				$x['result'] =  $this->m_ssr->getVoucherUmrohReport($x['memberid'], $x['voucherno'], $x['kategori']);	
+				$this->load->view($this->folderView.'listVchReportStk',$x);
+				
+			} else if($x['kategori'] == "vc_reg") {
+				$x['result'] =  $this->m_ssr->getDetailVoucher($x['voucherno'], $x['memberid']);	
+				$this->load->view('member/voucher/voucherDetailByFormNo',$x);
+		    } else {
+				$x['result'] =  $this->m_ssr->getVoucherReportListV2($x['memberid'], $x['voucherno'], $x['kategori']);
+				$this->load->view($this->folderView.'listVchReportStk',$x);
 			}
-			$this->load->view($this->folderView.'listVchReportStk',$x);
+			
 			
         }else{
             echo sessionExpireMessage();

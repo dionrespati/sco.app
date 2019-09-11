@@ -4,11 +4,12 @@
       <div class="control-group">
 	   <label class="control-label" for="typeahead">Kategori</label>
       	<div class="controls">
-      		<select id="kategori" name="kategori">
+      		<select id="kategori" name="kategori" onchange="pilihkategori(this.value)">
       			<option value="vc_prd">Voucher Produk</option>
       			<option value="vc_c">Voucher Cash</option>
 				<option value="vc_prm">Voucher Promo</option>
 				<option value="vc_umr">Voucher Umroh</option>
+				<option value="vc_reg">Voucher Registrasi Member</option>
       		</select>
       			
       	</div>
@@ -16,7 +17,7 @@
       	<div class="listM controls">
       		<input type="text" class="TabOnEnter span4" id="voucherno" name="voucherno" />	
       	</div>
-		<label class="listM control-label" for="typeahead">ID Member</label>
+		<label id="idmembx" class="listM control-label" for="typeahead">ID Member</label>
       	<div class="listM controls">
       		<input type="text" class="TabOnEnter span4" id="memberid" name="memberid" />	
       	</div>
@@ -75,4 +76,12 @@
 		
 		
 	});	
+
+	function pilihkategori(param) {
+		if(param == "vc_reg") {
+			$(All.get_active_tab() + "#idmembx").text("Voucher Key");
+		} else {
+			$(All.get_active_tab() + "#idmembx").text("ID Member");
+		}
+	}
 </script>

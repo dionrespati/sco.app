@@ -7,12 +7,15 @@ class Scan_voucher_model extends MY_Model {
 
     function show_deposit_list($stockist, $type) {
         $status = ($type == 'generated') ? 0 : 1;
-        $qry = "SELECT a.*, c.fullnm as stokis
+        $qry = "SELECT a.no_trx, a.id, a.total_deposit, a.total_keluar, a.[status],
+        a.loccd, a.createnm, c.fullnm as stokis,
+        CONVERT(VARCHAR(10), a.createdt, 120) as createdt
                 FROM deposit_H a
                 LEFT JOIN mssc c
                 ON a.loccd = c.loccd COLLATE SQL_Latin1_General_CP1_CS_AS
                 WHERE a.createnm = '$stockist' AND a.status = '$status'
                 ORDER BY a.createdt DESC";
+        //echo $qry;
         return $this->getRecordset($qry, null, $this->db2);
     }
 
@@ -71,20 +74,11 @@ class Scan_voucher_model extends MY_Model {
     function show_list_TTP($stk) {
         $this->db = $this->load->database($this->db2, true);
         $qry = "SELECT *,c.fullnm as member, a.trcd as transaksi, d.payamt as cash, e.payamt as voucher
-                FROM
-                sc_newtrh a
-                LEFT JOIN
-                deposit_H b
-                on a.id_deposit=b.id
-                LEFT JOIN
-                msmemb c
-                on a.dfno=c.dfno
-                LEFT JOIN
-                sc_newtrp d
-                on a.trcd = d.trcd AND d.paytype = '01'
-                LEFT JOIN
-                sc_newtrp e
-                on a.trcd = e.trcd AND e.paytype != '01'
+                FROM sc_newtrh a 
+                LEFT JOIN deposit_H b on a.id_deposit=b.id
+                LEFT JOIN msmemb c on a.dfno=c.dfno
+                LEFT JOIN sc_newtrp d on a.trcd = d.trcd AND d.paytype = '01'
+                LEFT JOIN sc_newtrp e on a.trcd = e.trcd AND e.paytype != '01'
                 where b.id = '$stk'
                 ORDER BY transaksi DESC";
         $query = $this->db->query($qry);
@@ -124,29 +118,31 @@ class Scan_voucher_model extends MY_Model {
     }
 
     function saveScan($id) {
-        $this->db = $this->load->database($this->db2, true);
+        $qryTrx = $this->load->database($this->db2, true);
         $kategori = strtolower($id[0]);
         $by = 'VoucherKey';
         if ($kategori == 'p') {
             $by = 'VoucherNo';
         }
-        $this->db->trans_start();
-        $this->db->where($by, $id);
-        $this->db->set('updatedt', date("Y-m-d h:i:s"));
-        $this->db->set('claim_date', date("Y-m-d h:i:s"));
-        $this->db->set('loccd', $this->stockist);
-        $this->db->set('claimstatus', '1');
-        $this->db->set('status', '1');
-        $this->db->update('tcvoucher');
-        $this->db->trans_complete();
+        $qryTrx->trans_begin();
 
-        if ($this->db->trans_status() === FALSE) {
+        $qryTrx->where($by, $id);
+        $qryTrx->set('updatedt', date("Y-m-d h:i:s"));
+        $qryTrx->set('claim_date', date("Y-m-d h:i:s"));
+        $qryTrx->set('loccd', $this->stockist);
+        $qryTrx->set('claimstatus', '1');
+        $qryTrx->set('status', '1');
+        $qryTrx->update('tcvoucher');
+
+        // $qryTrx->trans_complete();
+
+        if ($qryTrx->trans_status() === FALSE) {
             //if something went wrong, rollback everything
-            $this->db->trans_rollback();
+            $qryTrx->trans_rollback();
             return FALSE;
         } else {
             //if everything went right, delete the data from the database
-            $this->db->trans_commit();
+            $qryTrx->trans_commit();
             return TRUE;
         }
     }
@@ -167,9 +163,9 @@ class Scan_voucher_model extends MY_Model {
 
     function addHeader($data) {
         $this->db = $this->load->database($this->db2, true);
-        $this->db->trans_start();
+        $this->db->trans_begin();
         $this->db->insert('deposit_H', $data);
-        $this->db->trans_complete();
+        // $this->db->trans_complete();
 
         if ($this->db->trans_status() === FALSE) {
             //if something went wrong, rollback everything
@@ -183,19 +179,20 @@ class Scan_voucher_model extends MY_Model {
     }
 
     function updateHeader($id, $data) {
-        $this->db = $this->load->database($this->db2, true);
-        $this->db->trans_start();
-        $this->db->where('id', $id);
-        $this->db->update('deposit_H', $data);
-        $this->db->trans_complete();
+        $qryTrx = $this->load->database($this->db2, true);
+        $qryTrx->trans_begin();
 
-        if ($this->db->trans_status() === FALSE) {
+        $qryTrx->where('id', $id);
+        $qryTrx->update('deposit_H', $data);
+        // $qryTrx->trans_complete();
+
+        if ($qryTrx->trans_status() === FALSE) {
             //if something went wrong, rollback everything
             $this->db->trans_rollback();
             return FALSE;
         } else {
             //if everything went right, delete the data from the database
-            $this->db->trans_commit();
+            $qryTrx->trans_commit();
             return TRUE;
         }
     }
@@ -203,9 +200,9 @@ class Scan_voucher_model extends MY_Model {
     function addDetail($data, $x) {
         $this->db = $this->load->database($this->db2, true);
         $this->saveScan($x);
-        $this->db->trans_start();
+        $this->db->trans_begin();
         $this->db->insert('deposit_D', $data);
-        $this->db->trans_complete();
+        // $this->db->trans_complete();
 
         if ($this->db->trans_status() === FALSE) {
             //if something went wrong, rollback everything
@@ -250,5 +247,35 @@ class Scan_voucher_model extends MY_Model {
                 LEFT JOIN mssc c ON a.sc_dfno = c.loccd
                 WHERE a.trcd = '$id'";
         return $this->getRecordset($qry, NULL, $this->db2);
+    }
+
+    function HapusDeposit($id) {
+        $this->db = $this->load->database($this->db2, true);
+        $this->db->select('*');
+        $this->db->where('id_deposit', $id);
+        $query = $this->db->get('sc_newtrh a');
+        $rowcount = $query->num_rows();
+        if ($rowcount > 0) {
+            return false;
+        } else {
+            $slc2 = "SELECT * FROM deposit_D WHERE id_header = '$id'";
+            $query2 = $this->db->query($slc2);
+            foreach ($query2->result() as $data2) {
+                $tipes = 'VoucherNo';
+                $ss = $data2->kategori;
+                if ($ss == "Voucher Cash") {
+                    $tipes = 'voucherkey';
+                }
+                $insert2 = "UPDATE tcvoucher SET status=0, claimstatus =0 WHERE voucherkey = '$data2->voucher_scan'";
+                $this->db->query($insert2);
+            }
+            $del = "DELETE FROM deposit_H
+              WHERE id='$id'";
+            $this->db->query($del);
+            $del = "DELETE FROM deposit_D
+              WHERE id_header='$id'";
+            $this->db->query($del);
+            return true;
+        }
     }
 }
