@@ -1,8 +1,5 @@
 <html>
-
 <head>
-
-
     <script>
         function addCommas(nStr) {
             nStr += '';
@@ -100,7 +97,6 @@
                                     data.oleh);
                                 console.log(data.arraydata);
                             }
-                            //                        $("#dataPrd").append(rowshtml);
                             $('#scan').val('');
                             $('#idmemb').val('');
                             $("#idmemb").focus();
@@ -124,7 +120,6 @@
         }
 
         function locker() {
-            console.log('hai');
             $("#kategori").val($("#kategori2").val());
             document.getElementById("kategori2").disabled = true;
         }
@@ -169,10 +164,11 @@
                             function (data) {
                                 if (data != false) {
                                     alert("Berhasil disimpan dengan kode transaksi " + data);
-                                    window.location.replace('<?php echo site_url();?>c_sales_pvr/getDepositList');
+                                    // window.location.replace('<?php echo site_url();?>c_sales_pvr/getDepositList');
+                                    All.ajaxFormPost('formInputList','scan/list');
                                 } else {
                                     alert("Voucher sudah di klaim");
-                                    window.location.replace('<?php echo site_url();?>c_sales_pvr/getDepositList');
+                                    // window.location.replace('<?php echo site_url();?>c_sales_pvr/getDepositList');
                                 }
                             }, "json")
                         .fail(function () {

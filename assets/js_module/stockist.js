@@ -583,7 +583,7 @@ var Stockist = {
             success:
             function(data){
                 All.set_enable_button();
-                $(All.get_active_tab() + "#div_isi").hide();
+                $(All.get_active_tab() + ".mainForm").hide();
                 $(All.get_active_tab() + ".nextForm1").html(data);
             },
             error: function (xhr, ajaxOptions, thrownError) {

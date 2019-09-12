@@ -10,7 +10,7 @@
                 <span id="view_list_invent">
                     <!-- form -->
                     <div class="form-group">
-                        <?php echo $add; ?>
+                        <input type="button" value="TTP Baru" onclick="All.ajaxFormGet('transaction/scan_voucher/getFormTtpDeposit2/<?php echo $deposit ?>')" class="btn btn-primary">
                     </div>
                     <table width="100%" class="table table-striped table-bordered bootstrap-datatable datatable"
                         align="center">
@@ -54,7 +54,7 @@
                         </tbody>
                     </table>
                     <input type="button" class="btn btn-warning" name="back" value="Kembali"
-                        onclick="All.back_to_form(' .nextForm1', ' #div_isi')" />
+                        onclick="All.back_to_form(' .nextForm1', ' .mainForm')" />
                 </span>
                 <!-- /form -->
         </div>

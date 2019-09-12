@@ -8,17 +8,17 @@ class MY_Loader extends CI_Loader {
 	 *
 	 * Maps to the following URL
 	 * 		http://example.com/index.php/welcome
-	 *	- or -  
+	 *	- or -
 	 * 		http://example.com/index.php/welcome/index
 	 *	- or -
-	 * Since this controller is set as the default controller in 
+	 * Since this controller is set as the default controller in
 	 * config/routes.php, it's displayed at http://example.com/
 	 *
 	 * So any other public methods not prefixed with an underscore will
 	 * map to /index.php/welcome/<method_name>
 	 * @see http://codeigniter.com/user_guide/general/urls.html
 	 */
-	
+
 	/**
 	 * List of paths to load service from
 	 *
@@ -26,7 +26,7 @@ class MY_Loader extends CI_Loader {
 	 * @access protected
 	 */
 	protected $_ci_service_paths		= array(APPPATH);
-	
+
 	/**
 	 * List of loaded services
 	 *
@@ -34,12 +34,12 @@ class MY_Loader extends CI_Loader {
 	 * @access protected
 	 */
 	protected $_ci_services			= array();
-	
+
 	function __construct()
     {
         parent::__construct();
     }
-	
+
 	public function service($service, $name = '', $db_conn = FALSE)
 	{
 		if (empty($service))
@@ -118,5 +118,5 @@ class MY_Loader extends CI_Loader {
 		// couldn't find The service
 		show_error('Unable to locate The service you have specified: '.$service);
 	}
-    
+
 }

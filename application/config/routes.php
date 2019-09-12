@@ -300,4 +300,5 @@ $route['scan'] = 'transaction/scan_voucher/formScanDeposit';
 $route['scan/list'] = 'transaction/scan_voucher/getDeposit';
 $route['scan/list/detail/voucher/(:any)'] = 'transaction/scan_voucher/getListScan/$1';
 $route['scan/list/detail/ttp/(:any)'] = 'transaction/scan_voucher/getTtpList/$1';
+$route['scan/list/delete'] = 'transaction/scan_voucher/hapusDeposit';
 
