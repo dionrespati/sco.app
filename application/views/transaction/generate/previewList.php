@@ -81,9 +81,9 @@
                 }
             }
             ?>
-            <input type="button" class="btn btn-success" name="back" value="Back" onclick="Stockist.back_to_form_gen()"  />&nbsp;&nbsp;
+            <input type="button" class="btn btn-warning" name="back" value="<< Kembali" onclick="Stockist.back_to_form_gen()"  />&nbsp;&nbsp;
             <!-- <input type="submit" class="btn btn-success" name="submit" value="Generate"/>-->
-            <input type="button" class="btn btn-success" onclick="Stockist.generate_sales_sco2()" name="submit" value="Generate" id="checkss"/>
+            <input type="button" class="btn btn-primary" onclick="Stockist.generate_sales_sco2()" name="submit" value="Generate" id="checkss"/>
             </td></tr>
             </tbody>
     </table>

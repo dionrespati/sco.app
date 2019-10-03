@@ -455,6 +455,7 @@ var All = {
             	All.set_enable_button();
             	$(All.get_active_tab() + ".nextForm1").hide();
                 All.clear_div_in_boxcontent(".nextForm2");
+                $(All.get_active_tab() + ".nextForm2").css("display", "block");
                 $(All.get_active_tab() + ".nextForm2").html(data);  
             },
 		    error: function(jqXHR, textStatus, errorThrown) {

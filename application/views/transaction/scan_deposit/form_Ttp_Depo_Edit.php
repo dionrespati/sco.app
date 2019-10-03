@@ -1,10 +1,12 @@
-<html>
-<!--<body onLoad="document.form.value.focus()"> -->
+<!--<html>
+<body onLoad="document.form.value.focus()"> 
 
 <body>
+
     <div class="row-fluid">
         <div class="span12">
-            <span id="formawal">
+            <span id="formawal">-->
+            adadasd
                 <form class="form-horizontal" method="post" id="frm_ttp" name="frm_ttp">
                     <fieldset>
                         <div class="control-group">
@@ -266,20 +268,23 @@
                                 </tbody>
                             </table>
                             <br />
-                            <!-- <input type="button" class="btn btn-success span14" name="submit" value="Save" id="save"/> -->
+                            <!-- <input type="button" class="btn btn-success span14" name="submit" value="Save" id="save"/> 
                             <input type="button" class="btn btn-warning span6" name="back" value="Kembali"
-                                onclick="All.back_to_form(' .nextForm1', ' #div_isi')" />
-                            <?php if($status==1)
+                                onclick="All.back_to_form(' .nextForm1', ' #div_isi')" />-->
+                            <?php 
                                 echo'<input type="button" class="btn btn-warning span6" name="back" value="Kembali"
-                                    onclick="All.back_to_form(\' .nextForm1\', \' #div_isi\')" />';
+                                    onclick="All.back_to_form(\' .nextForm2\',\' .nextForm1\')" />';
+                                    if($status==1) {
+                                        echo "<input type='button' class='btn btn-danger span6' name='hapus' onclick=\"Stockist.hapusTTPvchDeposit('$trcd')\" value='Hapus Transaksi' />";
+                                    }
                             ?>
                             <!-- end control-group -->
                     </fieldset>
-                </form>
+                </form><!--
             </span>
             <div id="result"></div>
         </div>
     </div>
     </div>
 </body>
-</html>
+</html>-->

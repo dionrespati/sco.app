@@ -63,7 +63,7 @@ class Sales_stockist_report_model extends MY_Model {
 						a.sc_dfno, b.fullnm as sc_dfno_name,
 						a.sc_co, c.fullnm as sc_co_name,
 						a.loccd, d.fullnm as loccd_name,
-						a.createnm,
+						a.createnm, a.id_deposit, a.no_deposit,
 						CONVERT(char(10), a.etdt,126) as etdt,
 						CONVERT(char(10), a.batchdt,126) as batchdt,
 						CONVERT(char(10), a.bnsperiod,126) as bnsperiod,

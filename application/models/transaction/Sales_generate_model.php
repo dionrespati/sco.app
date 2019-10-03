@@ -34,6 +34,33 @@ class Sales_generate_model extends MY_Model
         return $y;
     }
 
+    public function cek_seQIP(){
+        $this->db = $this->load->database($this->setDB(2), true);
+        $y1=date("y");
+        $m=date("m");
+        $tbl = "SEQ_IPVCH"."$y1"."$m";
+
+        $this->db->trans_begin();
+
+        $cek = "select * from $tbl";
+        $query = $this->db->query($cek);
+        if ($query->num_rows < 1) {
+            $input = "insert into $tbl (SeqVal) values('a')";
+            $query = $this->db->query($input);
+        } else {
+            $input = "insert into $tbl (SeqVal) values('a')";
+            $query = $this->db->query($input);
+        }
+
+        if ($this->db->trans_status() === false) {
+            $this->db->trans_rollback();
+        } else {
+            $this->db->trans_commit();
+        }
+
+        return $query;
+    }
+
     public function getGenerateByStk($x) {
         //$x['from'],$x['to'],$x['idstkk'],$x['bnsperiod'],$x['searchs']
         //$username = $this->session->userdata('stockist');
@@ -101,32 +128,83 @@ class Sales_generate_model extends MY_Model
             }
         } elseif ($x['searchs'] == "pvr") {
             $usertype = "and a.sc_dfno = '".$x['mainstk']."' and a.tipe = 'PVR' ";
-        }    
+        }
 
         $folderGets = explode('/', $x['bnsperiod']);
         $data['month'] = $folderGets[0];
         $data['year'] = $folderGets[1];
         $bonusperiod = $data['month']."/"."1"."/".$data['year'];
 
-        $slc = "SELECT A.sc_dfno, A.sc_co, 
+        /* $slc = "SELECT A.sc_dfno, A.sc_co,
                     b.fullnm as scdfno, A.loccd,
-                    c.fullnm as scco, tipe, 
-                    SUM(totpay) as totpay, 
-                    bnsperiod, 
-                    SUM(tbv) as tbv, 
-                    SUM(ISNULL(d.payamt, A.totpay)) as cash, 
+                    c.fullnm as scco, tipe,
+                    SUM(totpay) as totpay,
+                    bnsperiod,
+                    SUM(tbv) as tbv,
+                    SUM(ISNULL(d.payamt, A.totpay)) as cash,
                     SUM(ISNULL(e.payamt, 0)) as vcash,
-                    SUM(ISNULL(f.payamt, 0)) as pvch 
-                FROM ALDI_22022018 A 
-                LEFT join mssc B ON a.sc_dfno =b.loccd 
-                LEFT JOIN mssc C ON a.sc_co=c.loccd 
-                LEFT JOIN sc_newtrp D ON a.trcd=d.trcd AND d.paytype='01' 
-                LEFT JOIN sc_newtrp E ON a.trcd=E.trcd AND E.paytype='08' 
+                    SUM(ISNULL(f.payamt, 0)) as pvch
+                FROM ALDI_22022018 A
+                LEFT join mssc B ON a.sc_dfno =b.loccd
+                LEFT JOIN mssc C ON a.sc_co=c.loccd
+                LEFT JOIN sc_newtrp D ON a.trcd=d.trcd AND d.paytype='01'
+                LEFT JOIN sc_newtrp E ON a.trcd=E.trcd AND E.paytype='08'
                 LEFT JOIN sc_newtrp F ON a.trcd=F.trcd AND F.paytype='10'
                 WHERE A.loccd = '".$x['mainstk']."'
                 AND bnsperiod= '$bonusperiod'
                 AND etdt BETWEEN  '$froms 00:00:00' AND '$tos 23:59:59' $usertype
                 GROUP BY A.sc_dfno, A.sc_co, b.fullnm , A.loccd,c.fullnm , tipe, bnsperiod ";
+        //echo $slc; */
+
+        /* $slc = "SELECT A.sc_dfno, A.sc_co,
+                b.fullnm as scdfno, A.loccd,
+                c.fullnm as scco, tipe,
+                SUM(totpay) as totpay, bnsperiod,
+                SUM(tbv) as tbv,
+                SUM(d.payamt) as cash,
+                SUM(e.payamt) as vcash
+                FROM ALDI_22022018 A
+                LEFT join mssc B ON a.sc_dfno =b.loccd
+                LEFT JOIN mssc C ON a.sc_co=c.loccd
+                LEFT JOIN sc_newtrp D ON a.trcd=d.trcd AND d.paytype='01'
+                LEFT JOIN sc_newtrp E ON a.trcd=E.trcd AND E.paytype='08'
+                WHERE A.loccd = '".$x['mainstk']."'
+                AND bnsperiod= '$bonusperiod'
+                AND etdt BETWEEN  '$froms 00:00:00' AND '$tos 23:59:59' $usertype
+                GROUP BY A.sc_dfno, A.sc_co, b.fullnm , A.loccd,c.fullnm , tipe, bnsperiod";
+            //echo $slc; */
+        
+        $slc = "SELECT X.sc_dfno, X.sc_co, X.scdfno, 
+                        X.loccd, X.scco, X.tipe, X.bnsperiod,
+                        SUM(totpay) as totpay,
+                        SUM(tbv) as tbv,
+                        SUM(cash) AS cash, SUM(pcash) AS pcash, SUM(vcash) AS vcash
+                FROM (
+                        SELECT 	A.sc_dfno, A.sc_co, b.fullnm as scdfno, 
+                                A.loccd, c.fullnm as scco, tipe, a.bnsperiod, 
+                             a.totpay,
+                             a.tbv,   
+                            ISNULL((SELECT CASE WHEN LEFT(A.trcd, 2) = 'ID' AND LEFT(A.trcd, 3) <> 'IDH' 
+                            THEN A.totpay ELSE sum(D.payamt) END AS payamt
+                            FROM sc_newtrp D
+                            WHERE A.trcd=D.trcd AND d.paytype='01'), 0) AS cash,
+                            ISNULL((SELECT sum(D.payamt)
+                            FROM sc_newtrp D
+                            WHERE A.trcd=D.trcd AND d.paytype='10'), 0) AS pcash,
+                            ISNULL((SELECT sum(D.payamt)
+                            FROM sc_newtrp D
+                            WHERE A.trcd=D.trcd AND d.paytype='08'), 0) AS vcash
+                        FROM ALDI_22022018 a
+                            LEFT join mssc B ON a.sc_dfno =b.loccd 
+                            LEFT JOIN mssc C ON a.sc_co=c.loccd 
+                            --LEFT OUTER JOIN sc_newtrp E ON a.trcd=E.trcd AND E.paytype='01'
+                            WHERE A.loccd = '".$x['mainstk']."'
+                        AND bnsperiod= '$bonusperiod'
+                        AND etdt BETWEEN  '$froms 00:00:00' AND '$tos 23:59:59' $usertype
+                           -- AND a.tipe = 'PVR'
+                ) X
+                GROUP BY X.sc_dfno, X.sc_co, X.scdfno, 
+                        X.loccd, X.scco, X.tipe, X.bnsperiod";
         //echo $slc;
         return $this->getRecordset($slc, null, $this->db2);
     }
@@ -161,7 +239,7 @@ class Sales_generate_model extends MY_Model
                     $trxdate
                     ORDER BY a.etdt";
         //and a.createnm = '".$this->stockist."'
-        echo $qry;
+        //echo $qry;
         return $this->getRecordset($qry, null, $this->db1);
     }
 
@@ -253,7 +331,7 @@ class Sales_generate_model extends MY_Model
         $data['month'] = $folderGets[0];
         $data['year'] = $folderGets[1];
         $bonusperiod = $data['year']."-".$data['month']."-"."01";
-        $slc = " SELECT a.trcd, (CONVERT(VARCHAR(10), a.etdt, 120)) AS etdt, 
+        $slc = " SELECT a.trcd, (CONVERT(VARCHAR(10), a.etdt, 120)) AS etdt,
                 a.dfno, a.fullnm, a.totpay, a.tbv, a.sc_dfno, a.loccd, (CONVERT(VARCHAR(10), a.bnsperiod, 120)) as bnsperiod
                 FROM klink_mlm2010.dbo.ALDI_22022018 A
               WHERE A.loccd ='$scco'
@@ -276,20 +354,76 @@ class Sales_generate_model extends MY_Model
             $trcd = substr($trcd, 0, -1);
           }
         }
-        
+        $arr['header'] = $nilai;
+        $arr['payment'] = array();
+        $arr['listVch'] = array();
+        $arr['listCash'] = array();
         $prd = "SELECT prdcd";
 
-        $trp = "SELECT a.trcd, b.dfno, b.orderno, a.paytype, a.docno, a.payamt 
+        $trp = "SELECT a.trcd, b.dfno, b.orderno, a.paytype, a.docno, a.payamt
                 FROM sc_newtrp a
-                LEFT OUTER JOIN sc_newtrh b ON (a.trcd = b.trcd) 
+                LEFT OUTER JOIN sc_newtrh b ON (a.trcd = b.trcd)
                 WHERE a.trcd IN ($trcd) ";
         //echo $trp;
         $payment = $this->getRecordset($trp, null, $this->db2);
-        $arr = array(
-            "header" => $nilai,
-            "payment" => $payment
-        );
+        if($payment != null) {
+            $arr['payment'] = $payment;
+
+            $tot_vch = 0;
+            $tot_cash = 0;
+            
+            foreach($payment as $listPay) {
+                if($listPay->paytype != "01") {
+                    $tot_vch += $listPay->payamt;
+                    array_push($arr['listVch'], $listPay);
+                } else {
+                    $tot_cash += $listPay->payamt;
+                    array_push($arr['listCash'], $listPay);
+                }
+            }
+            $arr['totalVch'] = $tot_vch;
+            $arr['totalCash'] = $tot_cash;
+        }
+
+        
         return $arr;
+    }
+
+    public function getDetailTrxCheckTTP($idstk, $bnsperiod, $searchBy, $scco, $scdfno) {
+        $username = $this->session->userdata('username');
+        $folderGets = explode('/', $bnsperiod);
+        $data['month'] = $folderGets[0];
+        $data['year'] = $folderGets[1];
+        $bonusperiod = $data['year']."-".$data['month']."-"."01";
+        /* $slc = "SELECT a.trcd, (CONVERT(VARCHAR(10), a.etdt, 120)) AS etdt,
+                a.dfno, a.fullnm, a.totpay, a.tbv, a.sc_dfno, a.loccd, (CONVERT(VARCHAR(10), a.bnsperiod, 120)) as bnsperiod
+                FROM klink_mlm2010.dbo.ALDI_22022018 A
+              WHERE A.loccd ='$scco'
+              AND bnsperiod = '$bonusperiod'
+              AND sc_co = '$scco'
+              AND sc_dfno = '$scdfno'
+              AND tipe = '$searchBy'
+              ORDER BY trcd "; */
+        $slc = "SELECT a.trcd, (CONVERT(VARCHAR(10), a.etdt, 120)) AS etdt, 
+                a.dfno, a.fullnm, a.totpay, a.tbv, a.sc_dfno, 
+                a.loccd, (CONVERT(VARCHAR(10), a.bnsperiod, 120)) as bnsperiod,
+                a.tipe,
+                ISNULL(SUM(b.payamt), 0) as tot_cash, 
+                ISNULL(SUM(c.payamt), 0) as tot_vch
+                FROM klink_mlm2010.dbo.ALDI_22022018 A
+                LEFT OUTER JOIN sc_newtrp b ON (a.trcd = b.trcd AND b.paytype = '01')
+                LEFT OUTER JOIN sc_newtrp c ON (a.trcd = c.trcd AND c.paytype != '01') 
+                WHERE bnsperiod = '$bonusperiod' 
+                AND A.loccd ='$scco'
+                AND sc_co = '$scco' 
+                AND sc_dfno = '$scdfno' AND tipe = '$searchBy' 
+                GROUP BY a.trcd, CONVERT(VARCHAR(10), a.etdt, 120), 
+                a.dfno, a.fullnm, a.totpay, a.tbv, a.sc_dfno, 
+                a.loccd, CONVERT(VARCHAR(10), a.bnsperiod, 120), a.tipe
+                ORDER BY trcd ";
+        //echo $slc."<br />";
+        return $this->getRecordset($slc, null, $this->db2);
+        
     }
 
     public function get_SSRno($tipeSales, $bnsperiod, $username, $scDfnoo) {
@@ -338,16 +472,33 @@ class Sales_generate_model extends MY_Model
         return $nilai;
     }
 
+    function generatePvr($newid,$trcd,$bonusperiod,$username) {
+        
+        $createdt = date('Y-m-d');
+        $updatedt = date('Y-m-d H:i:s');
+
+        //$bnsperiod = date('d/m/Y', strtotime($bonusperiod));
+        $updte = "update klink_mlm2010.dbo.sc_newtrh set batchno = '$newid',batchdt = '$createdt',
+                        flag_batch='1',flag_approval = '0', flag_show = '1'
+                         where trcd = '$trcd' and createnm = '" . $username . "'
+                        and bnsperiod = '$bonusperiod' ";
+        //echo $updte;
+        $query = $this->db->query($updte);
+        return $query;
+    }
+
     public function updateSSR($newid, $trcd, $bonusperiod, $username) {
         $createdt = date('Y-m-d');
         $updatedt = date('Y-m-d H:i:s');
 
         $updte = "UPDATE klink_mlm2010.dbo.sc_newtrh SET batchno = '".$newid."',
-            batchdt = '".$createdt."',flag_batch='1',updatenm = '".$username."',updatedt = '".$updatedt."'
+             batchdt = '".$createdt."',flag_batch='1',
+             updatenm = '".$username."',updatedt = '".$updatedt."'
             WHERE trcd = '".$trcd."' AND createnm = '".$username."'
             AND bnsperiod = '".$bonusperiod."' AND flag_batch='0'";
         //echo $updte."</br>";
         $query = $this->db->query($updte);
+        return $query;
     }
 
     public function generate_sales_save2($newid, $trcd, $bonusperiod, $username) {
@@ -371,24 +522,21 @@ class Sales_generate_model extends MY_Model
         if ($query_cek->result() != null) {
             foreach ($query_cek->result() as $data) {
                 $ss = $data->sisa;
-                if ($ss==0) {
-                    $this->updateSSR($newid, $trcd, $bonusperiod, $username);
+                if ($ss == 0) {
+                    $ssr = $this->updateSSR($newid, $trcd, $bonusperiod, $username);
                     //$query = $this->db->query($updte);
-                    $uptrep="UPDATE deposit_H SET status = 0 WHERE no_trx IN (
-                  SELECT docno COLLATE SQL_Latin1_General_CP1_CI_AI FROM sc_newtrp WHERE trcd = '".$trcd."')";
-                    // $query2 = $this->db->query($uptrep);
-                    echo $query2."</br>";
-                   /*  if (!$query) {
-                        return 0;
-                    } else {
+                    if ($ssr > 0) {
+                        $uptrep = "UPDATE deposit_H SET status = 0 WHERE no_trx IN (
+                        SELECT docno COLLATE SQL_Latin1_General_CP1_CI_AI FROM sc_newtrp WHERE trcd = '".$trcd."')";
+                        $query2 = $this->db->query($uptrep);
                         return 1;
-                    } */
+                    }
                 } else {
                     return 0;
                 }
             }
         } else {
-            $this->updateSSR($newid, $trcd, $bonusperiod, $username);
+            return $this->updateSSR($newid, $trcd, $bonusperiod, $username);
             /* if (!$query) {
                 return 0;
             } else {
@@ -419,7 +567,7 @@ class Sales_generate_model extends MY_Model
         $arrayy2 = "";
         $totet = 0;
         $slc="SELECT SUM(payamt) as total_deposit, docno, paytype from sc_newtrp WHERE trcd IN (
-        SELECT trcd from sc_newtrh where batchno ='$new_id'
+        SELECT trcd from klink_mlm2010.dbo.sc_newtrh where batchno ='$new_id'
         ) AND paytype != '01'
          GROUP BY docno, paytype";
         $query = $this->db->query($slc);
@@ -440,7 +588,7 @@ class Sales_generate_model extends MY_Model
             }
             $arrayy = substr($arrayy, 0, -2);
             $nomorG = $this->getIPno();
-            $insert2 = "INSERT INTO bbhdr (trcd, type, trtype, bankacccd, refno,
+            $insert2 = "INSERT INTO klink_mlm2010.dbo.bbhdr (trcd, type, trtype, bankacccd, refno,
                 description, amount, etdt, trdt, status,
                 dfno, createnm, createdt,  PT_SVRID, custtype)
                 VALUES (
@@ -448,17 +596,17 @@ class Sales_generate_model extends MY_Model
                     'Transaksi Deposit', $totet, GETDATE(), GETDATE(), 'O',
                     '$username', '$username', GETDATE(), 'ID', 'S'
                 )";
-            // $this->db->query($insert2);
-            echo $insert2."</br>";
+            $this->db->query($insert2);
+            //echo $insert2."</br>";
             $xd = 1;
             $slc2 = "SELECT d.nominal, d.voucher_scan, d.kategori, b.paytype
             FROM
-             sc_newtrh a
-             LEFT JOIN sc_newtrp b
+            klink_mlm2010.dbo.sc_newtrh a
+             LEFT JOIN klink_mlm2010.dbo.sc_newtrp b
             ON a.trcd = b.trcd
-             LEFT JOIN deposit_H c
+             LEFT JOIN klink_mlm2010.dbo.deposit_H c
             ON b.docno= c.no_trx COLLATE SQL_Latin1_General_CP1_CS_AS
-             LEFT JOIN deposit_D d
+             LEFT JOIN klink_mlm2010.dbo.deposit_D d
             ON c.no_trx=d.no_trx
             WHERE a.batchno = '$new_id' AND c.no_trx IN ($arrayy)
             GROUP BY d.nominal, d.voucher_scan, d.kategori, b.paytype";
@@ -469,7 +617,7 @@ class Sales_generate_model extends MY_Model
                 if ($ss == "VC") {
                     $tipes = 'C';
                 }
-                $insert2 = "INSERT INTO sc_newtrp_vc_det (trcd, seqno, paytype, payamt, trcd2, PT_SVRID,
+                $insert2 = "INSERT INTO klink_mlm2010.dbo.sc_newtrp_vc_det (trcd, seqno, paytype, payamt, trcd2, PT_SVRID,
                             voucher, vchtype,
                             vhcno, status, sc_co, sc_dfno, trxdt, createnm)
                             VALUES
@@ -477,18 +625,18 @@ class Sales_generate_model extends MY_Model
                             '$new_id', '$xd', '$data2->paytype', $data2->nominal, '$nomorG', 'ID',
                             '0','$tipes', '$data2->voucher_scan', '1',
                             '$sc_co', '$scdfno', GETDATE(), '$username')";
-                // $this->db->query($insert2);
-                echo $insert2."</br>";
+                $this->db->query($insert2);
+                //echo $insert2."</br>";
                 $xd++;
             }
             $slc3 = "SELECT b.paytype, SUM(B.payamt) AS nominal
             FROM
-             sc_newtrh a
-             LEFT JOIN sc_newtrp b
+            klink_mlm2010.dbo.sc_newtrh a
+             LEFT JOIN klink_mlm2010.dbo.sc_newtrp b
             ON a.trcd = b.trcd
-             LEFT JOIN deposit_H c
+             LEFT JOIN klink_mlm2010.dbo.deposit_H c
             ON b.docno= c.no_trx COLLATE SQL_Latin1_General_CP1_CS_AS
-             LEFT JOIN deposit_D d
+             LEFT JOIN klink_mlm2010.dbo.deposit_D d
             ON c.no_trx=d.no_trx
             WHERE a.batchno = '$new_id' AND B.paytype='01'
             GROUP BY  b.paytype";
@@ -501,7 +649,7 @@ class Sales_generate_model extends MY_Model
                     $tipes = 'C';
                 }
 
-                $insert3 = "INSERT INTO sc_newtrp_vc_det (trcd, seqno, paytype, payamt, trcd2, PT_SVRID,
+                $insert3 = "INSERT INTO klink_mlm2010.dbo.sc_newtrp_vc_det (trcd, seqno, paytype, payamt, trcd2, PT_SVRID,
                             voucher, vchtype,
                             vhcno, status, sc_co, sc_dfno, trxdt, createnm)
                             VALUES
@@ -509,8 +657,8 @@ class Sales_generate_model extends MY_Model
                             '$new_id', '$xd', '$data3->paytype', $data3->nominal, '$nomorG', 'ID',
                             '0','$tipes', '', '1',
                             '$sc_co', '$scdfno', GETDATE(), '$username');";
-                // $this->db->query($insert3);
-                echo $insert3."</br>";
+                $this->db->query($insert3);
+                 //echo $insert3."</br>";
                 $xd++;
             }
         }
@@ -522,8 +670,8 @@ class Sales_generate_model extends MY_Model
         $arrayy2 = "";
         $totet=0;
         $slc = "SELECT b.docno, b.payamt, b.paytype
-                from sc_newtrh a
-                LEFT JOIN sc_newtrp b
+                from klink_mlm2010.dbo.sc_newtrh a
+                LEFT JOIN klink_mlm2010.dbo.sc_newtrp b
                 on a.trcd = b.trcd
                 WHERE a.batchno = '$new_id'";
         $query = $this->db->query($slc);
@@ -541,7 +689,7 @@ class Sales_generate_model extends MY_Model
         $refno = str_replace("IPS", "VC", $nomorG);
         $refno = str_replace("/VC001", "S", $refno);
 
-        $insert2 = "INSERT INTO bbhdr (trcd, type, trtype, bankacccd, refno,
+        $insert2 = "INSERT INTO klink_mlm2010.dbo.bbhdr (trcd, type, trtype, bankacccd, refno,
                 description, amount, etdt, trdt, status,
                 dfno, createnm, createdt,  PT_SVRID,
                 custtype
@@ -552,20 +700,20 @@ class Sales_generate_model extends MY_Model
                     'FROM APPROVAL PVR', $totet, GETDATE(), GETDATE(), 'O',
                     '$username', '$username', GETDATE(), 'ID', 'S'
                 )";
-        // $this->db->query($insert2);
-        echo $insert2."</br>";
+        $this->db->query($insert2);
+        //echo $insert2."</br>";
         $xd=1;
 
         $slc2="SELECT  b.docno, b.payamt, b.paytype
             FROM
-             sc_newtrh a
-             LEFT JOIN sc_newtrp b
+            klink_mlm2010.dbo.sc_newtrh a
+             LEFT JOIN klink_mlm2010.dbo.sc_newtrp b
             ON a.trcd = b.trcd
             WHERE a.batchno = '$new_id'";
         $query2 = $this->db->query($slc2);
         foreach ($query2->result() as $data2) {
             $tipes='P';
-            $insert2 = "INSERT INTO sc_newtrp_vc_det (trcd, seqno, paytype, payamt, trcd2, PT_SVRID,
+            $insert2 = "INSERT INTO klink_mlm2010.dbo.sc_newtrp_vc_det (trcd, seqno, paytype, payamt, trcd2, PT_SVRID,
                             voucher, vchtype,
                             vhcno, status, sc_co, sc_dfno, trxdt, createnm)
                             VALUES
@@ -574,8 +722,8 @@ class Sales_generate_model extends MY_Model
                             '0','$tipes', '$data2->docno', '1',
                             '$sc_co', '$scdfno', GETDATE(), '$username');
                              ";
-            // $this->db->query($insert2);
-            echo $insert2."</br>";
+            $this->db->query($insert2);
+            //echo $insert2."</br>";
             $xd++;
         }
         return true;

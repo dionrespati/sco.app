@@ -156,6 +156,10 @@ $route['stockist/addr'] = 'stockist/stockist/formUpdateAddrStk';
 $route['stockist/addr/update'] = 'stockist/stockist/saveUpdateAddrStk';
 $route['stockist/info'] = 'stockist/stockist/formStockistInfo';
 $route['stockist/id/(:any)'] = 'stockist/stockist/getDetailStockistByID/$1';
+$route['stockist/kabupaten/list/(:any)'] = 'stockist/stockist/listKabupatenByProvince/$1';
+$route['stockist/kecamatan/list/(:any)'] = 'stockist/stockist/listKecamatanByKabupaten/$1';
+$route['stockist/kelurahan/list/(:any)'] = 'stockist/stockist/listKelurahannByKecamatan/$1';
+$route['stockist/kodepos/(:any)'] = 'stockist/stockist/showKodepos/$1';
 
 /*------------------------------
  * PRODUCT
@@ -214,6 +218,9 @@ $route['sales/sub/ttp/input'] = 'transaction/sales_stockist/inputTtpSub';
 $route['sales/sub/input/form'] = 'transaction/sales_stockist/inputTrxFormSub';
 //$route['sales/sub/save'] = 'transaction/sales_stockist/saveTrxStockist';
 
+$route['sales/pvr2/input/form'] = 'transaction/sales_stockist/inputTrxPvrForm2';
+$route['sales/product/pvr/check'] = 'transaction/sales_stockist/showProductPriceForPvr';
+$route['sales/pvr2/save'] = 'transaction/sales_stockist/savePvrVersi2';
 
 $route['sales/input'] = 'transaction/sales_stockist/inputSales';
 $route['sales/input/save'] = 'transaction/sales_stockist/saveInputSales';
@@ -221,6 +228,7 @@ $route['sales/input/save'] = 'transaction/sales_stockist/saveInputSales';
 $route['sales/generate'] = 'transaction/sales_generate/formGenerateScoTrx';
 $route['sales/search/list'] = 'transaction/sales_generate/searchUngeneratedSales';
 $route['sales/search/list/detail'] = 'transaction/sales_generate/getdetail';
+$route['sales/search/list/checkSelisih'] = 'transaction/sales_generate/checkSelisih';
 $route['sales/detail/(:any)/(:any)/(:any)/(:any)/(:any)'] = 'transaction/sales_generate/getDetailSales/$1/$2/$3/$4/$5';
 $route['sales/generate/preview'] = 'transaction/sales_generate/previewGenerate';
 $route['sales/generate/sales'] = 'transaction/sales_generate/generateSales';
@@ -229,6 +237,9 @@ $route['sales/pvr/input'] = 'transaction/sales_stockist/inputSalesPvr';
 $route['sales/pvr/input/list'] = 'transaction/sales_stockist/getListInputPvrSalesStockist';
 $route['sales/pvr/input/form'] = 'transaction/sales_stockist/inputTrxPvrForm';
 $route['sales/pvr/input/save'] = 'transaction/sales_stockist/saveInputSalesPvr';
+
+$route['sales/preview/(:any)/(:any)'] = 'transaction/sales_generate/listTTPbySSR/$1/$2';
+$route['sales/correction/(:any)'] = 'transaction/sales_stockist/koreksiTransaksi/$1';
 
 $route['sales/generated/report'] = 'transaction/sales_stockist_report/formListGeneratedSales';
 $route['sales/generated/report/list'] = 'transaction/sales_stockist_report/getListGeneratedSales';
@@ -301,4 +312,8 @@ $route['scan/list'] = 'transaction/scan_voucher/getDeposit';
 $route['scan/list/detail/voucher/(:any)'] = 'transaction/scan_voucher/getListScan/$1';
 $route['scan/list/detail/ttp/(:any)'] = 'transaction/scan_voucher/getTTPList/$1';
 $route['scan/list/delete'] = 'transaction/scan_voucher/hapusDeposit';
-
+$route['scan/ttp/input/(:any)'] = 'transaction/scan_voucher/getFormTtpDeposit2/$1';
+$route['scan/ttp/view/(:any)/(:any)/(:any)'] = 'transaction/scan_voucher/viewTTP/$1/$2/$3';
+$route['scan/ttp/delete/(:any)'] = 'transaction/scan_voucher/hapusTtpVchDeposit/$1';
+$route['scan/ttp/save'] = 'transaction/scan_voucher/saveTrxDepositVch';
+$route['scan/deposit/recalculate/(:any)'] = 'transaction/scan_voucher/recalculateDeposit/$1';

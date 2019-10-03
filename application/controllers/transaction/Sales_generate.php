@@ -15,7 +15,7 @@ class Sales_generate extends MY_Controller
     //$route['sales/generate'] = 'transaction/sales_generate/formGenerateScoTrx';
     public function formGenerateScoTrx()
     {
-        $data['form_header'] = "Generate Sales TTP & PVR";
+        $data['form_header'] = "Generate Sales Report";
         $data['form_action'] = base_url('sales/generate/list');
         $data['icon'] = "icon-edit";
         $data['form_reload'] = 'sales/generate';
@@ -177,6 +177,9 @@ class Sales_generate extends MY_Controller
             }
 
             if ($x['tipechmlm'][$k]=="Voucher Cash (Deposit)") {
+               /*  echo "<pre>";
+                print_r($x['trcd']);
+                echo "</pre>"; */
                 $lastVCD = $this->m_sales_generate->get_SSRno('stock', $x['bonusperiod'], $username, $x['scdfnomlm'][$k]);
                 $VCD++;
                 $generates=0;
@@ -205,15 +208,15 @@ class Sales_generate extends MY_Controller
                             $new_id = $row->hasil;
                             $x['new_id'] = $row->hasil;
                             //$generates = $this->m_sales_generate->generate_sales_save2($new_id, $x['trcd'][$d], $x['bonusperiod'], $username);
-                            $generates = $this->m_sales_generate->updateSSR($new_id, $x['trcd'][$d], $x['bonusperiod'], $username);
+                            $generates = $this->m_sales_generate->generatePvr($new_id, $x['trcd'][$d], $x['bonusperiod'], $username);
                             $arrayy .= "'".$new_id."', ";
                         }
                         $sdss=$d;
                     }
                 }
-                /* if ($generates > 0) {
+                 /* if ($generates > 0) {
                     $this->m_sales_generate->incoming_paymentV($new_id, $username, $x['scCOxd'][$sdss], $x['scCO'][$sdss]);
-                } */
+                }  */
             }
 
 
@@ -308,4 +311,43 @@ class Sales_generate extends MY_Controller
         $this->load->view('transaction/generate/previewListTtp', $data);
 
     }
+
+    //$route['sales/search/list/checkSelisih'] = 'transaction/sales_generate/checkSelisih';
+    public function checkSelisih() {
+        $explode=explode("|", $this->input->post('ID_KW'));
+        $tipe = $explode[0];
+        $sc_dfno = $explode[1];
+        $sc_co = $explode[2];
+        $dari = $this->input->post('from');
+        $ke = $this->input->post('to');
+        $idstkk = $this->input->post('mainstk');
+        $bnsperiod = $this->input->post('bnsperiod');
+
+
+        $data['tipe'] = $tipe;
+        $data['result'] = $this->m_sales_generate->getDetailTrxCheckTTP($idstkk, $bnsperiod, $tipe, $sc_co, $sc_dfno);
+        /* backToMainForm();
+        echo "<pre>";
+        print_r($data['result']);
+        echo "<pre>";
+        backToMainForm(); */
+
+        $this->load->view('transaction/generate/previewListTtpV2', $data);
+    }
+
+    //$route['sales/preview/(:any)/(:any)'] = 'transaction/sales_generate/listTTPbySSR/$1/$2';
+    public function listTTPbySSR($field, $value) {
+		//$this->load->model('transaction/do_stockist_model', 'do_stk');
+		$this->load->model('transaction/Sales_stockist_report_model', 'm_ssr');
+		if($field == "batchno") {
+			$data['back_button'] = "All.back_to_form(' .nextForm2',' .nextForm1')";
+			$data['result'] = $this->m_ssr->listTtpById($field, $value);
+			$data['rekapPrd'] = $this->m_ssr->summaryProductBySSR($value);
+			$this->load->view('transaction/stockist_report/listTTP', $data);
+		} else if($field == "trcd") {
+			$data['back_button'] = "All.back_to_form(' .nextForm2',' .nextForm1')";
+			$data['result'] = $this->m_ssr->detailTrxByTrcd($field, $value);
+			$this->load->view('transaction/stockist_report/detailTrx', $data);
+		}
+	}
 }

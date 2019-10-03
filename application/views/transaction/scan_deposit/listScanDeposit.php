@@ -17,26 +17,20 @@
     </script>
     <script>
         function myFunction(el) {
-            var txt;
-            var person = prompt("Please enter your password:", "");
-            if (person == null || person == "") {
-                alert("User cancelled the prompt.");
-            } else {
-                // window.location.href = "<?php echo base_url()?>scan/HapusDeposit/" + el.value + "/" + person;
-                console.log(el.value);
-                console.log(person);
-            }
-
-            /* $.ajax({
+            $.ajax({
                 type: 'POST',
-                url: All.get_url('klink_mlm2010/product/update/price'),
+                url: All.get_url('scan/list/delete'),
                 dataType: 'json',
-                data: formData,
+                data: {
+                    id: el.value
+                },
                 success: function(data) {
-                All.set_enable_button();
-                console.log(formData);
+                    All.set_enable_button();
+                    result = (data.res == 'true') ? data.message : 'Gagal dihapus';
+                    alert(result);
+                    All.ajaxFormPost('formInputList','scan/list');
                 }
-            }); */
+            });
         }
     </script>
 
@@ -63,6 +57,7 @@
                             <th>No</th>
                             <th>No Deposit</th>
                             <th>Tanggal Deposit</th>
+                            <th>Created By</th>
                             <th>Stokis</th>
                             <th>Total Deposit</th>
                             <th>Sisa</th>
@@ -77,26 +72,37 @@
         $sisa=$row->total_deposit - $row->total_keluar;
         $dd="'$row->id'";
         $datess = $row->createdt;
+
+        $linkDetVch = "All.ajaxShowDetailonNextForm('scan/list/detail/voucher/$row->id')";
+        $linkTTP = "All.ajaxShowDetailonNextForm('scan/list/detail/ttp/$row->id')";
+
+        //set awal, kondisi = status sudah digenerate
         $statusx = 'Sudah di Generate';
-        $action1='<a class="btn btn-sm btn-danger" onclick="Stockist.detailVoucher(\'scan/list/detail/voucher/'.$row->id.'\')" title="Edit">View Voucher</a>';
-        $action2='<a class="btn btn-sm btn-success" onclick="Stockist.detailTtp(\'scan/list/detail/ttp/'.$row->id.'\')" title="TTP">View TTP</a>';
+        //$action1='<a class="btn btn-sm btn-danger" onclick="Stockist.detailVoucher(\'scan/list/detail/voucher/'.$row->id.'\')" title="Edit">View Voucher</a>';
+        $action1="<a class='btn btn-sm btn-danger' onclick=$linkDetVch title='Edit'>View Voucher</a>";
+        //$action2='<a class="btn btn-sm btn-success" onclick="$linkViewTTP" title="TTP">View TTP</a>';
+        $action2="<a class='btn btn-sm btn-success' onclick=$linkTTP title='TTP'>View TTP</a>";
         $action3='';
         $action4='';
         if($row->status == '1') {
             $statusx = 'Aktif';
-            $action1='<a class="btn btn-sm btn-warning" onclick="Stockist.detailVoucher(\'scan/list/detail/voucher/'.$row->id.'\')" title="Edit">Tambah Voucher</a>';
-            $action2='<a class="btn btn-sm btn-primary" onclick="Stockist.detailTtp(\'scan/list/detail/ttp/'.$row->id.'\')" title="TTP">Tambah TTP</a>';
+            /* $action1='<button class="btn btn-sm btn-warning" title="Tambah Voucher"  onclick="Stockist.detailVoucher(\'scan/list/detail/voucher/'.$row->id.'\')"><i class="icon-briefcase icon-white"></i></button>';
+            $action2='<button class="btn btn-sm btn-primary" title="Tambah TTP" onclick="Stockist.detailTtp(\'scan/list/detail/ttp/'.$row->id.'\')"><i class="icon-shopping-cart icon-white"></i></button>'; */
+
+            $action1="<button class='btn btn-sm btn-warning' title='Tambah Voucher'  onclick=$linkDetVch><i class='icon-briefcase icon-white'></i></button>";
+            $action2="<button class='btn btn-sm btn-primary' title='Tambah TTP' onclick=$linkTTP><i class='icon-shopping-cart icon-white'></i></button>";
             if($row->total_keluar==0) {
-                $action3="<button class='btn btn-sm btn-danger' onClick='myFunction(this)' value='$row->id' title='TTP'>Hapus Deposit</button>";
+                $action3="<button class='btn btn-sm btn-danger' onClick='myFunction(this)' value='$row->id' title='Hapus TTP'><i class='icon-trash icon-white'></i></button>";
             }
-            $action4='<a class="btn btn-sm btn-info" href="'.base_url().'scan/reCalculate/'.$row->id.'" title="TTP">ReCalculate</a>';
-        }
+            $action4="<button title='Re-calculate' class='btn btn-sm btn-info' href=".base_url()."scan/reCalculate/".$row->id." title='TTP'><i class='icon-wrench icon-white'></i></button>";
+        } 
         echo "
         <tr class =\"record\" id=\"$n\">
             <td>$n</td>
             <td align=center>&nbsp;$row->no_trx</td>
             <td align=center>".$row->createdt."</td>
-            <td>$row->stokis</td>
+            <td align=center>$row->createnm</td>
+            <td align=center>$row->loccd</td>
             <td style=\"text-align:right\">".number_format($row->total_deposit,0,"",".")."</td>
             <td style=\"text-align:right\">".number_format($sisa,0,"",".")."</td>
             <td align=center>$statusx</td>
