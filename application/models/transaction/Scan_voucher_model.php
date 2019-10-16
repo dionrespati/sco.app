@@ -316,33 +316,44 @@ class Scan_voucher_model extends MY_Model {
         return $this->getRecordset($qry, NULL, $this->db2);
     }
 
-    function HapusDeposit($id) {
-        $this->db = $this->load->database($this->db2, true);
-        $this->db->select('*');
-        $this->db->where('id_deposit', $id);
-        $query = $this->db->get('sc_newtrh a');
-        $rowcount = $query->num_rows();
-        if ($rowcount > 0) {
-            return false;
-        } else {
-            $slc2 = "SELECT * FROM deposit_D WHERE id_header = '$id'";
-            $query2 = $this->db->query($slc2);
-            foreach ($query2->result() as $data2) {
-                $tipes = 'VoucherNo';
-                $ss = $data2->kategori;
-                if ($ss == "Voucher Cash") {
-                    $tipes = 'voucherkey';
-                }
-                $insert2 = "UPDATE tcvoucher SET status=0, claimstatus =0 WHERE voucherkey = '$data2->voucher_scan'";
-                $this->db->query($insert2);
+    function sumTrxByDepositId($id) {
+        $qry = "SELECT count(a.trcd) as jum FROM sc_newtrh a WHERE a.id_deposit = '$id'";
+        $hasil = $this->getRecordset($qry, NULL, $this->db2);
+        return $hasil[0]->jum;
+    }
+
+    function reactivateVoucherCashInDeposit($id) {
+        $qry = "SELECT kategori, dfno, no_trx, voucher_scan 
+                FROM klink_mlm2010.dbo.deposit_D 
+                WHERE id_header = '$id'";
+        $query2 = $this->db->query($qry);
+        $result = $query2->result();
+        if($result != null) {
+            foreach ($result as $data2) {
+                $updateVch = "UPDATE klink_mlm2010.dbo.tcvoucher 
+                                SET status = 0, claimstatus = 0, remarks = 'PREV $data2->no_trx'
+                              WHERE voucherkey = '$data2->voucher_scan' AND DistributorCode = '$data2->dfno'";
+                $this->db->query($updateVch);
             }
-            $del = "DELETE FROM deposit_H
-              WHERE id='$id'";
-            $this->db->query($del);
-            $del = "DELETE FROM deposit_D
-              WHERE id_header='$id'";
-            $this->db->query($del);
-            return true;
+        }
+    }
+
+    function deleteDepositVoucher($id) {
+        $del = "DELETE FROM klink_mlm2010.dbo.deposit_H WHERE id='$id'";
+        $this->db->query($del);
+        $del = "DELETE FROM klink_mlm2010.dbo.deposit_D WHERE id_header='$id'";
+        $this->db->query($del);
+    }
+
+    function HapusDeposit($id) {
+        
+        $rowcount = $this->sumTrxByDepositId($id);
+        if ($rowcount > 0) {
+            return jsonFalseResponse("Sudah ada $rowcount TTP dalam deposit voucher ini..");
+        } else {
+            $this->reactivateVoucherCashInDeposit($id);
+            $this->deleteDepositVoucher($id);
+            return jsonTrueResponse(null, "Deposit Voucher berhasil dihapus..");
         }
     }
 
@@ -715,30 +726,30 @@ class Scan_voucher_model extends MY_Model {
         $qryTrx = $this->load->database('klink_mlm2010', true);
 
         //hitung ulang total nilai voucher yg ada di deposit_D
-        $qry1 = "SELECT ISNULL(SUM(a.nominal), 0) as jumlah_deposit, a.no_trx, a.id_header
-                FROM deposit_D a
+        $qry1 = "SELECT ISNULL(SUM(a.nominal), 0) as jumlah_deposit, 
+                   a.no_trx, a.id_header
+                FROM klink_mlm2010.dbo.deposit_D a
                 WHERE a.id_header = '$id'
                 GROUP BY a.no_trx, a.id_header";
         $resQry1 = $qryTrx->query($qry1);
         $hasil = $resQry1->result();
 
-       /*  $qry2 = "SELECT a.id, a.total_deposit, 
-                SUM(b.tdp) as tdp, 
-                SUM(b.ndp) as ndp, 
-                SUM(b.totpay) as totpay, a.total_keluar, 
-                ISNULL(SUM(c.payamt), 0) as jml_vch_cash, 
-                ISNULL(SUM(d.payamt), 0) as jml_cash
-                FROM deposit_H a
-                LEFT OUTER JOIN sc_newtrh b ON (a.id = b.id_deposit)
-                LEFT OUTER JOIN sc_newtrp c ON (b.trcd = c.trcd AND c.paytype = '08')
-                LEFT OUTER JOIN sc_newtrp d ON (b.trcd = d.trcd AND d.paytype = '01')
-                WHERE a.id = '$id'
-                GROUP BY a.id, a.total_deposit, a.total_keluar"; */
+        $qryTrx->trans_begin();
+
+        $nominalDepositBaru = 0;
+        if($hasil != null) {
+            $nominalDepositBaru = $hasil[0]->jumlah_deposit; 
+        }
+
+        $qryTrx->set('total_deposit', $nominalDepositBaru);
+        $qryTrx->where('id', $id);
+        $qryTrx->update('klink_mlm2010.dbo.deposit_H');
+        
          $qry2 = "SELECT a.id, a.no_trx, b.trcd, a.total_deposit, 
                     tdp, ndp, totpay, a.total_keluar, 
                     ISNULL(SUM(c.payamt), 0) as jml_vch_cash, 
                     ISNULL(SUM(d.payamt), 0) as jml_cash
-                  FROM deposit_H a
+                  FROM klink_mlm2010.dbo.deposit_H a
                   LEFT OUTER JOIN sc_newtrh b ON (a.id = b.id_deposit)
                   LEFT OUTER JOIN sc_newtrp c ON (b.trcd = c.trcd AND c.paytype = '08')
                   LEFT OUTER JOIN sc_newtrp d ON (b.trcd = d.trcd AND d.paytype = '01')
@@ -750,114 +761,81 @@ class Scan_voucher_model extends MY_Model {
          $resQry2 = $qryTrx->query($qry2);
          $hasil2 = $resQry2->result();
 
-         $totalJumlahScanVch = $hasil[0]->jumlah_deposit;
-         $no_deposit = $hasil[0]->no_trx;
-         if($totalJumlahScanVch == 0) {
-             $return = jsonFalseResponse("jumlah nilai total voucher cash di deposit : $no_deposit");
-             return $return;
-         }
+         if($hasil2 != null) {
 
-         $qryTrx->trans_begin();
+            /* $totalJumlahScanVch = $nominalDepositBaru;
+            //$no_deposit = $hasil[0]->no_trx;
+            if($totalJumlahScanVch == 0) {
+                $return = jsonFalseResponse("jumlah nilai total voucher cash di deposit : $totalJumlahScanVch");
+                return $return;
+            } */
 
-        // $qryTrx->trans_complete();
-
-       
-         //cek per TTP, nilai transaksi dan total bayar harus sama
-         $no_trx_deposit = $hasil2[0]->no_trx;
-         $total_deposit = $hasil2[0]->total_deposit;
-         $sisa_deposit = $total_deposit;
-         $tidak_selisih = 0;
-         $jum_trx = 0;
-         $tot_vch_usage = 0;
-         foreach($hasil2 as $dtax) {
-            $jum_bayar = $dtax->jml_vch_cash + $dtax->jml_cash; 
-            //$sisa_deposit = $sisa_deposit - $dtax->jml_vch_cash;
-            if($dtax->tdp != $jum_bayar && $sisa_deposit >=  $dtax->tdp) {
-                /* echo "Total TTP       : ".$dtax->tdp."<br />";
-                echo "Penggunaan vch  : ".$dtax->tdp."<br />";
-                echo "<pre>";
-                print_r($ins);
-                echo "</pre>"; */
-                $qryTrx->where('trcd', $dtax->trcd);
-				$qryTrx->delete('klink_mlm2010.dbo.sc_newtrp');
-
-                $ins['trcd'] = $dtax->trcd;
-                $ins['seqno'] = 1;
-                $ins['paytype'] = "08";
-                $ins['docno'] = $dtax->no_trx;
-                $ins['payamt'] = $dtax->tdp;
-                $ins['voucher'] = "1";
-                $ins['vchtype'] = "C";
-                $qryTrx->insert("klink_mlm2010.dbo.sc_newtrp", $ins);
-                $tot_vch_usage += $dtax->tdp; 
-                $sisa_deposit = $sisa_deposit - $dtax->tdp;
-            } else if($sisa_deposit <= $dtax->tdp) {
-                /* echo "Total TTP       : ".$dtax->tdp."<br />";
-                echo "Penggunaan vch  : ".$sisa_deposit."<br />";
-                echo "<pre>";
-                print_r($ins);
-                echo "</pre>"; */
-
-                $qryTrx->where('trcd', $dtax->trcd);
-				$qryTrx->delete('klink_mlm2010.dbo.sc_newtrp');
-
-                $ins['trcd'] = $dtax->trcd;
-                $ins['seqno'] = 1;
-                $ins['paytype'] = "08";
-                $ins['docno'] = $dtax->no_trx;
-                $ins['payamt'] = $sisa_deposit;
-                $ins['voucher'] = "1";
-                $ins['vchtype'] = "C";
-                $qryTrx->insert("klink_mlm2010.dbo.sc_newtrp", $ins);
-                $tot_vch_usage += $sisa_deposit; 
-
-                $sisa_cash = $dtax->tdp - $sisa_deposit;
-                if($sisa_cash > 0) {
-                    /* echo "Penggunaan cash : ".$sisa_cash."<br />";
+            //cek per TTP, nilai transaksi dan total bayar harus sama
+            $no_trx_deposit = $hasil2[0]->no_trx;
+            $total_deposit = $hasil2[0]->total_deposit;
+            $sisa_deposit = $total_deposit;
+            $tidak_selisih = 0;
+            $jum_trx = 0;
+            $tot_vch_usage = 0;
+            foreach($hasil2 as $dtax) {
+                $jum_bayar = $dtax->jml_vch_cash + $dtax->jml_cash; 
+                //$sisa_deposit = $sisa_deposit - $dtax->jml_vch_cash;
+                if($dtax->tdp != $jum_bayar && $sisa_deposit >=  $dtax->tdp) {
+                    /* echo "Total TTP       : ".$dtax->tdp."<br />";
+                    echo "Penggunaan vch  : ".$dtax->tdp."<br />";
                     echo "<pre>";
-                    print_r($ins2);
+                    print_r($ins);
                     echo "</pre>"; */
-                    $ins2['trcd'] = $dtax->trcd;
-                    $ins2['seqno'] = 2;
-                    $ins2['paytype'] = "01";
-                    $ins2['docno'] = "/";
-                    $ins2['payamt'] = $sisa_cash;
-                    $ins2['voucher'] = "0";
-                    //$ins2['vchtype'] = "C";
+                    $qryTrx->where('trcd', $dtax->trcd);
+                    $qryTrx->delete('klink_mlm2010.dbo.sc_newtrp');
+
+                    $ins['trcd'] = $dtax->trcd;
+                    $ins['seqno'] = 1;
+                    $ins['paytype'] = "08";
+                    $ins['docno'] = $dtax->no_trx;
+                    $ins['payamt'] = $dtax->tdp;
+                    $ins['voucher'] = "1";
+                    $ins['vchtype'] = "C";
+                    $qryTrx->insert("klink_mlm2010.dbo.sc_newtrp", $ins);
+                    $tot_vch_usage += $dtax->tdp; 
+                    $sisa_deposit = $sisa_deposit - $dtax->tdp;
+                } else if($sisa_deposit <= $dtax->tdp) {
+                    $qryTrx->where('trcd', $dtax->trcd);
+                    $qryTrx->delete('klink_mlm2010.dbo.sc_newtrp');
+
+                    $ins['trcd'] = $dtax->trcd;
+                    $ins['seqno'] = 1;
+                    $ins['paytype'] = "08";
+                    $ins['docno'] = $dtax->no_trx;
+                    $ins['payamt'] = $sisa_deposit;
+                    $ins['voucher'] = "1";
+                    $ins['vchtype'] = "C";
+                    $qryTrx->insert("klink_mlm2010.dbo.sc_newtrp", $ins);
+                    $tot_vch_usage += $sisa_deposit; 
+
+                    $sisa_cash = $dtax->tdp - $sisa_deposit;
+                    if($sisa_cash > 0) {
+                        $ins2['trcd'] = $dtax->trcd;
+                        $ins2['seqno'] = 2;
+                        $ins2['paytype'] = "01";
+                        $ins2['docno'] = "/";
+                        $ins2['payamt'] = $sisa_cash;
+                        $ins2['voucher'] = "0";
+                        //$ins2['vchtype'] = "C";
+                        
+                        $qryTrx->insert("klink_mlm2010.dbo.sc_newtrp", $ins2);
+                    }
                     
-                    $qryTrx->insert("klink_mlm2010.dbo.sc_newtrp", $ins2);
+                } else {
+                    $tot_vch_usage += $dtax->tdp; 
+                    $sisa_deposit = $sisa_deposit - $dtax->tdp;
                 }
                 
-            } else {
-                /* echo "Tidak ada yg berubah : "."<br />";
-                echo "Total TTP       : ".$dtax->tdp."<br />"; 
-                echo "Penggunaan vch  : ".$dtax->tdp."<br />"; */
-                $tot_vch_usage += $dtax->tdp; 
-                /* echo "Tot vch usage : ".$tot_vch_usage;
-                echo "<br />"; */
-                $sisa_deposit = $sisa_deposit - $dtax->tdp;
-
             }
-            
-            /* echo "jml TTP : ".$dtax->tdp."<br />";
-            echo "jml penggunaan vch : ".$dtax->jml_vch_cash."<br />";
-            echo "Sisa deposit : ".$sisa_deposit."<br />"; */
-         }
         
-
-         
-         /* echo "jum trx       : ".$jum_trx;
-         echo "<br />";
-         echo "tidak selisih : ".$tidak_selisih;
-         echo "<br />";
-         echo "Sisa deposit seharus nya : ".$sisa_deposit;
-         echo "<br />"; 
-
-         if($jum_trx == $tidak_selisih) {
-             echo "Tidak ada selisih di sc_newtrh dan sc_newtrp";
-         } else {
-             echo "Ada selisih";
-         } */
+        } else {
+            $total_keluar_seharusnya = 0;
+        }
         
 
          $total_keluar_seharusnya = $tot_vch_usage;

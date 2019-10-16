@@ -62,7 +62,7 @@ echo "</pre>"; */
             <td style="text-align: right"><?php echo $n; ?></td>
             <td style="text-align: center"><?php echo $row->transaksi; ?></td>
             <td style="text-align: center"><?php echo $row->orderno; ?></td>
-            <td><?php echo $row->dfno. " / ".$row->member; ?></td>
+            <td><?php echo $row->dfno. " / ".substrwords($row->member,20); ?></td>
             <td style="text-align: center"><?php echo $row->bnsperiod; ?></td>
             <td style="text-align: center"><?php echo $row->batchno; ?></td>
             <?php

@@ -8,26 +8,10 @@ class Product_model extends MY_Model {
     }
 	
 	function getProductByID($id) {
-		/*$qry = "SELECT 
-		          db_ecommerce.dbo.master_prd_pricetab.pricecode,
-		          db_ecommerce.dbo.master_prd_pricecode.pricecode_desc,
-		          db_ecommerce.dbo.master_prd_pricetab.cat_inv_id,
-		          db_ecommerce.dbo.master_prd_cat_inv.cat_inv_desc,
-		          db_ecommerce.dbo.master_prd_pricetab.cp,
-		          db_ecommerce.dbo.master_prd_pricetab.dp,
-		          db_ecommerce.dbo.master_prd_pricetab.bv,
-		          db_ecommerce.dbo.master_prd_pricetab.tax
-		        FROM
-		          db_ecommerce.dbo.master_prd_pricetab
-		          INNER JOIN db_ecommerce.dbo.master_prd_cat_inv ON 
-		              (db_ecommerce.dbo.master_prd_pricetab.cat_inv_id = db_ecommerce.dbo.master_prd_cat_inv.cat_inv_id)
-		          INNER JOIN db_ecommerce.dbo.master_prd_pricecode ON 
-		              (db_ecommerce.dbo.master_prd_pricetab.pricecode = db_ecommerce.dbo.master_prd_pricecode.pricecode)
-		        WHERE
-		          (db_ecommerce.dbo.master_prd_pricetab.cat_inv_id = '$id')"; */
-				  
+
+		$param_id = $this->db->escape_like_str($id);
 		$qry = "SELECT * FROM V_STK_PRODUCT a
-		        WHERE a.prdcd LIKE'$id%' 
+		        WHERE a.prdcd LIKE '$param_id%' ESCAPE '!' 
 				and a.price_w is not null 
 				and a.price_e is not null";
 		//echo $qry;
@@ -46,19 +30,23 @@ class Product_model extends MY_Model {
 				       b.cp , 
 				       b.bv,  
 				       b.pricecode AS [pricecode]
-				from msprd a
-				     inner join pricetab b on a.prdcd=b.prdcd and b.pricecode='$pricecode' AND scstatus='1' AND a.webstatus = '1' AND a.status = '1'
-				     AND a.prdcd = '$id'";
+				FROM msprd a
+				INNER join pricetab b on a.prdcd=b.prdcd 
+				     AND b.pricecode= ? AND scstatus='1' AND a.webstatus = '1' AND a.status = '1'
+				     AND a.prdcd = ?";
 		//echo $qry;
-		$res = $this->getRecordset($qry, NULL, $this->db2);
+		$param = array($pricecode, $id);
+		$res = $this->getRecordset($qry, $param, $this->db2);
 		return $res;
 	}
 	
 	function getProductByName($name) {
 		$name = strtoupper($name);
+		$param_id = $this->db->escape_like_str($name);
 		$qry = "SELECT * FROM V_STK_PRODUCT a 
-		        WHERE a.prdnm LIKE '%$name%' 
-				 and a.price_w is not null and a.price_e is not null";
+		        WHERE a.prdnm LIKE '%$param_id% ' ESCAPE '!' 
+				 and a.price_w is not null 
+				 and a.price_e is not null";
 		//echo $qry;
 		$res = $this->getRecordset($qry, NULL, $this->db2);
 		return $res;
@@ -67,7 +55,8 @@ class Product_model extends MY_Model {
 	function getListFreeProduct($value) {
 		$prdnm = "";
 		if($value != "") {
-			$prdnm .= " AND a.prdnm LIKE '%$value%'";
+			$param_id = $this->db->escape_like_str($value);
+			$prdnm .= " AND a.prdnm LIKE '%$param_id% ESCAPE '!'";
 		} 
 		$qry = "SELECT * FROM V_STK_PRODUCT a 
 				WHERE a.price_w = 0 AND a.scstatus = '1'";
@@ -77,10 +66,10 @@ class Product_model extends MY_Model {
 	}
 	
 	function getListIndenProduct($value) {
-		$prdnm = "";
+		/* $prdnm = "";
 		if($value != "") {
 			$prdnm .= " AND a.prdnm LIKE '%$value%'";
-		}
+		} */
 		
 		$qry = "SELECT * FROM V_Ecomm_PriceList_Dion_Baru a 
 				WHERE a.is_discontinue = '1' ";
@@ -89,10 +78,10 @@ class Product_model extends MY_Model {
 	}
 	
 	function getListPrdKnet($value, $stt) {
-		$prdnm = "";
+		/* $prdnm = "";
 		if($value != "") {
 			$prdnm .= " AND a.prdnm LIKE '%$value%'";
-		}
+		} */
 		
 		$qry = "SELECT * FROM V_Ecomm_PriceList_Dion_Baru a 
 				WHERE a.ecomm_status = '$stt' and a.price_w is not null and a.price_e is not null";

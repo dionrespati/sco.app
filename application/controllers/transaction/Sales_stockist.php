@@ -40,6 +40,9 @@ class Sales_stockist extends MY_Controller {
 				} else {
 					$this->load->view($this->folderView.'inputTTPListResultByKW',$data);
 				}	
+			} else if($data['form']['searchby'] == "prdcd" || $data['form']['searchby'] == "prdnm") {
+				$data['result'] = $this->m_sales_stk->getListSalesStockistByProduk($data['form'], "SB1");
+				$this->load->view($this->folderView.'inputTTPListResult',$data);
 			} else {
 				$data['result'] = $this->m_sales_stk->getListSalesStockist($data['form'], "SB1");
 				$this->load->view($this->folderView.'inputTTPListResult',$data);
@@ -61,7 +64,7 @@ class Sales_stockist extends MY_Controller {
 			} 
 
 			$header = $data['header'][0];
-			if($header->flag_batch == "1" OR $header->batchno != null) {
+			if($header->flag_batch == "1" || $header->batchno != null || $header->batchno != "") {
 				$res = jsonFalseResponse("No Transaksi : $id sudah di generate dengan no : ".$header->batchno);
 				echo json_encode($res);
 				return;
@@ -202,43 +205,6 @@ class Sales_stockist extends MY_Controller {
 					return;
 				} 
 
-				//check apakah pembayaran kosong
-				if(!isset($data['payChooseType'])) {
-					echo json_encode(jsonFalseResponse("Pembayaran tidak boleh kosong.."));
-					return; 
-					
-				} else {
-					$jumPay = count($data['payReff']);
-					for($i=0; $i < $jumPay; $i++) {
-						if($data['payChooseType'][$i] == "01") {
-							$data['payChooseValue'][$i] = floatval(str_replace('.', '', $data['payChooseValue'][$i]));
-						} else {
-							if($data['payChooseType'][$i] == "10") {
-								$typeVchx = "P";
-							} else if($data['payChooseType'][$i] == "08") {
-								$typeVchx = "C";
-							}
-							$arr = $this->m_sales_stk->checkValidCashVoucher($data['dfno'],$data['payReff'][$i], $typeVchx);
-							if($arr['response'] == "false") {
-								echo json_encode($arr);
-								return;
-							} else {
-								$datax = $arr['arrayData'][0];
-								$data['payChooseValue'][$i] = $datax->VoucherAmt;
-							}
-						} 
-						
-						
-					}
-				}
-				//check apakah distributor valid
-				
-				$ifMemberExist = $this->m_sales_stk->getValidDistributor($data['dfno']);
-				if($ifMemberExist == null) {
-					echo json_encode(jsonFalseResponse("ID Member tidak valid.."));
-					return;
-				}
-
 				//check valid product
 				$sub_tot_bv = 0;
 				$sub_tot_dp = 0;
@@ -267,6 +233,57 @@ class Sales_stockist extends MY_Controller {
 
 				$data['total_all_bv'] = (float) $total_bv;
 				$data['total_all_dp'] = (float) $total_dp;
+
+				//check apakah pembayaran kosong
+				if(!isset($data['payChooseType'])) {
+					/* echo json_encode(jsonFalseResponse("Pembayaran tidak boleh kosong.."));
+					return;  */
+					$data['payChooseType'][0] = "01";
+					$data['payChooseValue'][0] = $data['total_all_dp'];
+					$data['payReff'][0] = "/";
+					
+				} else {
+					$jumPay = count($data['payReff']);
+					$total_bayar_vch = 0;
+					for($i=0; $i < $jumPay; $i++) {
+						if($data['payChooseType'][$i] == "01") {
+							$data['payChooseValue'][$i] = floatval(str_replace('.', '', $data['payChooseValue'][$i]));
+						} else {
+							if($data['payChooseType'][$i] == "10") {
+								$typeVchx = "P";
+							} else if($data['payChooseType'][$i] == "08") {
+								$typeVchx = "C";
+							}
+							$arr = $this->m_sales_stk->checkValidCashVoucher($data['dfno'],$data['payReff'][$i], $typeVchx);
+							if($arr['response'] == "false") {
+								echo json_encode($arr);
+								return;
+							} else {
+								$datax = $arr['arrayData'][0];
+								$data['payChooseValue'][$i] = $datax->VoucherAmt;
+								$total_bayar_vch += $datax->VoucherAmt;
+							}
+						} 
+						
+						
+					}
+					$j = $i;
+					if($data['total_all_dp'] > $total_bayar_vch) {
+						$sisa_cash = $data['total_all_dp'] - $total_bayar_vch;
+						$data['payChooseType'][$j] = "01";
+						$data['payChooseValue'][$j] = $sisa_cash;
+						$data['payReff'][$j] = "/";
+					}
+				}
+				//check apakah distributor valid
+				
+				$ifMemberExist = $this->m_sales_stk->getValidDistributor($data['dfno']);
+				if($ifMemberExist == null) {
+					echo json_encode(jsonFalseResponse("ID Member tidak valid.."));
+					return;
+				}
+
+				
 
 				$arr = array(
 					"table" => "sc_newtrh",
@@ -375,8 +392,10 @@ class Sales_stockist extends MY_Controller {
 		  $productcode = $this->input->post('productcode');
 		  $prdcdcode = strtoupper($productcode);
 		  $pricecode = $this->input->post('pricecode');
+		  $jenis = $this->input->post('jenis');
+
 		  $this->load->model('transaction/Sales_stockist_model', 'm_sales_stk');
-		  $data = $this->m_sales_stk->showProductPriceForPvr($prdcdcode, $pricecode);
+		  $data = $this->m_sales_stk->showProductPriceForPvr($prdcdcode, $pricecode, $jenis);
 		  echo json_encode($data);
 		} else {
 		  $err = jsonFalseResponse("Sesi anda habis, silahkan login kembali..");
@@ -431,10 +450,28 @@ class Sales_stockist extends MY_Controller {
 	public function getListInputPvrSalesStockist() {
 		
 		if($this->username != null) {
-			$this->load->model('transaction/Sales_stockist_model', 'm_sales_stk');
+			/* $this->load->model('transaction/Sales_stockist_model', 'm_sales_stk');
 			$data['form'] = $this->input->post(NULL, TRUE);
 			$data['result'] = $this->m_sales_stk->getListSalesStockist($data['form'], "VP1");
-			$this->load->view($this->folderView.'inputPvrListResult',$data);	
+			$this->load->view($this->folderView.'inputPvrListResult',$data); */	
+
+			$this->load->model('transaction/Sales_stockist_model', 'm_sales_stk');
+			$data['form'] = $this->input->post(NULL, TRUE);
+			$data['stk_login'] = $this->stockist;
+			if($data['form']['searchby'] == "receiptno") {
+				$data['result'] = $this->m_sales_stk->getListSsrByKW($data['form'], "SB1");
+				if($data['result'] ==  null) {
+					echo setErrorMessage("Data ".$data['form']['paramValue']." tidak ditemukan atau bukan milik ".$this->stockist);
+				} else {
+					$this->load->view($this->folderView.'inputTTPListResultByKW',$data);
+				}	
+			} else if($data['form']['searchby'] == "prdcd" || $data['form']['searchby'] == "prdnm") {
+				$data['result'] = $this->m_sales_stk->getListSalesStockistByProduk($data['form'], "VP1");
+				$this->load->view($this->folderView.'inputPvrListResult',$data);
+			} else {
+				$data['result'] = $this->m_sales_stk->getListSalesStockist($data['form'], "VP1");
+				$this->load->view($this->folderView.'inputPvrListResult',$data);
+			}	
 		} else {
            jsAlert();
         } 
@@ -487,6 +524,7 @@ class Sales_stockist extends MY_Controller {
 			$this->load->model('transaction/Sales_stockist_model', 'm_sales_stk');
 			$data['currentperiod']= $this->m_sales_member->getCurrentPeriod();
 			$data['form_action'] = "sales/stk/save/pvr";
+			$data['form_head'] = "Input Product Voucher / PVR";
 			$data['ins'] = "1";
 			$data['stockist'] = $this->stockist;
 			$data['stockistnm'] = $this->stockistnm	;
@@ -552,6 +590,12 @@ class Sales_stockist extends MY_Controller {
 			//echo "<input type='button' name='btns' value='<< Kembali' onclick='backToMainForm()' />";
 			return;
 		}
+
+		if(!array_key_exists('productcode', $data) || !isset($data['productcode'])) {
+			echo json_encode($this->jsonFalseResponse("Produk masih kosong.."));
+			//echo "<input type='button' name='btns' value='<< Kembali' onclick='backToMainForm()' />";
+			return;
+		}
 		
 
 		$jumVch = count($data['vchno']);
@@ -602,7 +646,7 @@ class Sales_stockist extends MY_Controller {
 		$x['total_nilai_prd'] = 0;
 		for($i=0; $i<$jumPrd; $i++) {
 			if($x['promo'] == "reguler") {
-				$checkValidPrd = $this->m_sales_stk->showProductPriceForPvr($data['productcode'][$i], $data['pricecode']);
+				$checkValidPrd = $this->m_sales_stk->showProductPriceForPvr($data['productcode'][$i], $data['pricecode'], $data['jenis_bayar']);
 				if($checkValidPrd['response'] == "false") {
 					echo json_encode($this->jsonFalseResponse($checkValidPrd['message']));
 					return;
@@ -661,6 +705,45 @@ class Sales_stockist extends MY_Controller {
 		
 	}
 
+	//$route['sales/sub/input/vcas'] = 'transaction/sales_stockist/inputVchCash';
+	public function inputVchCash() {
+		if($this->username != null) {
+			$this->load->model("transaction/sales_member_model", "m_sales_member");
+			$this->load->model('transaction/Sales_stockist_model', 'm_sales_stk');
+			$data['currentperiod']= $this->m_sales_member->getCurrentPeriod();
+			$data['form_action'] = "sales/stk/save/vcash";
+			$data['form_head'] = "Input Voucher Cash / Umroh";
+			$data['ins'] = "1";
+			$data['stockist'] = $this->stockist;
+			$data['stockistnm'] = $this->stockistnm	;
+			$data['pricecode'] = $this->pricecode;
+			$sctype = $this->m_sales_stk->getStockistInfo($data['stockist']);
+			//print_r($sctype);
+			$data['sctype'] = $sctype[0]->sctype;
+			$data['pricecode'] = $sctype[0]->pricecode;
+			$data['co_sctype'] = $sctype[0]->sctype;	
+			$data['listPay'] = $this->m_sales_stk->getListPaymentProductVoucher();
+			$data['start_tabidx'] = 7;
+			$data['prd_voucher'] = 0;
+			$data['jenis_bayar'] = "pv";
+
+			if($data['ins'] == "1") {
+				$data['submit_value'] = "Simpan Transaksi";
+			} else {
+				$data['submit_value'] = "Update Transaksi";
+			}
+			$data['tot_dp'] = 0;
+			$data['tot_bv'] = 0;
+			$data['jum_rec'] = 1;
+
+			$this->load->view($this->folderView.'formInputVchCash',$data);	
+			/* $this->load->view($this->folderView.'viewProductPayment',$data);
+			$this->load->view($this->folderView.'viewPaymentForm',$data); */
+		} else {
+           jsAlert();
+        } 
+	}
+
 	//$route['sales/correction/(:any)'] = 'transaction/sales_stockist/koreksiTransaksi/$1';
 	public function koreksiTransaksi($trcd) {
 		$this->load->model('transaction/Sales_stockist_model', 'm_sales_stk');
@@ -686,6 +769,125 @@ class Sales_stockist extends MY_Controller {
 
 		$res = $this->m_sales_stk->koreksiTransaksi($check);
 		echo json_encode($res);
+	}
+
+	//$route['sales/vcash2/save'] = 'transaction/sales_stockist/saveVcashVersi2';
+	public function saveVcashVersi2() {
+		$data = $this->input->post(NULL, TRUE);
+		$this->load->library('form_validation');
+		$x = array();
+		/* echo "<pre>";
+		print_r($data);
+		echo "</pre>"; */
+
+		//id member tidak boleh mengandung spasi dan hanya angka dan huruf
+		$this->form_validation->set_rules('distributorcode', 'Distributor', 'required|trim|alpha_numeric');
+		if ($this->form_validation->run() == FALSE) {
+		  echo json_encode($this->jsonFalseResponse("ID Member hanya boleh mengandung angka dan huruf.."));
+		  //echo "<input type='button' name='btns' value='<< Kembali' onclick='backToMainForm()' />";
+		  return;
+		}
+
+		$idmember = trim(strtoupper($data['distributorcode']));
+		//check valid member
+		$this->load->model('transaction/Sales_stockist_model', 'm_sales_stk');
+		$checkValidMember = $this->m_sales_stk->getValidDistributor($idmember);
+		if($checkValidMember == null) {
+		  echo json_encode($this->jsonFalseResponse("ID Member tidak valid atau TERMINATION/RESIGNATION"));
+		  //echo "<input type='button' name='btns' value='<< Kembali' onclick='backToMainForm()' />";
+		  return;
+		}
+		$x['fullnm'] = $checkValidMember[0]->fullnm;
+
+		//check valid voucher
+		if(!array_key_exists('vchno', $data) || !isset($data['vchno'])) {
+			echo json_encode($this->jsonFalseResponse("Pembayaran minimal menggunakan 1 produk voucher.."));
+			//echo "<input type='button' name='btns' value='<< Kembali' onclick='backToMainForm()' />";
+			return;
+		}
+
+		if(!array_key_exists('prdcd', $data) || !isset($data['prdcd'])) {
+			echo json_encode($this->jsonFalseResponse("Produk masih kosong.."));
+			//echo "<input type='button' name='btns' value='<< Kembali' onclick='backToMainForm()' />";
+			return;
+		}
+		
+
+		$jumVch = count($data['vchno']);
+		$x['total_nilai_vch'] = 0;
+		for($i=0; $i<$jumVch; $i++) {
+		   
+
+		   $x['orderno'] = $data['vchno'][$i];
+		   $arr = $this->m_sales_stk->checkValidCashVoucher($idmember,$data['vchno'][$i], "C");
+		   if($arr['response'] == "false") {
+			 echo json_encode($arr);
+			 return;
+		   }
+
+			$x['payChooseType'][$i] = "08";
+			$x['payReff'][$i] = $data['vchno'][$i];
+			$x['payChooseValue'][$i] = $data['vch_amt_real'][$i];
+			$x['total_nilai_vch'] += $data['vch_amt_real'][$i];
+
+		}
+
+		$x['bnsperiod'] = $data['bnsperiod'];
+		$x['dfno'] = $data['distributorcode'];
+		$x['sctype'] = $data['sctype'];
+		$x['pricecode'] = $data['pricecode'];
+		$x['ins'] = "1";
+		
+		$x['sc_dfno'] = $data['loccd'];
+		$x['sc_co'] = $data['loccd'];
+		$x['loccd'] = $data['loccd'];
+		$x['remarks'] = "";
+		$x['sctype'] = $data['sctype'];
+		$x['sctype'] = $data['sctype'];
+		$x['sctype'] = $data['sctype'];
+
+		$jumPrd = count($data['prdcd']);
+		$x['total_nilai_prd'] = 0;
+		for($i=0; $i<$jumPrd; $i++) {
+			$checkValidPrd = $this->m_sales_stk->showProductPriceForPvr($data['prdcd'][$i], $data['pricecode'], $data['jenis_bayar']);
+				if($checkValidPrd['response'] == "false") {
+					echo json_encode($this->jsonFalseResponse($checkValidPrd['message']));
+					return;
+				}
+
+				$harga = $checkValidPrd['arraydata'][0];
+				$x['total_nilai_prd'] += $data['jum'][$i] * $harga->dp;
+				$x['prdcd'][$i] = $data['prdcd'][$i];
+				$x['jum'][$i] = $data['jum'][$i];
+				$x['harga'][$i] = $harga->dp;
+				$x['poin'][$i] = $harga->bv;
+				$x['sub_tot_dp'][$i] = $data['jum'][$i] * $harga->dp;
+				$x['sub_tot_bv'][$i] = $data['jum'][$i] * $harga->bv;
+			
+			
+
+		}
+
+		$x['cash_hrs_dibayar'] = 0;
+		if($x['total_nilai_prd'] > $x['total_nilai_vch']) {
+			$x['cash_hrs_dibayar'] = $x['total_nilai_prd'] - $x['total_nilai_vch'];
+		}
+
+		$jumBayar = count($x['payChooseType']);
+		$x['payChooseType'][$jumBayar] = "01";
+		$x['payReff'][$jumBayar] = "CASH";
+		$x['payChooseValue'][$jumBayar] = $x['cash_hrs_dibayar'];
+
+		/* echo "<pre>";
+		print_r($x);
+		echo "</pre>"; */
+
+		$x['no_deposit'] = "";
+		$x['id_deposit'] = "";
+
+		$save = $this->m_sales_stk->saveTrx($x);
+		echo json_encode($save);
+		
 	}
 	
 }

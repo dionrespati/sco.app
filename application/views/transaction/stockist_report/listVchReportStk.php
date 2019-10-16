@@ -69,7 +69,7 @@ if($result['trx'] != null) {
         echo "<td align=center>".$dtaTrx->trcd."</td>";
         echo "<td align=center>".$dtaTrx->dfno."</td>";
         echo "<td align=center>".$dtaTrx->createdt."</td>";
-        echo "<td align=center>".$dtaTrx->loccd."</td>";
+        echo "<td align=center>".$dtaTrx->loccd." - ".$dtaTrx->loccd_name."</td>";
         echo "</tr>";
     }
     ?>

@@ -184,7 +184,7 @@ class Sales_generate_model extends MY_Model
                                 A.loccd, c.fullnm as scco, tipe, a.bnsperiod, 
                              a.totpay,
                              a.tbv,   
-                            ISNULL((SELECT CASE WHEN LEFT(A.trcd, 2) = 'ID' AND LEFT(A.trcd, 3) <> 'IDH' 
+                            ISNULL((SELECT CASE WHEN (LEFT(A.trcd, 2) = 'ID' OR A.tipe = 'Application') AND LEFT(A.trcd, 3) <> 'IDH' 
                             THEN A.totpay ELSE sum(D.payamt) END AS payamt
                             FROM sc_newtrp D
                             WHERE A.trcd=D.trcd AND d.paytype='01'), 0) AS cash,
@@ -404,15 +404,23 @@ class Sales_generate_model extends MY_Model
               AND sc_dfno = '$scdfno'
               AND tipe = '$searchBy'
               ORDER BY trcd "; */
-        $slc = "SELECT a.trcd, (CONVERT(VARCHAR(10), a.etdt, 120)) AS etdt, 
-                a.dfno, a.fullnm, a.totpay, a.tbv, a.sc_dfno, 
-                a.loccd, (CONVERT(VARCHAR(10), a.bnsperiod, 120)) as bnsperiod,
-                a.tipe,
-                ISNULL(SUM(b.payamt), 0) as tot_cash, 
-                ISNULL(SUM(c.payamt), 0) as tot_vch
-                FROM klink_mlm2010.dbo.ALDI_22022018 A
-                LEFT OUTER JOIN sc_newtrp b ON (a.trcd = b.trcd AND b.paytype = '01')
-                LEFT OUTER JOIN sc_newtrp c ON (a.trcd = c.trcd AND c.paytype != '01') 
+        $slc = "SELECT a.trcd, 
+                    (CONVERT(VARCHAR(10), a.etdt, 120)) AS etdt, 
+                    a.dfno, a.fullnm, a.totpay, a.tbv, a.sc_dfno, 
+                    a.loccd, 
+                    (CONVERT(VARCHAR(10), a.bnsperiod, 120)) as bnsperiod, 
+                    a.tipe, 
+                    ISNULL((SELECT CASE WHEN (LEFT(A.trcd, 2) = 'ID' OR A.tipe = 'Application') AND LEFT(A.trcd, 3) <> 'IDH' 
+                    THEN A.totpay ELSE sum(D.payamt) END AS payamt
+                    FROM sc_newtrp D
+                    WHERE A.trcd=D.trcd AND d.paytype='01'), 0) AS cash,
+                    ISNULL((SELECT sum(D.payamt)
+                    FROM sc_newtrp D
+                    WHERE A.trcd=D.trcd AND d.paytype='10'), 0) AS pcash,
+                    ISNULL((SELECT sum(D.payamt)
+                    FROM sc_newtrp D
+                    WHERE A.trcd=D.trcd AND d.paytype='08'), 0) AS vcash
+                FROM klink_mlm2010.dbo.ALDI_22022018 A 
                 WHERE bnsperiod = '$bonusperiod' 
                 AND A.loccd ='$scco'
                 AND sc_co = '$scco' 
@@ -421,6 +429,7 @@ class Sales_generate_model extends MY_Model
                 a.dfno, a.fullnm, a.totpay, a.tbv, a.sc_dfno, 
                 a.loccd, CONVERT(VARCHAR(10), a.bnsperiod, 120), a.tipe
                 ORDER BY trcd ";
+        
         //echo $slc."<br />";
         return $this->getRecordset($slc, null, $this->db2);
         
@@ -480,7 +489,7 @@ class Sales_generate_model extends MY_Model
         //$bnsperiod = date('d/m/Y', strtotime($bonusperiod));
         $updte = "update klink_mlm2010.dbo.sc_newtrh set batchno = '$newid',batchdt = '$createdt',
                         flag_batch='1',flag_approval = '0', flag_show = '1'
-                         where trcd = '$trcd' and createnm = '" . $username . "'
+                         where trcd = '$trcd'
                         and bnsperiod = '$bonusperiod' ";
         //echo $updte;
         $query = $this->db->query($updte);
@@ -494,8 +503,7 @@ class Sales_generate_model extends MY_Model
         $updte = "UPDATE klink_mlm2010.dbo.sc_newtrh SET batchno = '".$newid."',
              batchdt = '".$createdt."',flag_batch='1',
              updatenm = '".$username."',updatedt = '".$updatedt."'
-            WHERE trcd = '".$trcd."' AND createnm = '".$username."'
-            AND bnsperiod = '".$bonusperiod."' AND flag_batch='0'";
+            WHERE trcd = '".$trcd."' AND bnsperiod = '".$bonusperiod."' AND flag_batch='0'";
         //echo $updte."</br>";
         $query = $this->db->query($updte);
         return $query;
@@ -729,10 +737,10 @@ class Sales_generate_model extends MY_Model
         return true;
     }
 
-    public function getDetItem($dari, $ke, $idstkk, $bnsperiod, $x, $type = "array") {
+    public function getDetItem($dari, $ke, $username, $bnsperiod, $x, $type = "array") {
         $m = date('m');
         $y = date('Y');
-        $username = $this->stockist;
+        //$username = $this->stockist;
         $froms = date('Y-m-d', strtotime($dari));
         $tos = date('Y-m-d', strtotime($ke));
 
@@ -776,10 +784,10 @@ class Sales_generate_model extends MY_Model
         return $this->get_recordset($slc, $type, $this->setDB(2));
     }
 
-    public function getDetItem2($dari, $ke, $idstkk, $bnsperiod, $x, $type = "array") {
+    public function getDetItem2($dari, $ke, $username, $bnsperiod, $x, $type = "array") {
         $m = date('m');
         $y = date('Y');
-        $username = $this->stockist;
+        //$username = $this->stockist;
         $froms = date('Y-m-d', strtotime($dari));
         $tos = date('Y-m-d', strtotime($ke));
 
@@ -803,10 +811,10 @@ class Sales_generate_model extends MY_Model
         return $this->get_recordset($slc, $type, $this->setDB(2));
     }
 
-    public function getDetMLM($dari, $ke, $idstkk, $bnsperiod, $x, $type = "array") {
+    public function getDetMLM($dari, $ke, $username, $bnsperiod, $x, $type = "array") {
         $m = date('m');
         $y = date('Y');
-        $username = $this->stockist;
+        //$username = $this->stockist;
         $froms = date('Y-m-d', strtotime($dari));
         $tos = date('Y-m-d', strtotime($ke));
 

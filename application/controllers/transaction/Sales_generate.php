@@ -19,7 +19,7 @@ class Sales_generate extends MY_Controller
         $data['form_action'] = base_url('sales/generate/list');
         $data['icon'] = "icon-edit";
         $data['form_reload'] = 'sales/generate';
-
+        $data['stk_login'] = $this->stockist;
         if ($this->username != null) {
             //cek apakah group adalah ADMIN atau BID06
             if ($this->stockist == "BID06") {
@@ -43,36 +43,15 @@ class Sales_generate extends MY_Controller
     {
         if ($this->username != null) {
             $x = $this->input->post(null, true);
-            /**
-             * @Author: Ricky
-              * @Date: 2019-08-16 09:56:38
-              * @Desc: Temporarily disabled
-              */
-            // -- start comment -- //
-            /* if($x['searchs'] == "stock" || $x['searchs'] == "apl") {
-                $x['tipess'] = 'ID Stockist';
-                $x['idstk'] =  $this->m_sales_generate->getGenerateByStk($x);
-                $this->load->view($this->folderView.'listGenSalesScoStk',$x);
-            } else if($x['searchs'] == "pvr") {
-              $x['idstk'] =  $this->m_sales_generate->getGenerateByPVR($x);
-                //print_r($x['idstk']);
-                $this->load->view($this->folderView.'listGenSalesPvr',$x);
-            } else {
-                if($x['searchs'] == "sub") {
-                    $x['tipess'] = 'Kode Sub Stk';
-                    $x['namess'] = 'Nama Sub Stk';
-                } else {
-                    $x['tipess'] = 'Kode MS';
-                    $x['namess'] = 'Nama MS';
-                }
-                $x['idstk'] =  $this->m_sales_generate->getGenerateBySUbMs($x);
-                $this->load->view($this->folderView.'listGenSalesSco',$x);
-            } */
-            // -- end comment -- //
+            /* echo '<pre>';
+            print_r($x);
+            echo '</pre>'; */
+            
             $x['tipe'] = $this->input->post('searchs');
             $x['tipess'] = 'ID Stockist';
             $x['idstk'] =  $this->m_sales_generate->getGenerateByStk($x);
-            $x['stockist'] = $this->stockist;
+            $x['stockist'] = $this->stockist == "BID06" ? $x['mainstk'] : $this->stockist ;
+            //echo "kode stk : ".$x['stockist'];
             $this->load->view($this->folderView.'listGenSalesScoStk', $x);
         } else {
             echo sessionExpireMessage();
@@ -104,7 +83,7 @@ class Sales_generate extends MY_Controller
             $x['tipe'] = $this->input->post('ID_KW');
             $x['dari'] = $this->input->post('from');
             $x['ke'] = $this->input->post('to');
-            $x['idstkk'] = $this->input->post('idstkk');
+            $x['idstkk'] = $this->stockist == "BID06" ? $x['scDfno'] : $this->stockist ;
 
             $x['groupitem']= $this->m_sales_generate->getDetItem($x['dari'],$x['ke'],$x['idstkk'],$bnsperiod,$x['cek']);
 
@@ -123,7 +102,7 @@ class Sales_generate extends MY_Controller
     public function generateSales()
     {
         //$username = $this->session->userdata('username');
-        $username = $this->stockist;
+        $username = $this->stockist; //== "BID06" ? :  = $this->stockist;
         $createdt = date('Y-m-d');
         $x['head'] = 'SSR';
         $x['trcd'] = $this->input->post('trcd');

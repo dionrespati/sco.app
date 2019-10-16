@@ -211,6 +211,8 @@ $route['sales/stk/info/(:any)'] = 'transaction/sales_stockist/getStockistInfo/$1
 $route['sales/stk/save'] = 'transaction/sales_stockist/saveTrxStockist';
 $route['sales/stk/delete/(:any)/(:any)'] = 'transaction/sales_stockist/deleteTrx/$1/$2';
 
+$route['sales/vcash2/save'] = 'transaction/sales_stockist/saveVcashVersi2';
+
 $route['sales/vc/check/(:any)/(:any)/(:any)'] = 'transaction/sales_stockist/checkValidVoucherCash/$1/$2/$3';
 $route['sales/sub/ttp/input'] = 'transaction/sales_stockist/inputTtpSub';
 //$route['sales/sub/input/list'] = 'transaction/sales_stockist/getListInputSalesStockist';
@@ -221,6 +223,8 @@ $route['sales/sub/input/form'] = 'transaction/sales_stockist/inputTrxFormSub';
 $route['sales/pvr2/input/form'] = 'transaction/sales_stockist/inputTrxPvrForm2';
 $route['sales/product/pvr/check'] = 'transaction/sales_stockist/showProductPriceForPvr';
 $route['sales/pvr2/save'] = 'transaction/sales_stockist/savePvrVersi2';
+
+$route['sales/sub/input/vcash'] = 'transaction/sales_stockist/inputVchCash';
 
 $route['sales/input'] = 'transaction/sales_stockist/inputSales';
 $route['sales/input/save'] = 'transaction/sales_stockist/saveInputSales';

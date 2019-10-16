@@ -1,5 +1,5 @@
 <?php
- 	
+if($result !== null) { 	
 ?>
 <div class="mainForm">
   <form class="form-horizontal" enctype="multipart/form-data" id="formUpdateStockist">
@@ -143,7 +143,7 @@
       	</div>
 		<label class="control-label" for="typeahead">Kelurahan</label>
       	<div class="controls">
-      		<select id="kelurahan" name="kelurahan" onchange="showAreaSelect(this,'stockist/kodepos','#kodepos')">
+      		<select id="kelurahan" name="kelurahan" onchange="showAreaSelect(this,'stockist/kodepos','#postcd')">
 			   <option value="">--Pilih disini--</option>
 			   <?php 
 			 	if($listKelurahan !== null) {
@@ -215,3 +215,6 @@
         });
 	}
 </script>
+<?php
+}
+?>

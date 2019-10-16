@@ -124,7 +124,9 @@ class MY_Model extends CI_Model {
 
 	function getCurrentPeriod() // dipake
     {
-        $qry = "SELECT a.currperiodSCO as lastperiod,
+        $qry = "SELECT 
+				DATEADD(month, -1, a.currperiodSCO) as prevperiod,
+				a.currperiodSCO as lastperiod,
                 DATEADD(month, 1, a.currperiodSCO) as nextperiod
                 from klink_mlm2010.dbo.syspref a";
         $res = $this->getRecordset($qry, null, $this->db2);

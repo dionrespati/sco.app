@@ -64,6 +64,64 @@ class Sales_stockist_model extends MY_Model {
 		return $this->getRecordset($qry, null, $this->db2);
 	}	
 
+	function getListSalesStockistByProduk($data, $tipe) {
+		/* if($data['searchby'] == "trcd" || $data['searchby'] == "orderno") {
+			$s = "a.".$data['searchby'];
+			$param .= "$s = '$data[paramValue]' and a.flag_batch = '".$data['flag_batch']."'";
+		} else if($data['searchby'] == "sc_dfno") {
+			$param .= "a.sc_dfno = '$data[paramValue]' AND a.loccd = '$data[loccd]' and a.flag_batch = '".$data['flag_batch']."' 
+			          and CONVERT(char(10), a.etdt,126) BETWEEN '$data[from]' AND '$data[to]'";
+		} else if($data['searchby'] == "") {
+			$param .= "a.loccd = '$data[loccd]' and a.flag_batch = '".$data['flag_batch']."' 
+			          and CONVERT(char(10), a.etdt,126) BETWEEN '$data[from]' AND '$data[to]'";
+	    } else {
+			$s = "a.".$data['searchby'];
+			$param .= "$s = '$data[paramValue]'";
+		} */
+		if($data['searchby'] == "prdnm") {
+			$param = "a.loccd = '$data[loccd]' and a.flag_batch = '".$data['flag_batch']."' 
+					 AND (a2.prdnm LIKE '%$data[paramValue]' OR a2.prdnm LIKE '%$data[paramValue]%')
+					  and CONVERT(char(10), a.etdt,126) BETWEEN '$data[from]' AND '$data[to]'";
+		} else {
+			$param = "a.loccd = '$data[loccd]' and a.flag_batch = '".$data['flag_batch']."' 
+					 AND (a2.prdcd LIKE '$data[paramValue]' OR a2.prdcd LIKE '$data[paramValue]%')
+					  and CONVERT(char(10), a.etdt,126) BETWEEN '$data[from]' AND '$data[to]'";
+		}
+
+		
+					  
+    	$qry = "SELECT 
+				  a.orderno,
+				  a.trcd,
+				  a.pricecode,
+				  CONVERT(char(10), a.etdt,126) as etdt,
+				  a.bnsperiod,
+				  a.dfno,
+				  b.fullnm,
+				  a.loccd,
+				  a.sc_dfno,
+				  a.sc_co,
+				  a.tdp,
+				  a.tbv,
+				  a.entrytype,
+				  a.batchno,
+				  a.flag_batch, a.no_deposit, a.id_deposit,
+				  CASE 
+				    WHEN flag_batch = '0' THEN 'Pending'
+					WHEN flag_batch = '1' THEN 'Generated'
+					WHEN flag_batch = '2' THEN 'Approved'
+				  end AS flag_batch_stt,
+				  a1.prdcd, a1.qtyord, a1.dp, a1.bv, a3.dp as dp_pricetab, a3.bv as bv_pricetab 
+					FROM klink_mlm2010.dbo.sc_newtrh a 
+					LEFT OUTER JOIN klink_mlm2010.dbo.sc_newtrd a1 ON (a.trcd = a1.trcd)
+					LEFT OUTER JOIN klink_mlm2010.dbo.msprd a2 ON (a1.prdcd = a2.prdcd)
+					LEFT OUTER JOIN klink_mlm2010.dbo.pricetab a3 ON (a1.prdcd = a3.prdcd AND a1.pricecode = a3.pricecode)
+					LEFT OUTER JOIN klink_mlm2010.dbo.msmemb b ON (a.dfno = b.dfno) 
+				WHERE $param AND a.trtype = '$tipe' ORDER BY a.trcd";	
+		//echo $qry;		
+		return $this->getRecordset($qry, null, $this->db2);
+	}
+
 	function getTrxByTrcdHead($param, $id) {
 		$qry = "SELECT a.trcd, a.orderno, a.batchno, a.trtype, a.ttptype, a.trtype,
 	                 a.etdt, a.batchdt, a.remarks, a.createdt, a.createnm, a.updatedt, a.updatenm, a.dfno, b.fullnm as distnm,
@@ -164,7 +222,12 @@ class Sales_stockist_model extends MY_Model {
 		}	
 				
 		$qry = "SELECT a.claimstatus, 
-				       a.DistributorCode, a.VoucherNo as VoucherNo,
+				       a.DistributorCode, 
+					   CASE 
+					     WHEN a.vchtype = 'C' THEN a.voucherkey
+						 WHEN a.vchtype = 'P' THEN a.VoucherNo
+						 ELSE a.VoucherNo
+					   END AS VoucherNo,
 				       a.vchtype,a.VoucherAmt, a.vchtype, a.loccd,
 					   CONVERT(char(10), a.claim_date,126) as claim_date,
 				       CONVERT(char(10), a.ExpireDate,126) as ExpireDate,
@@ -172,8 +235,19 @@ class Sales_stockist_model extends MY_Model {
 				       CASE 
 				           WHEN CONVERT(char(10), GETDATE(),126) >= CONVERT(char(10), a.ExpireDate,126) THEN '1'
 				           ELSE '0'
-				       END AS status_expire
+				       END AS status_expire,
+					   b.docno, c.trcd, c.etdt, c.dfno, 
+					   CASE 
+							WHEN c.trcd is not null THEN d.fullnm 
+							WHEN e.no_trx is not NULL THEN F.fullnm 
+						END AS stokisname,
+						e.no_trx
                 FROM tcvoucher a
+				LEFT OUTER JOIN sc_newtrp b ON (b.docno = a.$fieldCek)
+				LEFT OUTER JOIN sc_newtrh c ON (c.trcd = b.trcd AND c.dfno = a.DistributorCode)
+				LEFT OUTER JOIN deposit_D e ON (a.voucherkey COLLATE SQL_Latin1_General_CP1_CI_AI = e.voucher_scan)
+				LEFT OUTER JOIN mssc d ON (c.createnm COLLATE SQL_Latin1_General_CP1_CS_AS= d.loccd)
+				LEFT OUTER JOIN mssc f ON (a.loccd COLLATE SQL_Latin1_General_CP1_CS_AS = f.loccd)
                 WHERE a.$fieldCek = '".$vchnoo."' 
 					AND a.DistributorCode = '".$distributorcode."' 
 					AND a.vchtype = '$vchtype'
@@ -187,20 +261,46 @@ class Sales_stockist_model extends MY_Model {
 			return $response;
 		}
 
-		if($res[0]->status_expire == '1') {
-			$response = jsonFalseResponse("Voucher ".$vchnoo." sudah expire pada tanggal : ".$res[0]->ExpireDate."");
+
+		if($res[0]->no_trx != null) {
+			$response = array("response" => "false", "arrayData" => $res,"message" => "Voucher ".$vchnoo." sudah diinput di voucher cash deposit ".$res[0]->no_trx.", tgl :".$res[0]->claim_date.", Stockist : ".$res[0]->loccd." / ".$res[0]->stokisname);
 			return $response;
 		}
 
-		if($res[0]->claimstatus == "1") {
-			$response = array("response" => "false", "arrayData" => $res,"message" => "Voucher ".$vchnoo." sudah pernah di klaim pada ".$res[0]->claim_date.", Stockist : ".$res[0]->loccd);
+		if($res[0]->VoucherNo == $res[0]->docno && $res[0]->DistributorCode == $res[0]->dfno) {
+			$response = array("response" => "false", "arrayData" => $res,"message" => "Voucher ".$vchnoo." sudah pernah di klaim pada ".$res[0]->claim_date.", Stockist : ".$res[0]->loccd." - ".$res[0]->stokisname);
 			return $response;
+		}
+
+		if($res[0]->docno == null && $res[0]->trcd == null && $res[0]->no_trx == null && $res[0]->loccd == "BID06") {
+			$qryTrx = "SELECT b.invoiceno as trcd, b.dfno, CONVERT(VARCHAR(10),b.tgltrans, 120) as createdt,
+								c.loccd, d.fullnm as loccd_name
+								FROM KL_TVOCASH a
+								INNER JOIN KL_TEMPTRANS b ON (a.grupunik COLLATE SQL_Latin1_General_CP1_CS_AS = b.grupunik)
+								LEFT OUTER JOIN newtrh c ON (b.invoiceno COLLATE SQL_Latin1_General_CP1_CS_AS = c.trcd)
+								LEFT OUTER JOIN mssc d ON (c.loccd = d.loccd)
+								WHERE a.voucherno = '$vchnoo'";
+					
+			$kmart_result = $this->getRecordset($qryTrx, null, $this->db2);
+			if($kmart_result != null) {
+				$noinvoice = $kmart_result[0]->trcd;
+				$response = array(
+					"response" => "false", "arrayData" => $res,
+					"message" => "Voucher ".$vchnoo." sudah pernah di klaim pada ".$res[0]->claim_date.", Stockist : BID06 - PT K-LINK NUSANTARA, no trx : ".$noinvoice
+				);
+				return $response;
+			}
 		}
 		
 		$res2 = null;
 		if($res != null && $threeDigit == "XPV" || $threeDigit == "ZVO" || $threeDigit == "XPP" || $threeDigit == "XHD") {
 			//$detProd = "SELECT * FROM TWA_KLPromo_Oct17_D WHERE Voucherno = '$vchnoo'";
 			$res2 = $this->getListProdPromo($vchnoo);
+		}
+
+		if($res[0]->status_expire == '1') {
+			$response = jsonFalseResponse("Voucher ".$vchnoo." sudah expire pada tanggal : ".$res[0]->ExpireDate."");
+			return $response;
 		}
 		
 		return array("response" => "true", "arrayData" => $res, "detProd" => $res2);
@@ -445,11 +545,19 @@ class Sales_stockist_model extends MY_Model {
 			$query2 = $db_qryx->query($insDetTrf);
 			
 			if($arrQuery['updVoucher'] != "") {
+
+				$jenis = $arrQuery['jenis'];
+				if($jenis == "pv" || $jenis == "pv_hadiah" || $jenis == "pv_hydro") {
+					$field_upd_vch = "VoucherNo";
+				} else if($jenis == "cv") {
+					$field_upd_vch = "voucherkey";
+				}
 				//UPDATE VOUCHER
 				$updVc = "UPDATE tcvoucher SET claimstatus = '1', 
 							updatenm = '".$this->stockist."', 
+							claim_date = '$this->dateTime',
 							updatedt = '$this->dateTime' 
-				          WHERE VoucherNo IN ($arrQuery[updVoucher])";
+				          WHERE $field_upd_vch IN ($arrQuery[updVoucher]) AND DistributorCode = '".$datax['dfno']."'";
 				//echo $updVc;
 				$query2 = $db_qryx->query($updVc); 
 			}
@@ -638,11 +746,11 @@ class Sales_stockist_model extends MY_Model {
 				if($dta->paytype == "08") {
 					$upd = "UPDATE klink_mlm2010.dbo.tcvoucher 
 								SET claimstatus = '0', claim_date = '', loccd = ''
-							WHERE DistributorCode = '$dta->dfno' and VoucherNo = '$dta->docno'";
+							WHERE DistributorCode = '$dta->dfno' and voucherkey = '$dta->docno'";
 				} else if($dta->paytype == "10") {
 					$upd = "UPDATE klink_mlm2010.dbo.tcvoucher 
 								SET claimstatus = '0', claim_date = '', loccd = ''
-							WHERE DistributorCode = '$dta->dfno' and voucherkey = '$dta->docno'";
+							WHERE DistributorCode = '$dta->dfno' and VoucherNo = '$dta->docno'";
 				}
 				/* echo $upd;
 				echo "<br />"; */
@@ -676,7 +784,7 @@ class Sales_stockist_model extends MY_Model {
 		}
 	}
 
-	function showProductPriceForPvr($productcode, $pricecode) {
+	function showProductPriceForPvr($productcode, $pricecode, $jenis) {
 
 		$qry = "SELECT  b.prdcd,b.prdnm, b.webstatus, b.scstatus, b.status, 
 					c.bv,c.dp, d.cat_inv_id_parent as bundling, b1.pvr_exclude_status
@@ -698,20 +806,26 @@ class Sales_stockist_model extends MY_Model {
 
 		//jika produk adalah, tipe product exclude yang tidak boleh diinput dalam pembelanjaan PVR
 		$produkname = $hasil[0]->prdnm;
-		if($hasil[0]->pvr_exclude_status == "1") {
+		if($jenis == "pv" && $hasil[0]->pvr_exclude_status == "1") {
 			$arr = array("response" => "false", "message" => "Produk $productcode / $produkname tidak dapat diinput dalam pembelanjaan PVR");
 			return $arr;
 		}
+		/* $produkname = $hasil[0]->prdnm;
+		if($hasil[0]->pvr_exclude_status == "1") {
+			
+		} */
 
 		//jika produk adalah produk free / yang harga nya 0
+		//tidak bisa untuk inputan PVR
 		$harga = (int) $hasil[0]->dp;
-		if($harga == 0) {
+		if($jenis == "pv" && $harga == 0) {
 			$arr = array("response" => "false", "message" => "Produk $productcode / $produkname adalah kode produk FREE");
 			return $arr;
 		}
 	
 		//jika produk adalah produk bundling
-		if($hasil[0]->bundling !== null) {
+		//tidak bisa untuk inputan PVR
+		if($jenis == "pv" && $hasil[0]->bundling !== null) {
 			$arr = array("response" => "false", "message" => "Produk $productcode / $produkname adalah produk bundling/paket");
 			return $arr;
 		}

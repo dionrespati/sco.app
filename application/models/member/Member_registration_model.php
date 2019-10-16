@@ -74,6 +74,8 @@ class Member_registration_model extends MY_Model {
                        'UNITED STATES OF AME', 'THAILAND', 'SWITZERLAND', 'SPANYOL', 'SRILANKA', 'SINGAPORE', 'JAPAN',
 					   'CANADA','INTERNET CODE','UNITED ARAB EMIRATES') 
                     AND scstatus='1' 
+                    AND loccd NOT IN ('JNE', 'MKT', 'PR', 'IDJD01','PT MASS')
+                    AND loccd NOT LIKE 'WR%'
 		        ORDER BY sctype, fullnm ";
 		//echo $qry;
         $result = $this->getRecordset($qry,null,$this->db2);

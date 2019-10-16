@@ -62,7 +62,18 @@
        
       </div><!-- end control-group -->
     </fieldset>
-    <div class="result"></div>
+    <div class="result">
+		<pre>
+			* Voucher Produk biasa nya diawali dengan huruf "P", contoh nya P212222  
+			* Voucher Cash biasa nya diawali dengan huruf "V" dapat di klaim langsung atau ditukarkan dengan cash, contoh nya V212222
+			* Voucher Promo adalah Voucher Produk yang biasa nya di dalam nya sudah ada produk-produk hadiah non BV.
+			  Biasa nya diawali dengan "XPV" atau "ZVO" atau "XPP"
+			* Voucher Umroh sama seperti voucher cash, biasa nya bernilai Rp 2.000.000 dan dapat dibelanjakan produk
+			  dan mendapatkan BV
+			* Voucher Registrasi Member digunakan untuk mendaftarkan member baru, penginputan nya menggunakan
+			  nomor voucher dan voucher key    
+		</pre>	  
+	</div>
   </form>   
   
 </div><!--/end mainForm-->

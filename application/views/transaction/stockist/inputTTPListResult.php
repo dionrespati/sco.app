@@ -53,7 +53,7 @@ if($result == null) {
 				    $dta->etdt
 				</td>
 				<td>
-				    $dta->fullnm
+				    ".substrwords($dta->fullnm,20)."
 				</td>
 				<td align=\"right\">
 				   ".number_format($dta->tdp, 0, ",", ".")."

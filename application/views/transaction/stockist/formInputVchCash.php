@@ -23,7 +23,7 @@
 </style>
 
 
-          <form class="form-horizontal" method="post" id="frm_ttp" name="frm_ttp">
+          <form class="form-horizontal" method="post" id="frm_ttp_vchcash" name="frm_ttp_vchcash">
             <fieldset>
               <div class="control-group">
 
@@ -104,8 +104,8 @@
                           <td class="form_title_left">&nbsp;No/Kode Voucher&nbsp;</td>
                           <td>
                             <input tabindex="3" type="text" style="width: 200px;" id="vchno" name="vch_no"
-                              placeholder="Wajib Di isi" onchange="Stockist.get_pvr_info('10')" />
-                              <input type="button" value="Tambah Voucher" onclick="Stockist.get_pvr_info('10')" class="btn btn-mini btn-success">
+                              placeholder="Wajib Di isi" onchange="Stockist.get_pvr_info('08')" />
+                              <input type="button" value="Tambah Voucher" onclick="Stockist.get_pvr_info('08')" class="btn btn-mini btn-success">
                           </td>
                         </tr>
                         
@@ -149,105 +149,60 @@
                     <input type="hidden" name="amount" id="amount" value="1" />
                     <input type="hidden" name="tabidx" id="tabidx" value="4" />
                     <input type="hidden" name="amt_record" id="amt_record" value="0" />
-                    <input type="hidden" name="jenis_bayar" id="jenis_bayar" value="pv" />
-                    <input type="hidden" name="xhd" id="xhd" value="0">
-                    <input type="hidden" name="isPrdpromo" id="isPrdpromo" value="0">
+                    <input type="hidden" id="jenis_bayar" name="jenis_bayar" value="cv" />
+                    <input type="hidden" id="xhd" name="xhd" value="0">
+                    <input type="hidden" id="isPrdpromo" name="isPrdpromo" value="0">
+                    <input value="<?php echo $jum_rec; ?>" type="hidden" id="rec" name="rec" />
+                    <input value="1" type="hidden" id="ins" name="ins" />
                   </tbody>
                 </table> <!-- voucher table -->
 
                 <table width="100%" class="table table-striped table-bordered"> <!-- product table -->
                   <thead>
                   <tr bgcolor="#f4f4f4">
-                       <th colspan="6">List Pembelanjaan Produk</th>       
+                       <th colspan="9">List Pembelanjaan Produk</th>       
                     </tr>
                     <tr bgcolor="#f4f4f4">
-                      <th width="15%">Kode Produk</th>
+                      <!-- <th width="15%">Kode Produk</th>
                       <th>Nama Produk</th>
-                      <th width="10%">Qty</th>
+                      <th width="8%">Qty</th>
                       <th width="15%">Harga</th>
-                      <!-- <th width="15%">BV</th> -->
-                      <th width="15%">Total</th>
+                      <th width="8%">BV</th>
+                      <th width="15%">Total</th> -->
 
+                      
+
+                      <th width="12%">Kode Produk</th>
+                      <th>Nama produk</th>
+                      <th width="5%">Qty</th>
+                      <th width="6%">BV</th>
+                      <th width="10%">Harga</th>
+                      <th width="8%">Sub Total BV</th>
+                      <th width="15%">Sub Total Harga</th>
                       <th width="5%">Act</th>
                     </tr>
                   </thead>
-                  <tbody id="dataPrd">
+                  <tbody id="addPrd">
 
                   </tbody>
                   <tbody id="SS">
                     <tr>
                       <td align="right"><input type="button" class="btn btn-warning span20" name="new_record" id="new_record"
-                          value="Tambah Produk" onclick="Stockist.add_new_sales_row()" /></td>
-                      <td colspan="3" align="right">T O T A L</td>
+                          value="Tambah Produk" onclick="Stockist.addNewRecordPrdVchCash()" /></td>
+                      <td colspan="4" align="right">T O T A L</td>
                       <td>
-                        <input type="text" style="text-align:right;" class="span12 typeahead"
-                          id="total_all" readonly name="total_all" onclick='Stockist.sum_product()' />
-                        <input type="hidden" id="total_all_real" name="total_all_real" />
-                        <input type="hidden" id="total_all_real_bv" name="total_all_real_bv" />
-                        <input type="hidden" id="totals_all_bv" name="totals_all_bv" />
+                      <input type="text" style="text-align:right;" class="span12 typeahead"
+                          id="total_all_bv" readonly name="total_all_bv" value="" />
+                        <input type="hidden" id="total_all_dp_real" name="total_all_dp_real" value="" />
+                        <input type="hidden" id="total_all_bv_real" name="total_all_bv_real" value="" />
+                        
                       </td>
-                      <td>&nbsp;</td>
+                      <td><input type="text" style="text-align:right;" class="span12 typeahead"
+                          id="total_all_dp" readonly name="total_all_dp" value="" /></td>
                     </tr>
                     
                   </tbody>
-                </table> <!-- product table -->
-                <!--
-                <table align="center" class="table table-striped table-bordered" width="100%">
-                  <tr>
-                    <th colspan="4">TRANSACTION AMOUNT and PAYMENT DETAIL </td>
-                  </tr>
-                  <tr>
-                    <td>Sisa Pembayaran </td>
-                    <td width="20%">
-                      <input readonly="yes" style="text-align:right;" type="text" class="span8" id="sisa_payment"
-                        name="sisa_payment" value="0" />
-                        <input type="hidden" name="sisa_payment_real" id="sisa_payment_real">
-                    </td>
-                    <td>Nominal&nbsp;&nbsp;</td>
-                    <td>
-                      <input style="text-align:right;" type="text" class="span8" id="pay_nominal" name="pay_nominal"
-                        value="0" />
-                        <input type="hidden" name="pay_nominal_real" id="pay_nominal_real">
-                    </td>
-                  </tr>
-
-                  <tr>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                    <td>Voucher No</td>
-                    <td>
-                      <input type="hidden" style="text-align:right;" class="span8" id="vchnoo1"
-                        name="vchnoo1" />
-                      <input type="text" style="text-align:right;" class="span8" id="vchnoo" name="vchnoo"
-                        onchange="SalesPVR.get_pvrr_info()" disabled="yes" />
-                    </td>
-                  </tr>
-                  <tr id="vchno" style="visibility: collapse;">
-                          <td colspan="2"></td>
-
-                              <td >Voucher No</td>
-                              <td >
-                                <input type="text" style="text-align:right;" class="span8 typeahead" id="vchnoo"  name="vchnoo" onblur="SalesPVR.get_pvrr_info()"/>
-                              </td>
-                          </tr>
-
-                  <tr>
-                    <td colspan="3" class="form_title1">
-                      <?php echo "<font color=red> *Transaksi ini tidak akan mendapatkan BV</font>";?>
-                    </td>
-                    <td>
-                      <input type="hidden" class="span12 typeahead" id="paynominal_real" name="paynominal_real" />
-                      <input type="button" class="btn btn-success" value="Add Payment"
-                        onclick="SalesPVR.add_payment_input_sales()" id="xx" />
-                      <input type="hidden" id="pay_record" name="pay_record" value="0" />
-                      <input type="hidden" id="restrict_pay" name="restrict_pay" value="" />
-                      <input type="hidden" id="cash_sum" name="cash_sum" value="0" />
-                      <input type="hidden" id="noncash_sum" name="noncash_sum" value="0" />
-                      <input type="hidden" id="change_over_cash" name="change_over_cash" value="0" />
-
-                    </td>
-                  </tr>
-                </table> -->
+                </table> 
                 <table width="100%" align="left" class="table table-striped table-bordered">
                   <thead>
                     <tr bgcolor="#f4f4f4">
@@ -260,7 +215,7 @@
                   </tbody>
                   <tbody>
                     <tr>
-                      <td colspan="2" align="right">TOTAL VOUCHER&nbsp;&nbsp;</td>
+                      <td colspan="2" align="right">TOTAL VOUCHER CASH&nbsp;&nbsp;</td>
                       <td>
                         <input readonly="yes" style="text-align:right;" type="text" id="tot_all_payment"
                           name="tot_all_payment" class="span12" />
@@ -284,7 +239,7 @@
                       </td>
                       <td>
                       <input type="button" style="width: 600px; height: 25px" class="btn btn-primary" name="submit" value="Simpan Transaksi" id="save"
-                          onclick="simpanPVRSales()" />
+                          onclick="save_pvr_sales()" />
                       </td>
                       <td colspan="2"></td>
                     </tr>
@@ -312,26 +267,23 @@
     });
   });
 
-  function simpanPVRSales() {
+  function save_pvr_sales() {
 
     All.set_disable_button();
 
       //$("#result").html('<center><img src=http://www.k-linkmember.co.id/substockist/images/ajax-loader.gif ></center>');
-      $.post(All.get_url("sales/pvr2/save"), $(All.get_active_tab() +" #frm_ttp").serialize(), function (hasil) {
+      $.post(All.get_url("sales/vcash2/save"), $(All.get_active_tab() + " #frm_ttp_vchcash").serialize(), function (hasil) {
         All.set_enable_button();
         if(hasil.response == "true") {
           var datax =hasil.data;
           alert("Transaksi PVR berhasil, no transaksi : " +datax.trcd);
           All.back_to_form(" .nextForm1", " .mainForm");
-          
         } else {
           alert(hasil.message);
         }
       },"json").fail(function () {
         alert("Error requesting page");
         All.set_enable_button();
-        //$("#tessss").html("<i class=icon-edit></i> Save Failed");
-
       });
   }
 

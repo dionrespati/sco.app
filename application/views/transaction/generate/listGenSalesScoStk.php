@@ -11,10 +11,10 @@
                 url  : "<?php echo site_url('sales/search/list/checkSelisih');?>",
                 data : {
                   ID_KW:objButton.value,
-                  from: $('#from').val(),
-                  to: $('#to').val(),
-                  bnsperiod: $('#bnsperiod').val(),
-                  idstkk: $('#idstkk').val()
+                  from: $(All.get_active_tab() + ' #from').val(),
+                  to: $(All.get_active_tab() +' #to').val(),
+                  bnsperiod: $(All.get_active_tab() +' #bnsperiod').val(),
+                  idstkk: $(All.get_active_tab() +' #idstkk').val()
                 },
                 success: function(data){
 
@@ -34,10 +34,10 @@
                 url  : "<?php echo site_url('sales/search/list/checkSelisih');?>",
                 data : {
                   ID_KW:objButton.value,
-                  from: $('#from').val(),
-                  to: $('#to').val(),
-                  bnsperiod: $('#bnsperiod').val(),
-                  idstkk: $('#idstkk').val()
+                  from: $(All.get_active_tab() +' #from').val(),
+                  to: $(All.get_active_tab() +' #to').val(),
+                  bnsperiod: $(All.get_active_tab() +' #bnsperiod').val(),
+                  idstkk: $(All.get_active_tab() +' #idstkk').val()
                 },
                 success: function(data){
 
@@ -94,6 +94,8 @@
                         $btn_list_ttp = "f1(this)";
                         $btn_value = "List TTP";
                         $btn_class = "btn btn-mini btn-success";
+                        /* echo "totpay : ".$row->totpay;
+                        echo "total_pay : ".$total_pay; */
                         if($row->totpay != $total_pay) {
                             $readonly="disabled=disabled";
                             $font_err_depan = "<font color=red>";
