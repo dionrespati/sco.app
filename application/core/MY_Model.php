@@ -82,8 +82,6 @@ class MY_Model extends CI_Model {
 	}
 
 
-
-
 	public function checkDataFromTable($param, $fromTable, $value) {
 		$qry = "SELECT $param FROM $fromTable WHERE $param = '$value'";
 		$res = $this->getRecordset($qry, null, $this->db1);

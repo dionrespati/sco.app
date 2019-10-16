@@ -18,8 +18,10 @@ class Voucher_model extends MY_Model {
 				$param = "S.formno = ? ";
 				$join = " INNER JOIN klink_mlm2010.dbo.starterkit S ON A.invoiceno=S.sold_trcd ";
 			}
+			$paramQry = array($param1);	
 		} elseif($isdate == 1) {
-			$param = " b.createdt BETWEEN '$param2' AND '$param3' ";
+			$param = " b.createdt BETWEEN ? AND ? ";
+			$paramQry = array($param2, $param3);	
 		}
 		$qry = "SELECT a.category, a.ordtype, a.invoiceno, a.invoicedt, a.dfno, c.fullnm,
 					   b.trcd, b.createdt, b.applyto
@@ -30,7 +32,7 @@ class Voucher_model extends MY_Model {
 				WHERE a.ordtype = '5' AND $param
 				ORDER BY a.invoiceno";
 		//echo $qry;
-		$paramQry = array($param1);				
+					
 		$result = $this->getRecordset($qry,$paramQry,$this->db1);
 		//var_dump($result);
 		return $result;

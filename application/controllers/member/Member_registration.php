@@ -26,8 +26,10 @@ class Member_registration extends MY_Controller {
 	}
 	
 	//$route['member/voucher/check/(:any)/(:any)'] = 'member/member_registration/checkVoucher/$1/$2';
-	public function checkVoucher($voucherno, $voucherkey) {		
-		$arr = $this->checkVoucherMemb($voucherno, $voucherkey);
+	public function checkVoucher($voucherno, $voucherkey) {	
+		$vchno = trim($voucherno);	
+		$vchkey = trim($voucherkey);
+		$arr = $this->checkVoucherMemb($vchno, $vchkey);
 		echo json_encode($arr);
 	}
 	
@@ -86,9 +88,11 @@ class Member_registration extends MY_Controller {
 		   $cnterr = 0;
 		   $regtype = 0;
 		   try {
-		   		//Check sponsor & rekruiter	
-		   		$idsponsor = $this->m_api->checkValidIdMember($data['idsponsor']);
-		   		$idrekruit = $this->m_api->checkValidIdMember($data['idrekrut']);	
+				   //Check sponsor & rekruiter
+				$sponsorid = trim(strtoupper(preg_replace("/[^\w\s]+/", "", $data['idsponsor'])));   	
+				$recruiterid = trim(strtoupper(preg_replace("/[^\w\s]+/", "", $data['idrekrut']))); 
+		   		$idsponsor = $this->m_api->checkValidIdMember($sponsorid);
+		   		$idrekruit = $this->m_api->checkValidIdMember($recruiterid);	
 				//Jika memilih pending voucher	
 				if($data['chosevoucher'] == "0") {
 					//Check Limit starterkit pending voucher
@@ -141,8 +145,10 @@ class Member_registration extends MY_Controller {
 		$this->load->model("be_api_model", "m_api");
 		try {
 				//Check sponsor & rekruiter	
-				$idsponsor = $this->m_api->checkValidIdMember($data['idsponsor']);
-				$idrekruit = $this->m_api->checkValidIdMember($data['idrekrut']);	
+				$sponsorid = trim(strtoupper(preg_replace("/[^\w\s]+/", "", $data['idsponsor'])));   	
+				$recruiterid = trim(strtoupper(preg_replace("/[^\w\s]+/", "", $data['idrekrut']))); 
+				$idsponsor = $this->m_api->checkValidIdMember($sponsorid);
+				$idrekruit = $this->m_api->checkValidIdMember($recruiterid);	
 				$cekNoKtp  = $this->m_api->memberCheckExistingRecordByField("idno", $data['noktp']);
 				$cekNohP  =  $this->m_api->memberCheckExistingRecordByField("tel_hp", $data['tel_hp']);
 				$cnterr = 0;  
@@ -166,9 +172,9 @@ class Member_registration extends MY_Controller {
 				  	$regtype = $checkVch['arrayData'][0]->prdcd;
 				  }
 				}   
-			    echo "okey";
+			    //echo "okey";
 			  //Single member registration
-			  /* if($data['tipe_input'] == "1") {	
+			   if($data['tipe_input'] == "1") {	
 			      $lastkit = $this->m_member_reg->showLastkitno($this->stockist);
 				  if($lastkit != null) {
 				     //echo "dsdsd";		 
@@ -187,7 +193,7 @@ class Member_registration extends MY_Controller {
 		      //end if($data['tipe_input'] == "1")	  
 			  } else {
 			  //Couple member registration	
-			  } */
+			  } 
 		} catch(Exception $e) {
 			$arr = jsonFalseResponse($e->getMessage());
 			//throw new Exception($e->getMessage());
