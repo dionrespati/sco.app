@@ -268,7 +268,7 @@
                             <br />
                             <!-- <input type="button" class="btn btn-success span14" name="submit" value="Save" id="save"/> -->
                             <input type="button" class="btn btn-warning span6" name="back" value="Kembali"
-                                onclick="All.back_to_form(' .nextForm1', ' #div_isi')" />
+                                onclick="All.back_to_form(' .nextForm1', ' .mainForm')" />
                             <?php if($status==1)
                                 echo'<input type="button" class="btn btn-warning span6" name="back" value="Kembali"
                                     onclick="All.back_to_form(\' .nextForm1\', \' #div_isi\')" />';

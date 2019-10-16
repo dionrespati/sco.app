@@ -46,9 +46,14 @@ class Scan_voucher_model extends MY_Model {
         $this->db->where('a.id', $id);
         $this->db->join('msmemb b', 'a.dfno = b.dfno COLLATE SQL_Latin1_General_CP1_CS_AS', 'left');
         return $this->db->get('deposit_H a'); */
-        $qry = "SELECT a.*, b.fullnm FROM deposit_H a
+        /* $qry = "SELECT a.*, b.fullnm 
+                FROM deposit_H a
                 LEFT JOIN msmemb b
                 ON a.dfno = b.dfno COLLATE SQL_Latin1_General_CP1_CS_AS
+                WHERE a.id = '$id'"; */
+
+        $qry = "SELECT a.* 
+                FROM deposit_H a
                 WHERE a.id = '$id'";
         return $this->getRecordset($qry, NULL, $this->db2);
     }
@@ -73,32 +78,75 @@ class Scan_voucher_model extends MY_Model {
 
     function show_list_TTP($stk) {
         $this->db = $this->load->database($this->db2, true);
-        $qry = "SELECT *,c.fullnm as member, a.trcd as transaksi, d.payamt as cash, e.payamt as voucher
-                FROM
-                sc_newtrh a
-                LEFT JOIN
-                deposit_H b
-                on a.id_deposit=b.id
-                LEFT JOIN
-                msmemb c
-                on a.dfno=c.dfno
-                LEFT JOIN
-                sc_newtrp d
-                on a.trcd = d.trcd AND d.paytype = '01'
-                LEFT JOIN
-                sc_newtrp e
-                on a.trcd = e.trcd AND e.paytype != '01'
-                where b.id = '$stk'
-                ORDER BY transaksi DESC";
+        $qry = "SELECT a.trcd, a.orderno, a.dfno, a.trtype, a.bnsperiod, a.tdp, a.tbv, a.batchno, a.createdt,
+                    CONVERT(CHAR(10), a.bnsperiod, 120) as bnsperiod,
+                    c.fullnm as member, a.trcd as transaksi, d.payamt as cash, e.payamt as voucher,
+                    b.total_deposit, b.total_keluar
+                FROM sc_newtrh a
+                LEFT JOIN deposit_H b on a.id_deposit=b.id
+                LEFT JOIN msmemb c on a.dfno=c.dfno
+                LEFT JOIN sc_newtrp d on a.trcd = d.trcd AND d.paytype = '01'
+                LEFT JOIN sc_newtrp e on a.trcd = e.trcd AND e.paytype != '01'
+                WHERE b.id = '$stk'
+                ORDER BY a.trcd DESC";
         $query = $this->db->query($qry);
+
+        $total_cash = 0;
+        $total_vch = 0;
+        $total_belanja = 0;
         if ($query->num_rows() > 0) {
-            foreach ($query->result() as $data) {
+            $hasil = $query->result();
+            foreach ($hasil as $data) {
+                $total_belanja += (float) $data->tdp;
+                $total_cash += (float) $data->cash;
+                $total_vch += (float) $data->voucher;
                 $nilai[] = $data;
             }
         } else {
             $nilai = null;
         }
-        return $nilai;
+
+        $stt_balance = "0";
+        $stt_balance_msg = "Deposit Voucher balance";
+        if($nilai !== null) {
+            $cashPlusVch = $total_cash + $total_vch;
+            if($nilai[0]->total_keluar != $total_vch) {
+                $stt_balance = "1";
+                $stt_balance_msg = "Deposit Voucher tidak balance";
+            } else if($nilai[0]->total_keluar > $nilai[0]->total_deposit) {
+                $nilai_deposit = $nilai[0]->total_deposit;
+                $stt_balance = "1";
+                $stt_balance_msg = "Deposit Voucher tidak balance, total nilai deposit : $nilai_deposit, penggunaan voucher cash : $total_vch";
+            }  else if($total_belanja != $cashPlusVch) {
+                $stt_balance = "1";
+                $stt_balance_msg = "Transaksi tidak balance, total nilai pembelanjaan : $total_belanja, penggunaan voucher cash dan cash : $cashPlusVch";
+            }
+
+            $arrTotal = array(
+                "arrayData" => $nilai,
+                "total_cash" => $total_cash,
+                "total_vch" => $total_vch,
+                "total_belanja" => $total_belanja,
+                "total_deposit_in" => $nilai[0]->total_deposit,
+                "total_deposit_out" => $nilai[0]->total_keluar,
+                "stt_balance" => $stt_balance,
+                "stt_balance_msg" => $stt_balance_msg,
+            );
+        } else {
+            $arrTotal = array(
+                "arrayData" => $nilai,
+                "total_cash" => $total_cash,
+                "total_vch" => $total_vch,
+                "total_belanja" => $total_belanja,
+                "total_deposit_in" => 0,
+                "total_deposit_out" => 0,
+                "stt_balance" => $stt_balance,
+                "stt_balance_msg" => $stt_balance_msg,
+            );    
+        }
+
+        
+        return $arrTotal;
     }
 
     function getVch($vch, $idmemb) {
@@ -250,7 +298,17 @@ class Scan_voucher_model extends MY_Model {
         $this->db->join('mssc c', 'a.sc_dfno = c.loccd', 'left');
         return $this->db->get('sc_newtrh a');
  */
-        $qry = "SELECT a.*, b.fullnm, c.fullnm AS nama_penuh,   CONVERT(CHAR(4), a.bnsperiod, 100) + CONVERT(CHAR(4), a.bnsperiod, 120) AS bns
+        /* $qry = "SELECT a.*, b.fullnm, c.fullnm AS nama_penuh,   
+                   CONVERT(CHAR(4), a.bnsperiod, 100) + CONVERT(CHAR(4), a.bnsperiod, 120) AS bns
+                FROM sc_newtrh a
+                LEFT JOIN msmemb b ON a.dfno = b.dfno
+                LEFT JOIN mssc c ON a.sc_dfno = c.loccd
+                WHERE a.trcd = '$id'"; */
+        $qry = "SELECT a.trcd, a.dfno, b.fullnm, a.sc_dfno, a.sc_co, a.loccd, a.createnm, 
+                    c.fullnm AS nama_penuh,   
+                CONVERT(CHAR(10), a.bnsperiod, 121) AS bns,
+                CONVERT(CHAR(10), a.createdt, 121) AS createdt,
+                a.pricecode, a.orderno, a.remarks, a.tdp, CONVERT(CHAR(10), a.trdt, 121) AS trdt
                 FROM sc_newtrh a
                 LEFT JOIN msmemb b ON a.dfno = b.dfno
                 LEFT JOIN mssc c ON a.sc_dfno = c.loccd
@@ -258,38 +316,49 @@ class Scan_voucher_model extends MY_Model {
         return $this->getRecordset($qry, NULL, $this->db2);
     }
 
-    function HapusDeposit($id) {
-        $this->db = $this->load->database($this->db2, true);
-        $this->db->select('*');
-        $this->db->where('id_deposit', $id);
-        $query = $this->db->get('sc_newtrh a');
-        $rowcount = $query->num_rows();
-        if ($rowcount > 0) {
-            return false;
-        } else {
-            $slc2 = "SELECT * FROM deposit_D WHERE id_header = '$id'";
-            $query2 = $this->db->query($slc2);
-            foreach ($query2->result() as $data2) {
-                $tipes = 'VoucherNo';
-                $ss = $data2->kategori;
-                if ($ss == "Voucher Cash") {
-                    $tipes = 'voucherkey';
-                }
-                $insert2 = "UPDATE tcvoucher SET status=0, claimstatus =0 WHERE voucherkey = '$data2->voucher_scan'";
-                $this->db->query($insert2);
+    function sumTrxByDepositId($id) {
+        $qry = "SELECT count(a.trcd) as jum FROM sc_newtrh a WHERE a.id_deposit = '$id'";
+        $hasil = $this->getRecordset($qry, NULL, $this->db2);
+        return $hasil[0]->jum;
+    }
+
+    function reactivateVoucherCashInDeposit($id) {
+        $qry = "SELECT kategori, dfno, no_trx, voucher_scan 
+                FROM klink_mlm2010.dbo.deposit_D 
+                WHERE id_header = '$id'";
+        $query2 = $this->db->query($qry);
+        $result = $query2->result();
+        if($result != null) {
+            foreach ($result as $data2) {
+                $updateVch = "UPDATE klink_mlm2010.dbo.tcvoucher 
+                                SET status = 0, claimstatus = 0, remarks = 'PREV $data2->no_trx'
+                              WHERE voucherkey = '$data2->voucher_scan' AND DistributorCode = '$data2->dfno'";
+                $this->db->query($updateVch);
             }
-            $del = "DELETE FROM deposit_H
-              WHERE id='$id'";
-            $this->db->query($del);
-            $del = "DELETE FROM deposit_D
-              WHERE id_header='$id'";
-            $this->db->query($del);
-            return true;
+        }
+    }
+
+    function deleteDepositVoucher($id) {
+        $del = "DELETE FROM klink_mlm2010.dbo.deposit_H WHERE id='$id'";
+        $this->db->query($del);
+        $del = "DELETE FROM klink_mlm2010.dbo.deposit_D WHERE id_header='$id'";
+        $this->db->query($del);
+    }
+
+    function HapusDeposit($id) {
+        
+        $rowcount = $this->sumTrxByDepositId($id);
+        if ($rowcount > 0) {
+            return jsonFalseResponse("Sudah ada $rowcount TTP dalam deposit voucher ini..");
+        } else {
+            $this->reactivateVoucherCashInDeposit($id);
+            $this->deleteDepositVoucher($id);
+            return jsonTrueResponse(null, "Deposit Voucher berhasil dihapus..");
         }
     }
 
     function getsisaBARU($stk) {
-        $qry = "SELECT a.id_header, a.saldo, sum(c.payamt) as payamt FROM
+        /* $qry = "SELECT a.id_header, a.saldo, sum(c.payamt) as payamt FROM
             (SELECT id_header, sum (nominal) as saldo
             FROM deposit_D
             WHERE id_header ='$stk'
@@ -298,7 +367,19 @@ class Scan_voucher_model extends MY_Model {
             ON a.id_header=b.id_deposit
             LEFT JOIN sc_newtrp c
             on b.trcd=c.trcd AND c.paytype='08'
-            GROUP BY a.id_header, a.saldo";
+            GROUP BY a.id_header, a.saldo"; */
+
+        $qry = "SELECT a.id_header, a.no_trx, a.saldo, ISNULL(sum(c.payamt), 0) as payamt  
+                FROM
+                (SELECT x.id_header, x.no_trx, sum (x.nominal) as saldo
+                FROM klink_mlm2010.dbo.deposit_D x
+                WHERE id_header ='$stk'
+                GROUP BY x.id_header, x.no_trx) a
+                LEFT JOIN klink_mlm2010.dbo.sc_newtrh b
+                ON a.id_header=b.id_deposit
+                LEFT JOIN klink_mlm2010.dbo.sc_newtrp c
+                on b.trcd=c.trcd AND c.paytype='08'
+                GROUP BY a.id_header, a.no_trx, a.saldo";
         $query = $this->db->query($qry);
 
         if ($query->num_rows() > 0) {
@@ -309,6 +390,14 @@ class Scan_voucher_model extends MY_Model {
             $nilai = null;
         }
         return $nilai;
+    }
+
+    function updateSisaSaldo($id, $pengurangan) {
+        $qryTrx = $this->load->database($this->db2, true);
+        $upd = "UPDATE deposit_H 
+                SET total_keluar = ISNULL(total_keluar, 0) + $pengurangan WHERE id = '$id'";
+        $query = $qryTrx->query($upd);
+        return $query;
     }
 
     function updateSaldo($data1, $data2, $data3) {
@@ -420,7 +509,7 @@ class Scan_voucher_model extends MY_Model {
     }
 
         function save_input_sales_sub($idnoo, $username) {
-        $this->db = $this->load->database('alternate', true);
+        $this->db = $this->load->database('klink_mlm2010', true);
 
         $createdt = date('Y-m-d H:i:s');
         $substockistcode = $this->input->post('substockistcode');
@@ -547,5 +636,221 @@ class Scan_voucher_model extends MY_Model {
                 }
             }
         }
+    }
+
+    function hapusTTPvchDeposit($id) {
+        $qry = "SELECT a.trcd, a.batchno, a.id_deposit, a.no_deposit, b.no_trx, b.id, b.[status]
+                FROM klink_mlm2010.dbo.sc_newtrh a
+                LEFT OUTER JOIN klink_mlm2010.dbo.deposit_H b ON (a.id_deposit = b.id)
+                WHERE a.trcd = '$id' ";
+        $query2 = $this->db->query($qry);
+        $hasil = $query2->result();
+
+        $nodeposit = "";
+
+        if($hasil == null) {
+            $arr = jsonFalseResponse("Transaksi $id tidak ada di dalam sistem / sudah dihapus..");
+            return;
+        }
+
+        if($hasil != null && ($hasil[0]->id_deposit == null || $hasil[0]->id_deposit == "" || $hasil[0]->no_deposit == null || $hasil[0]->no_deposit == "")) {
+            $arr = jsonFalseResponse("Transaksi $id bukan transaksi voucher deposit..");
+            return;
+        }
+
+        $ssrno = $hasil[0]->batchno;
+        if($hasil != null && $hasil[0]->batchno != null && $hasil[0]->batchno != "") {
+            
+            $arr = jsonFalseResponse("Transaksi $id sudah digenerate dengan No SSR : $ssrno..");
+            return;
+        }
+
+        $nodeposit = $hasil[0]->no_deposit;
+        if($hasil != null && $hasil[0]->status == 0) {
+            
+            $arr = jsonFalseResponse("Voucher Deposit $nodeposit status nya sudah di generate..");
+            return;
+        }
+
+        $id_deposit = $hasil[0]->id_deposit;
+
+        $db_qryx = $this->load->database('klink_mlm2010', true);
+
+        $db_qryx->trans_begin();
+
+        $del = "DELETE FROM sc_newtrh WHERE trcd = '$id'";
+        $db_qryx->query($del);
+        
+        $del2 = "DELETE FROM sc_newtrd WHERE trcd = '$id'";
+        $db_qryx->query($del2);
+        
+        $del3 = "DELETE FROM sc_newtrp WHERE trcd = '$id'";
+        $db_qryx->query($del3);
+
+        $checkAmt = "SELECT a.id, a.no_trx, a.total_deposit, a.total_keluar, SUM(c.payamt) as jum_vch
+                    FROM deposit_H a
+                    LEFT OUTER JOIN sc_newtrh b ON (a.no_trx = b.no_deposit)
+                    LEFT OUTER JOIN sc_newtrp c ON (b.trcd = c.trcd AND c.paytype != '01')
+                    WHERE a.id = '$id_deposit' and a.no_trx = '$nodeposit' 
+                    GROUP BY a.id, a.no_trx, a.total_deposit, a.total_keluar";
+         //echo $checkAmt;
+         $resCheckAmt = $db_qryx->query($checkAmt);
+        $hasilCheckAmt = $resCheckAmt->result();
+        //print_r($hasilCheckAmt);
+        if($hasilCheckAmt !== null) {
+            $deposit_out = $hasilCheckAmt[0]->jum_vch;
+            //jika di sc_newtrp 
+            $sisa_deposit = 0;
+            if($deposit_out != null) {
+                $sisa_deposit = $deposit_out;
+            }
+            $upd = "UPDATE a
+                    SET a.total_keluar = $sisa_deposit
+                    FROM deposit_H a
+                    WHERE a.id = '$id_deposit' and a.no_trx = '$nodeposit'";
+            $resUpd = $db_qryx->query($upd);
+        }
+
+        if ($db_qryx->trans_status() === FALSE) {
+            $db_qryx->trans_rollback();
+            $return = array("response" => "false", "message" => "Transaksi $id gagal di hapus..");
+            return $return; 
+        } else {
+            $db_qryx->trans_commit();
+            $return = array("response" => "true", "message" => "Transaksi $id berhasil di hapus..");
+            return $return; 
+        }
+    }
+
+    function recalculateDeposit($id) {
+        $qryTrx = $this->load->database('klink_mlm2010', true);
+
+        //hitung ulang total nilai voucher yg ada di deposit_D
+        $qry1 = "SELECT ISNULL(SUM(a.nominal), 0) as jumlah_deposit, 
+                   a.no_trx, a.id_header
+                FROM klink_mlm2010.dbo.deposit_D a
+                WHERE a.id_header = '$id'
+                GROUP BY a.no_trx, a.id_header";
+        $resQry1 = $qryTrx->query($qry1);
+        $hasil = $resQry1->result();
+
+        $qryTrx->trans_begin();
+
+        $nominalDepositBaru = 0;
+        if($hasil != null) {
+            $nominalDepositBaru = $hasil[0]->jumlah_deposit; 
+        }
+
+        $qryTrx->set('total_deposit', $nominalDepositBaru);
+        $qryTrx->where('id', $id);
+        $qryTrx->update('klink_mlm2010.dbo.deposit_H');
+        
+         $qry2 = "SELECT a.id, a.no_trx, b.trcd, a.total_deposit, 
+                    tdp, ndp, totpay, a.total_keluar, 
+                    ISNULL(SUM(c.payamt), 0) as jml_vch_cash, 
+                    ISNULL(SUM(d.payamt), 0) as jml_cash
+                  FROM klink_mlm2010.dbo.deposit_H a
+                  LEFT OUTER JOIN sc_newtrh b ON (a.id = b.id_deposit)
+                  LEFT OUTER JOIN sc_newtrp c ON (b.trcd = c.trcd AND c.paytype = '08')
+                  LEFT OUTER JOIN sc_newtrp d ON (b.trcd = d.trcd AND d.paytype = '01')
+                  WHERE a.id = '$id'
+                  GROUP BY a.id, a.no_trx, b.trcd, a.total_deposit, 
+                    tdp, ndp, totpay, a.total_keluar
+                  ORDER by trcd";
+         //echo $qry2;
+         $resQry2 = $qryTrx->query($qry2);
+         $hasil2 = $resQry2->result();
+
+         if($hasil2 != null) {
+
+            /* $totalJumlahScanVch = $nominalDepositBaru;
+            //$no_deposit = $hasil[0]->no_trx;
+            if($totalJumlahScanVch == 0) {
+                $return = jsonFalseResponse("jumlah nilai total voucher cash di deposit : $totalJumlahScanVch");
+                return $return;
+            } */
+
+            //cek per TTP, nilai transaksi dan total bayar harus sama
+            $no_trx_deposit = $hasil2[0]->no_trx;
+            $total_deposit = $hasil2[0]->total_deposit;
+            $sisa_deposit = $total_deposit;
+            $tidak_selisih = 0;
+            $jum_trx = 0;
+            $tot_vch_usage = 0;
+            foreach($hasil2 as $dtax) {
+                $jum_bayar = $dtax->jml_vch_cash + $dtax->jml_cash; 
+                //$sisa_deposit = $sisa_deposit - $dtax->jml_vch_cash;
+                if($dtax->tdp != $jum_bayar && $sisa_deposit >=  $dtax->tdp) {
+                    /* echo "Total TTP       : ".$dtax->tdp."<br />";
+                    echo "Penggunaan vch  : ".$dtax->tdp."<br />";
+                    echo "<pre>";
+                    print_r($ins);
+                    echo "</pre>"; */
+                    $qryTrx->where('trcd', $dtax->trcd);
+                    $qryTrx->delete('klink_mlm2010.dbo.sc_newtrp');
+
+                    $ins['trcd'] = $dtax->trcd;
+                    $ins['seqno'] = 1;
+                    $ins['paytype'] = "08";
+                    $ins['docno'] = $dtax->no_trx;
+                    $ins['payamt'] = $dtax->tdp;
+                    $ins['voucher'] = "1";
+                    $ins['vchtype'] = "C";
+                    $qryTrx->insert("klink_mlm2010.dbo.sc_newtrp", $ins);
+                    $tot_vch_usage += $dtax->tdp; 
+                    $sisa_deposit = $sisa_deposit - $dtax->tdp;
+                } else if($sisa_deposit <= $dtax->tdp) {
+                    $qryTrx->where('trcd', $dtax->trcd);
+                    $qryTrx->delete('klink_mlm2010.dbo.sc_newtrp');
+
+                    $ins['trcd'] = $dtax->trcd;
+                    $ins['seqno'] = 1;
+                    $ins['paytype'] = "08";
+                    $ins['docno'] = $dtax->no_trx;
+                    $ins['payamt'] = $sisa_deposit;
+                    $ins['voucher'] = "1";
+                    $ins['vchtype'] = "C";
+                    $qryTrx->insert("klink_mlm2010.dbo.sc_newtrp", $ins);
+                    $tot_vch_usage += $sisa_deposit; 
+
+                    $sisa_cash = $dtax->tdp - $sisa_deposit;
+                    if($sisa_cash > 0) {
+                        $ins2['trcd'] = $dtax->trcd;
+                        $ins2['seqno'] = 2;
+                        $ins2['paytype'] = "01";
+                        $ins2['docno'] = "/";
+                        $ins2['payamt'] = $sisa_cash;
+                        $ins2['voucher'] = "0";
+                        //$ins2['vchtype'] = "C";
+                        
+                        $qryTrx->insert("klink_mlm2010.dbo.sc_newtrp", $ins2);
+                    }
+                    
+                } else {
+                    $tot_vch_usage += $dtax->tdp; 
+                    $sisa_deposit = $sisa_deposit - $dtax->tdp;
+                }
+                
+            }
+        
+        } else {
+            $total_keluar_seharusnya = 0;
+        }
+        
+
+         $total_keluar_seharusnya = $tot_vch_usage;
+         $qryTrx->set('total_keluar', $total_keluar_seharusnya);
+         $qryTrx->where('id', $id);
+         $qryTrx->update('klink_mlm2010.dbo.deposit_H');
+
+         if ($qryTrx->trans_status() === FALSE) {
+            $qryTrx->trans_rollback();
+            $return = array("response" => "false", "message" => "Deposit Voucher $no_trx_deposit gagal di recalculate");
+            return $return; 
+         } else {
+            $qryTrx->trans_commit();
+            $return = array("response" => "true", "message" => "Deposit Voucher $no_trx_deposit berhasil di recalculate");
+            return $return; 
+         }
     }
 }

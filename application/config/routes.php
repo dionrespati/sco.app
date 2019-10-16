@@ -156,6 +156,10 @@ $route['stockist/addr'] = 'stockist/stockist/formUpdateAddrStk';
 $route['stockist/addr/update'] = 'stockist/stockist/saveUpdateAddrStk';
 $route['stockist/info'] = 'stockist/stockist/formStockistInfo';
 $route['stockist/id/(:any)'] = 'stockist/stockist/getDetailStockistByID/$1';
+$route['stockist/kabupaten/list/(:any)'] = 'stockist/stockist/listKabupatenByProvince/$1';
+$route['stockist/kecamatan/list/(:any)'] = 'stockist/stockist/listKecamatanByKabupaten/$1';
+$route['stockist/kelurahan/list/(:any)'] = 'stockist/stockist/listKelurahannByKecamatan/$1';
+$route['stockist/kodepos/(:any)'] = 'stockist/stockist/showKodepos/$1';
 
 /*------------------------------
  * PRODUCT
@@ -299,6 +303,6 @@ $route['voucher/release'] = 'member/voucher/saveReleaseVoucher';
 $route['scan'] = 'transaction/scan_voucher/formScanDeposit';
 $route['scan/list'] = 'transaction/scan_voucher/getDeposit';
 $route['scan/list/detail/voucher/(:any)'] = 'transaction/scan_voucher/getListScan/$1';
-$route['scan/list/detail/ttp/(:any)'] = 'transaction/scan_voucher/getTtpList/$1';
+$route['scan/list/detail/ttp/(:any)'] = 'transaction/scan_voucher/getTTPList/$1';
 $route['scan/list/delete'] = 'transaction/scan_voucher/hapusDeposit';
 

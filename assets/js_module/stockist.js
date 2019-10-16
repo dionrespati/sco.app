@@ -1,6 +1,7 @@
 var $ = jQuery;
 
 var Stockist = {
+	isPrdpromo: 0,
 	getStockistInfo : function(nilai) {
 		All.set_disable_button();
 		$.ajax({
@@ -558,39 +559,466 @@ var Stockist = {
 
     detailVoucher : function(url) {
     	All.set_disable_button();
+		//All.get_image_load();
 		$.ajax({
             url: All.get_url(url) ,
             type: 'GET',
             success:
             function(data){
                 All.set_enable_button();
-                $(All.get_active_tab() + ".mainForm").hide();
-                // $(All.get_active_tab() + ".mainForm").css("display", "none");
+				$(All.get_active_tab() + ".mainForm").hide();
                 $(All.get_active_tab() + ".nextForm1").html(data);
             },
             error: function (xhr, ajaxOptions, thrownError) {
-                alert(thrownError + ':' +xhr.status);
-                All.set_enable_button();
+                 alert(thrownError + ':' +xhr.status);
+				 All.set_enable_button();
             }
         });
-    },
+	},
 
-    detailTtp : function(url) {
-        All.set_disable_button();
-        $.ajax({
+	get_pvr_info: function () {
+		$(All.get_active_tab() + " #save").attr("disabled", "disabled");
+		var distributorcode = $(All.get_active_tab() + " #distributorcode").val();
+		var vchno = $(All.get_active_tab() + " #vchno").val();
+		var registerno = $(All.get_active_tab() + " #registerno").val();
+
+
+		if (distributorcode == '0' || distributorcode == '' || vchno == '0' || vchno == '') {
+		  $(All.get_active_tab() + " #distributorcode").focus();
+		  alert('Voucher No dan Distributor Code tidak boleh kosong');
+		  $(All.get_active_tab() + " #save").attr("disabled", "disabled");
+
+		} else {
+		  //$(All.get_active_tab() + " #save").removeAttr("disabled");
+		  var paramx = distributorcode + "/" + vchno + "/" + "10";
+		  vchdpn = vchno.substring(0, 3);
+		  $.ajax({
+			type: 'GET',
+			url: All.get_url("sales/vc/check/") + paramx,
+			dataType: 'json',
+			success: function (data) {
+				$(All.get_active_tab() + " #save").removeAttr("disabled");
+
+				if (data.response == 'false') {
+					alert(data.message);
+					$(All.get_active_tab() + " #save").attr("disabled", "disabled");
+				} else if (data.message == 'Session expired' && data.response == 'false') {
+					alert(data.message);
+					console.log(data.message);
+				} else {
+
+					var exist = 0;
+					var tipe_promo = 0;
+					var jum_vch = 0;
+					if(vchdpn == "XPV" || vchdpn == "ZVO" || vchdpn == "XPP" || vchdpn == "XHD") {
+						//Stockist.isPrdpromo = 1;
+						$(All.get_active_tab() + " #isPrdpromo").val("1");
+					}
+					$(All.get_active_tab() + " .vch_amt").each(function(event) {
+						jum_vch++;
+						x = $(this).val();
+						if(vchno == x) {
+							exist++;
+							alert("Voucher sudah ada di dalam list pembayaran..");
+							//return false;
+						}
+
+					});
+
+				/* 	console.log("double : " +exist);
+					console.log("jum vch : " +jum_vch);
+					console.log("ISPRDprOMO : " +Stockist.isPrdpromo); */
+					if(exist == 0) {
+						$(All.get_active_tab() + " #paynominal").val(parseInt(data.arrayData[0].VoucherAmt));
+						$(All.get_active_tab() + " #amt").val(parseInt(data.arrayData[0].VoucherAmt));
+						$(All.get_active_tab() + " #save").removeAttr("disabled");
+						var arrayData = data.arrayData;
+						var detProd = data.detProd;
+
+
+						if(vchdpn == "XPV" || vchdpn == "ZVO" || vchdpn == "XPP" || vchdpn == "XHD") {
+							console.log("tipe : " +vchdpn);
+							if(jum_vch > 0) {
+								alert("Voucher promo ini hanya dapat digunakan dalam 1 TTP pembelanjaan, semua voucher dan produk yang sudah diinput akan di reset");
+							}
+
+							$(All.get_active_tab() + " #new_record").attr("disabled", "disabled");
+							$(All.get_active_tab() + " #dataVch").html(null);
+							Stockist.add_voucher_row(arrayData);
+							$(All.get_active_tab() + " #dataPrd").html(null);
+							Stockist.addProductPromo(detProd," #dataPrd");
+							Stockist.sum_amount();
+							Stockist.hitungSisaPembayaran();
+							/* var detProd = data.detProd;
+							if(detProd != null) {
+								$(All.get_active_tab() + " #addPrd").html(null);
+							}	 */
+						} else {
+
+							var isPrdpromo = $(All.get_active_tab() + " #isPrdpromo").val("1");
+							if(isPrdpromo == 1) {
+								alert("Sudah ada voucher product tipe promo/hadiah ini di dalam TTP ini..");
+							} else {
+								$(All.get_active_tab() + " #new_record").removeAttr("disabled");
+								Stockist.add_voucher_row(arrayData);
+							}
+						}
+					}
+				}
+			}
+		  });
+		}
+
+	  },
+
+	  addProductPromo : function(detProd, setTo) {
+		if(detProd != null) {
+			$(All.get_active_tab() + setTo).html(null);
+			var rowPrd = "";
+			var prd_subtotaldp = 0;
+			var prd_subtotalbv = 0;
+			var prdx = 1;
+
+			$.each(detProd,function(key, value) {
+				rowPrd += "<tr  id=" + prdx + ">";
+				rowPrd += "<td><input id=productcode"+prdx+" readonly=readonly  type='text' class='span12 typeahead' name=productcode[] value='"+value.prdcd+"'/></td>";
+				rowPrd += "<td><input id=productname"+prdx+" readonly=readonly type='text' class='span12 typeahead' name=productname[] value='"+value.prdnm+"'/></td>";
+				rowPrd += "<td>";
+				rowPrd += "<input id=qty"+prdx+" readonly=readonly style='text-align:right;' type='text' class='span12 typeahead jumlah' name=qty[] value='"+value.qtyord+"' />";
+				rowPrd += "<input id=qty_real"+prdx+" readonly=readonly style='text-align:right;' type='hidden' class='span12 typeahead jumlah' name=qty_real[] value='"+parseInt(value.qtyord)+"' />";
+				rowPrd += "</td>";
+				rowPrd += "<td>";
+				rowPrd += "<input id=dp"+prdx+" readonly=readonly style='text-align:right' type='text' class='span12 typeahead jumlah' name=dp[] value='"+All.num(parseInt(value.dp))+"' />";
+				rowPrd += "<input id=dp_real"+prdx+" readonly=readonly style='text-align:right' type='hidden' class='span12 typeahead jumlah' name=dp_real[] value='"+parseInt(value.dp)+"' />";
+				rowPrd += "</td>";
+				rowPrd += "<td>";
+				prd_subtotaldp += value.qtyord * value.dp;
+				rowPrd += "<input id=total_dp"+prdx+" readonly=readonly style='text-align:right' type='text' class='span12 typeahead jumlah' name=total_dp[] value='"+All.num(parseInt(prd_subtotaldp))+"' />";
+				rowPrd += "<input id=total_dp_real"+prdx+" readonly=readonly style='text-align:right' type='hidden' attr=prd class='span12 typeahead jumlah' name=total_dp_real[] value='"+parseInt(prd_subtotaldp)+"' />";
+				rowPrd += "</td>";
+				rowPrd += "<td align=center>&nbsp;</td>";
+				rowPrd += "</tr>";
+
+				prd_subtotalbv += value.qtyord * value.bv;
+				prdx++;
+			});
+			$(All.get_active_tab() + setTo).append(rowPrd);
+
+			$(All.get_active_tab() + " #total_all").val(All.num(prd_subtotaldp));
+			$(All.get_active_tab() + " #total_all_real").val(prd_subtotaldp);
+
+
+			$(All.get_active_tab() + " #totals_all_bv").val(All.num(0));
+			$(All.get_active_tab() + " #total_all_real_bv").val(0);
+			$(All.get_active_tab() + ' #total_bv').val(All.num(0));
+		}
+	  },
+
+	  add_voucher_row: function(hasil) {
+		var distributorcode = hasil[0].DistributorCode,
+			distributorname = $(All.get_active_tab() + ' #distributorname').val(),
+			vchno = hasil[0].VoucherNo,
+			amount = parseInt(hasil[0].VoucherAmt);
+
+
+		var rowshtml = "<tr id=" + vchno + ">";
+		rowshtml += "<td><input value=" + distributorcode + " type=text class=span20 id=dfno" + vchno + " name=distcode[] readonly /></td>";
+
+		rowshtml += "<td><input readonly=yes type=text class=span12 value='" + distributorname + "' name=distname[] /></td>";
+		rowshtml += "<td><input style=text-align:right type=text class='span20 vch_amt' value=" + vchno + " name=vchno[] id=vchID"+ vchno +" class='span12 input-qty' readonly/></td>";
+		rowshtml += "<td><input style=text-align:right; readonly=yes type=text class='kanan' value=" + All.num(amount) + "  name=amount[]/>";
+		rowshtml += "<input type=hidden id=vch_amt_real" + amount + " name=vch_amt_real[] attr=amt value=" + amount + " /></td>";
+		/* rowshtml += "<td><input style=text-align:right; readonly=yes type=text id=bv" + amount + "  name=bv[] class=span12 />";
+		rowshtml += "<input type=hidden id=bv_real" + amount + " name=bv_real[] /></td>";
+		rowshtml += "<input type=hidden id=tot_bv_real" + amount + " name=tot_bv_real[] /></td>"; */
+		// rowshtml += "<td><input readonly=yes style=text-align:right; type=text class=kanan value=" + amount + " name=sub_total[] /></td>";
+		// rowshtml += "<input style=text-align:right; type=hidden class=kanan id=total_dp_real" + amount + "  name=total_dp_real[] /></td>";
+		rowshtml += "<td align=center><button class='btn btn-mini btn-danger' href=# id=" + amount + " onclick=Stockist.remove_vch_row('" + vchno + "')><i class='icon-trash icon-white'></i> </button>";
+
+		rowshtml += "</tr>";
+		$(All.get_active_tab() + " #dataVch").append(rowshtml);
+		Stockist.sum_amount();
+
+		Stockist.hitungSisaPembayaran();
+		$(All.get_active_tab() + " .kanan").removeClass().addClass("span12 text-right");
+		$(All.get_active_tab() + " .tombol").removeClass().addClass("btn btn-small btn-danger");
+		$(All.get_active_tab() + " .ikon").removeClass().addClass("icon-trash icon-white");
+	  },
+
+	  hitungSisaPembayaran: function() {
+		var nilaiVch = 0;
+		$(All.get_active_tab() + " input[attr=amt]").each(function(){
+		  nilai = $(this).val();
+
+		  if(isNaN(nilai)) {
+			nilai = 0;
+			nilaiVch += nilai;
+		  } else {
+			nilaiVch += parseInt(nilai);
+		  }
+
+		  //nilaiVch += parseInt($(this).val());
+		  //console.log("nilaiVch : " +nilaiVch);
+		});
+
+		var nilaiPrd = 0;
+		$(All.get_active_tab() + " input[attr=prd]").each(function(){
+		  nprd = $(this).val();
+		  //console.log("nilaiVch : " +nilaiVch);
+
+		  if(isNaN(nilai)) {
+			nprd = 0;
+			nilaiPrd += nprd;
+		  } else {
+			nilaiPrd += parseInt(nprd);
+		  }
+		  console.log("nilaiPrd : " +nilaiPrd);
+		});
+
+		var kurang_bayar = nilaiVch - nilaiPrd;
+		//console.log("total vch : " +nilaiVch);
+		//console.log("total prd : " +nilaiPrd);
+
+		$(All.get_active_tab() + " #tot_all_payment").val(All.num(nilaiVch));
+		$(All.get_active_tab() + " #tot_all_payment_real").val(nilaiVch);
+
+		var sisa_cash = 0;
+		if(kurang_bayar < 0) {
+		  sisa_cash = kurang_bayar * -1;
+		}
+
+		$(All.get_active_tab() + " #sisa_cash").val(All.num(sisa_cash));
+		$(All.get_active_tab() + " #sisa_cash_real").val(sisa_cash);
+
+	  },
+
+	  remove_vch_row: function (param) {
+		var prefixVch = param.substr(0, 3);
+		if(prefixVch == "XPV" || prefixVch == "XPP" || prefixVch == "ZVO" || prefixVch == "XHD") {
+			$(All.get_active_tab() + " #dataPrd").html(null);
+			$(All.get_active_tab() + " #new_record").removeAttr("disabled");
+			$(All.get_active_tab() + " #isPrdpromo").val("0");
+		}
+		$(All.get_active_tab() + " tr#" + param).remove();
+		Stockist.sum_amount();
+		Stockist.hitungSisaPembayaran();
+	  },
+
+	  sum_amount: function () {
+		var sum = 0;
+		$(All.get_active_tab() + " #dataVch tr").each(function(){
+			sum += parseInt($(this).find('[attr=amt]').val());
+			console.log("isi : " +$(this).find('[attr=amt]').val());
+		});
+		$(All.get_active_tab() + " #total_voucher").val(All.num(sum));
+		$(All.get_active_tab() + " #pay_nominal").val(All.num(sum));
+		$(All.get_active_tab() + " #pay_nominal_real").val(sum);
+	  },
+
+	  sum_product: function () {
+		var sum = 0;
+		$(All.get_active_tab() + " #dataPrd tr").each(function() {
+		  sum += parseInt($(this).find('[attr=prd]').val());
+		});
+		$(All.get_active_tab() + " #total_all").val(All.num(sum));
+		$(All.get_active_tab() + " #total_all_real").val(sum);
+		let change_over_cash = $(All.get_active_tab() + " #total_all_real").val(sum) - $(All.get_active_tab() + " #pay_nominal_real").val(sum);
+		$(All.get_active_tab() + " #sisa_payment_real").val(change_over_cash);
+	  },
+
+	  add_new_sales_row: function () {
+		var amount = parseInt($(All.get_active_tab() + " #amount").val());
+		var tabidx = parseInt($(All.get_active_tab() + " #tabidx").val());
+		var j = tabidx;
+		var z = parseInt($(All.get_active_tab() + " #amt_record").val()) + 1;
+		$(All.get_active_tab() + " #amt_record").val(z);
+
+		var koma = ",";
+
+		var rowshtml = "<tr id=" + amount + ">";
+		rowshtml += "<td><input onchange=Stockist.helper_show_prod_by_id(" + amount + ") tabindex=" + j + " type=text class=span12 id=productcode" + amount + " name=productcode[] /></td>";
+		rowshtml += "<td><input readonly=yes type=text class=span12 id=productname" + amount + "  name=productname[] /></td>";
+		j++;
+		//rowshtml += "<td><input tabindex="+ j +" style=text-align:right type=text id=qty"+ amount +" name=qty[] class='span12 input-qty' onkeypress='if(event.keyCode==9) {Sales.sales_qty_format("+ amount +");}' />";
+		rowshtml += "<td><input tabindex=" + j + " style=text-align:right type=text id=qty" + amount + " name=qty[] class='span12 input-qty' onblur=Stockist.count_qty_product(" + amount + ") />";
+		rowshtml += "<input style=text-align:right;  type=hidden class=span3 id=qty_real" + amount + " name=qty_real[] /></td>";
+		j++;
+		rowshtml += "<td><input style=text-align:right; readonly=yes type=text class=kanan id=dp" + amount + "  name=dp[]/>";
+		rowshtml += "<input type=hidden id=dp_real" + amount + " name=dp_real[] /></td>";
+		/* rowshtml += "<td><input style=text-align:right; readonly=yes type=text id=bv" + amount + "  name=bv[] class=span12 />";
+		rowshtml += "<input type=hidden id=bv_real" + amount + " name=bv_real[] /></td>";
+		rowshtml += "<input type=hidden id=tot_bv_real" + amount + " name=tot_bv_real[] /></td>"; */
+		rowshtml += "<td><input readonly=yes style=text-align:right; type=text class=kanan id=total_dp" + amount + "  name=total_dp[] />";
+		rowshtml += "<input style=text-align:right; type=hidden class='kanan' attr=prd id=total_dp_real" + amount + "  name=total_dp_real[] /></td>";
+		rowshtml += "<td align=center><button class='btn btn-mini btn-danger' href=# id=" + amount + " onclick=Stockist.delete_row('" + amount + "')><i class='icon-trash icon-white'></i> </button>";
+
+		rowshtml += "</tr>";
+		var x = amount + 1;
+		var y = tabidx + 2;
+
+
+		$(All.get_active_tab() + " #amount").val(x);
+		$(All.get_active_tab() + " #tabidx").val(y);
+		$(All.get_active_tab() + " #dataPrd").append(rowshtml);
+		$(All.get_active_tab() + " .kanan").removeClass().addClass("span12 text-right");
+		$(All.get_active_tab() + " .tombol").removeClass().addClass("btn btn-small btn-danger");
+		$(All.get_active_tab() + " .ikon").removeClass().addClass("icon-trash icon-white");
+		$(All.get_active_tab() + " #productcode" + amount).focus();
+
+		//$("#new_record").focus();
+	  },
+
+	  helper_show_prod_by_id: function (frm) {
+		var pay_type = $(All.get_active_tab() + " #payn_type").val();
+		var counter = 0;
+		for (i = 0; i < document.getElementById('dataPrd').getElementsByTagName("tr").length + 1; i++) {
+		  var nama = $(All.get_active_tab() + " #productcode" + i).val();
+		  console.log("nama=" + nama);
+		  console.log("i=" + i);
+
+		  if ($(All.get_active_tab() + " #productcode" + frm).val() == nama && i != frm) {
+			counter++;
+		  }
+		}
+
+		if (counter > 0) {
+		  $(All.get_active_tab() + " #productcode" + frm).val('')
+		  alert('Produk yang anda masukkan sama (duplikat)');
+
+		} else {
+		  $.ajax({
+			dataType: 'json',
+			url: All.get_url("sales/product/pvr/check"),
+			type: 'POST',
+			data: {
+			  productcode: $(All.get_active_tab() + " #productcode" + frm).val(),
+			  pricecode: $(All.get_active_tab() + " #pricecode").val()
+			},
+			success: function (data) {
+			  if (data.response == 'true') {
+
+				$(All.get_active_tab() + " #productname" + frm).val(data.arraydata[0].prdnm);
+				var bv = parseInt(data.arraydata[0].bv);
+				var dp = parseInt(data.arraydata[0].dp);
+				var qty = parseInt($(All.get_active_tab() + " #qty" + frm).val());
+				if (isNaN(qty)) {
+				  qty = 1;
+				}
+				var tot_bv = bv * qty;
+				var tot_dp = dp * qty;
+				var tot_all_price = 0;
+				var tot_all_bv = 0;
+
+				//alert('tot_bv' +tot_bv);
+				$(All.get_active_tab() + " #qty" + frm).val('1');
+				$(All.get_active_tab() + " #dp" + frm).val(All.num(dp));
+				//$("#bv" +frm).val(parseInt(0));
+				$(All.get_active_tab() + " #bv" + frm).val(All.num(bv));
+
+				$(All.get_active_tab() + " #dp_real" + frm).val(parseInt(dp));
+				$(All.get_active_tab() + " #bv_real" + frm).val(parseInt(bv));
+				$(All.get_active_tab() + " #total_dp" + frm).val(All.num((tot_dp)));
+				$(All.get_active_tab() + " #total_dp_real" + frm).val(tot_dp);
+				$(All.get_active_tab() + " #new_record" + frm).focus();
+				if (pay_type == '10') {
+				  $(All.get_active_tab() + ' #tot_bv_real' + frm).val(0);
+				  $(All.get_active_tab() + ' #total_bv' + frm).val(All.num(parseInt(0)));
+				} else {
+				  $(All.get_active_tab() + ' #tot_bv_real' + frm).val(0);
+				  $(All.get_active_tab() + ' #total_bv' + frm).val(All.num(parseInt(0)));
+				}
+
+				//}
+
+				var jum_trx = parseInt($(All.get_active_tab() + " #amt_record").val());
+				for (i = 1; i <= jum_trx; i++) {
+				  var ss = $(All.get_active_tab() + " #qty" + i).val();
+				  if (ss === undefined) {
+					tot_all_price = tot_all_price + 0;
+					tot_all_bv = tot_all_bv + 0;
+				  } else {
+					tot_all_price += parseInt($(All.get_active_tab() + " #total_dp_real" + i).val());
+					tot_all_bv += parseInt($(All.get_active_tab() + " #tot_bv_real" + i).val())
+				  }
+				}
+				$(All.get_active_tab() + " #new_record" + frm).focus();
+				$(All.get_active_tab() + " #total_all").val(All.num(tot_all_price));
+				$(All.get_active_tab() + " #total_all_real").val(tot_all_price);
+
+
+				$(All.get_active_tab() + " #totals_all_bv").val(All.num(0));
+				$(All.get_active_tab() + " #total_all_real_bv").val(0);
+				$(All.get_active_tab() + ' #total_bv').val(All.num(0));
+
+				$(All.get_active_tab() + " #new_record" + frm).focus();
+
+				$(All.get_active_tab() + " #totalDp").val(All.num(tot_all_price));
+				$(All.get_active_tab() + " #totalDp_real").val(tot_all_price);
+				$(All.get_active_tab() + " #new_record" + frm).focus();
+
+				//Stockist.hitung();
+				Stockist.hitungSisaPembayaran();
+			  } else {
+				alert(data.message);
+				$(All.get_active_tab() + " #productname" + frm).val(null);
+				$(All.get_active_tab() + " #qty" + frm).val(null);
+				$(All.get_active_tab() + " #qty_real" + frm).val(null);
+				$(All.get_active_tab() + " #dp" + frm).val(null);
+				$(All.get_active_tab() + " #dp_real" + frm).val(null);
+				$(All.get_active_tab() + " #bv" + frm).val(null);
+				$(All.get_active_tab() + " #bv_real" + frm).val(null);
+				$(All.get_active_tab() + " #total_dp" + frm).val(null);
+				$(All.get_active_tab() + " #total_dp_real" + frm).val(null);
+				$(All.get_active_tab() + " #productcode" + frm).focus();
+			  }
+			},
+			error: function (xhr, ajaxOptions, thrownError) {
+			  alert(thrownError + ':' + xhr.status);
+			}
+		  });
+
+		}
+
+		//alert('isi : ' +data.dp);
+	  },
+
+	  count_qty_product: function (param) {
+		var qty = $(All.get_active_tab() + " #qty" + param).val();
+		var price = $(All.get_active_tab() + " #dp_real" + param).val();
+		sub_total = price * qty;
+		$(All.get_active_tab() + " #total_dp" + param).val(All.num(sub_total));
+		$(All.get_active_tab() + " #total_dp_real" + param).val(sub_total);
+		this.sum_product();
+		Stockist.hitungSisaPembayaran();
+	  },
+
+	  delete_row: function (frm) {
+		$("tr#" + frm).remove();
+
+		Stockist.sum_amount();
+		Stockist.sum_product();
+		Stockist.hitungSisaPembayaran();
+		// Sales.hitung();
+		// Sales.getchangepvr();
+      },
+
+      detailTtp : function(url) {
+    	All.set_disable_button();
+		//All.get_image_load();
+		$.ajax({
             url: All.get_url(url) ,
             type: 'GET',
             success:
             function(data){
                 All.set_enable_button();
-                $(All.get_active_tab() + ".mainForm").hide();
+				$(All.get_active_tab() + ".mainForm").hide();
                 $(All.get_active_tab() + ".nextForm1").html(data);
             },
             error: function (xhr, ajaxOptions, thrownError) {
-                alert(thrownError + ':' +xhr.status);
-                All.set_enable_button();
+                 alert(thrownError + ':' +xhr.status);
+				 All.set_enable_button();
             }
         });
-    }
+	},
 }
 

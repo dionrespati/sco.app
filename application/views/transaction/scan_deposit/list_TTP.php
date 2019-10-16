@@ -10,7 +10,7 @@
                 <span id="view_list_invent">
                     <!-- form -->
                     <div class="form-group">
-                        <input type="button" value="TTP Baru" onclick="All.ajaxFormGet('transaction/scan_voucher/getFormTtpDeposit2/<?php echo $deposit ?>')" class="btn btn-primary">
+                        <input type="button" value="TTP Baru" onclick="All.ajaxShowDetailonNextForm2('transaction/scan_voucher/getFormTtpDeposit2/<?php echo $deposit ?>')" class="btn btn-primary">
                     </div>
                     <table width="100%" class="table table-striped table-bordered bootstrap-datatable datatable"
                         align="center">

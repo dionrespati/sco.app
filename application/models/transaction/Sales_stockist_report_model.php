@@ -4,7 +4,32 @@ class Sales_stockist_report_model extends MY_Model {
 	function __construct() {
         // Call the Model constructor
         parent::__construct();
-    }
+	}
+	
+	function getDetailVoucher($formno, $voucherkey) {
+		$cekVoucherNum = "SELECT
+		                      a.status, 
+					          a.vchkey,
+					          a.formno,
+					          a.activate_by,
+					          a.prdcd,
+					          c.prdnm,
+					          a.updatenm,
+					          a.activate_dfno,
+					          b.fullnm as nama_member_aktif,
+					          CONVERT(VARCHAR(30), a.updatedt, 103) AS tgl2,
+					          sold_trcd,
+					          sold_trcdnewera
+					      FROM
+					          starterkit a
+					          LEFT OUTER JOIN msmemb b ON (a.activate_dfno = b.dfno)
+							  LEFT OUTER JOIN msprd c ON (a.prdcd = c.prdcd)
+					      WHERE
+					          (a.formno = '$formno' AND a.vchkey = '$voucherkey')";	
+        $result = $this->getRecordset($cekVoucherNum,null,$this->db2);
+		//var_dump($result);
+		return $result;		
+	}
 	
 	function getListGeneratedSales($x)
     {
@@ -38,7 +63,7 @@ class Sales_stockist_report_model extends MY_Model {
 						a.sc_dfno, b.fullnm as sc_dfno_name,
 						a.sc_co, c.fullnm as sc_co_name,
 						a.loccd, d.fullnm as loccd_name,
-						a.createnm,
+						a.createnm, a.id_deposit, a.no_deposit,
 						CONVERT(char(10), a.etdt,126) as etdt,
 						CONVERT(char(10), a.batchdt,126) as batchdt,
 						CONVERT(char(10), a.bnsperiod,126) as bnsperiod,
@@ -188,17 +213,34 @@ class Sales_stockist_report_model extends MY_Model {
 			$arr['response'] = "true";
 			$arr['voucher'] = $headerVch;
 			$vch_deposit = 0;
-			$qryTrx = "SELECT a.trcd, b.dfno, CONVERT(VARCHAR(10),b.etdt, 120) as createdt, b.loccd 
-						FROM sc_newtrp a
-						LEFT OUTER JOIN sc_newtrh b ON (a.trcd = b.trcd) 
-						WHERE a.docno = '$novoucher'
-						ORDER BY a.trcd DESC";
-			$trxClaim = $this->getRecordset($qryTrx, null, $this->db2);
+			
+				$qryTrx = "SELECT a.trcd, b.dfno, CONVERT(VARCHAR(10),b.etdt, 120) as createdt, 
+								b.loccd, c.fullnm as loccd_name 
+							FROM klink_mlm2010.dbo.sc_newtrp a
+							LEFT OUTER JOIN klink_mlm2010.dbo.sc_newtrh b ON (a.trcd = b.trcd) 
+							LEFT OUTER JOIN klink_mlm2010.dbo.mssc c ON (b.loccd = c.loccd)
+							WHERE a.docno = '$novoucher'
+							ORDER BY a.trcd DESC";
+				$trxClaim = $this->getRecordset($qryTrx, null, $this->db2);
+				if($trxClaim == null) {
+					$qryTrx = "SELECT b.invoiceno as trcd, b.dfno, CONVERT(VARCHAR(10),b.tgltrans, 120) as createdt,
+								c.loccd, d.fullnm as loccd_name
+								FROM KL_TVOCASH a
+								INNER JOIN KL_TEMPTRANS b ON (a.grupunik COLLATE SQL_Latin1_General_CP1_CS_AS = b.grupunik)
+								INNER JOIN newtrh c ON (b.invoiceno COLLATE SQL_Latin1_General_CP1_CS_AS = c.trcd)
+								LEFT OUTER JOIN mssc d ON (c.loccd = d.loccd)
+								WHERE a.voucherno = '$novoucher'";
+					
+					$trxClaim = $this->getRecordset($qryTrx, null, $this->db2);
+				}
+				
 			if($trxClaim == null) {
-				$qryTrx2 = "SELECT a.voucher_scan, a.createnm as loccd, 
+				$qryTrx2 = "SELECT a.voucher_scan, a.createnm as loccd, b.fullnm as loccd_name,
 							a.no_trx as trcd, a.dfno, 
 							CONVERT(VARCHAR(10),a.createdt , 120) as createdt
-							FROM deposit_D a WHERE a.voucher_scan = '$novoucher'";
+							FROM deposit_D a 
+							LEFT OUTER JOIN klink_mlm2010.dbo.mssc b ON (a.createnm COLLATE SQL_Latin1_General_CP1_CS_AS = b.loccd)
+							WHERE a.voucher_scan = '$novoucher'";
 				$trxClaim2 = $this->getRecordset($qryTrx2, null, $this->db2);
 
 				if($trxClaim2 != null) {

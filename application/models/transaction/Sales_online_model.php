@@ -54,13 +54,16 @@ class Sales_online_model extends MY_Model {
 	
 	function olTrxHeader($orderno) {
         $rr =  "select a.orderno,a.id_memb,a.nmmember,a.total_pay,c.datetrans,
-			    	a.total_bv,a.bonusmonth,a.idstk,a.nmstkk ,b.tel_hp,
-			    	c.usr_login,b.fullnm as nmsponsor, d.KWno, d.SSRno
-                from webol_trans_ok a
+                        a.total_bv,a.bonusmonth,a.idstk,a.nmstkk ,b.tel_hp,
+                        c.userlogin as usr_login,
+                        b.fullnm as nmsponsor, d.KWno, d.SSRno
+                from klink_mlm2010.dbo.webol_trans_ok a
                     INNER JOIN db_ecommerce.dbo.ecomm_trans_hdr d ON (a.orderno = d.orderno)
-			    	INNER JOIN webol_logs_trans c on a.orderno = c.orderno
-			        LEFT OUTER JOIN msmemb b on (c.usr_login = b.dfno COLLATE SQL_Latin1_General_CP1_CS_AS)
-			    where a.orderno = '$orderno' and (b.dfno = c.usr_login COLLATE SQL_Latin1_General_CP1_CS_AS) ";
+                    INNER JOIN db_ecommerce.dbo.ecomm_trans_hdr_sgo c on d.token = c.orderno
+                    LEFT OUTER JOIN klink_mlm2010.dbo.msmemb 
+                        b on (c.userlogin = b.dfno COLLATE SQL_Latin1_General_CP1_CS_AS)
+                where a.orderno = '$orderno' 
+                and (b.dfno = c.userlogin COLLATE SQL_Latin1_General_CP1_CS_AS)";
         //echo $rr;
         return $this->getRecordset($rr, null, $this->db2);
     }
