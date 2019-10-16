@@ -53,7 +53,7 @@ if($result == null) {
 				    $dta->etdt
 				</td>
 				<td>
-				    $dta->fullnm
+				    ".substrwords($dta->fullnm,20)."
 				</td>
 				<td align=\"right\">
 				   ".number_format($dta->tdp, 0, ",", ".")."
@@ -62,12 +62,15 @@ if($result == null) {
 				   ".number_format($dta->tbv, 0, ",", ".")."
 				</td>";
 				echo "<td align=center>".$dta->flag_batch_stt."</td>";
+				$pref_trcd = substr($dta->trcd, 0, 2);
 				if($dta->flag_batch == "0") {
-					if($dta->no_deposit == null && $dta->no_deposit == "") {
+					if($dta->no_deposit == null || $dta->no_deposit == "") {
 						//<a class='btn btn-mini btn-primary' id=$dta->trcd onclick=\"javascript:All.ajaxShowDetailonNextForm('sales/stk/update/trcd/$dta->trcd')\"><i class=\"icon-white icon-edit\"></i></a>
-						echo "<td align=\"center\">
-						
-						<a class='btn btn-mini btn-danger' onclick=\"javascript:deleteTrx('$dta->trcd')\"><i class=\"icon-white icon-trash\"></i></a>
+						echo "<td align=\"center\">";
+						if($pref_trcd == "ID") {
+						echo "<a class='btn btn-mini btn-primary' id=$dta->trcd onclick=\"javascript:All.ajaxShowDetailonNextForm('sales/stk/update/trcd/$dta->trcd')\"><i class=\"icon-white icon-edit\"></i></a>&nbsp;";
+						}
+						echo "<a class='btn btn-mini btn-danger' onclick=\"javascript:deleteTrx('$dta->trcd')\"><i class=\"icon-white icon-trash\"></i></a>
 						</td>";
 					} else {
 						echo "<td align=\"center\">VC Deposit</td>";

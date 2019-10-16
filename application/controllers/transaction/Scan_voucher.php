@@ -35,6 +35,7 @@ class Scan_voucher extends MY_Controller
         }
     }
 
+    //$route['scan/list'] = 'transaction/scan_voucher/getDeposit';
     public function getDeposit()
     {
         if ($this->stockist != null) {
@@ -114,6 +115,7 @@ class Scan_voucher extends MY_Controller
         }
     }
 
+    //$route['scan/list/detail/ttp/(:any)'] = 'transaction/scan_voucher/getTTPList/$1';
     public function getTTPList($deposit)
     {
         $data['user'] = $this->stockist;
@@ -121,12 +123,13 @@ class Scan_voucher extends MY_Controller
         $data['list'] = $this->scan_voucher_model->show_list_TTP($deposit);
         $result = $this->scan_voucher_model->getDataEdit($deposit);
         $data['nodeposit'] = $result[0]->no_trx;
+        $data['sisaDeposit'] = $result[0]->total_deposit - $result[0]->total_keluar;
 
         /* if ($result[0]->status==1) {
-            $data['add'] = anchor('c_sales_pvr/getFormTtpDeposit2/'.$deposit, 'TTP Baru', array('class'=>'btn btn-primary'));
+            $data['status_generate'] = $result[0]->status;
         } else {
             $data['add'] = "";
-        } */
+        }  */
         $data['status'] = $result[0]->status;
 
         $this->load->view($this->folderView.'list_TTP', $data);
@@ -260,6 +263,7 @@ class Scan_voucher extends MY_Controller
         }
     }
 
+    //$route['scan/ttp/view/(:any)/(:any)/(:any)'] = 'transaction/scan_voucher/viewTTP/$1/$2/$3';
     public function viewTTP($id = '', $deposit= '', $status='')
     {
         $data['user'] = $this->stockist;
@@ -331,10 +335,11 @@ class Scan_voucher extends MY_Controller
         }
     }
 
-    public function getFormTtpDeposit2($id = '') {
+    //$route['scan/ttp/input/(:any)'] = 'transaction/scan_voucher/getFormTtpDeposit2/$1';
+    /* public function getFormTtpDeposit2($id = '') {
         $data['user'] = $this->stockist;
         $data['form_action'] = site_url('/c_sales_subStockist/postFormTtpPvr');
-        $data['header_form'] = "Input TTP";
+        $data['header_form'] = "Input TTP Deposit Voucher";
         $data['dateNow'] = date('d F Y');
         $data['id'] = $id;
 
@@ -359,11 +364,62 @@ class Scan_voucher extends MY_Controller
 
         $data['listype'] = $this->scan_voucher_model->get_list_payment();
         $data['stk'] = $this->scan_voucher_model->get_stockist_info($tipe,$data['user']);
-        $data['currentperiod'] = $this->scan_voucher_model->get_current_period();
+        $data['currentperiod'] = $this->scan_voucher_model->getCurrentPeriod();
 
         $this->load->view($this->folderView.'form_ttp_depo',$data);
         return $data['user'];
-    }
+    } */
+
+    public function getFormTtpDeposit2($id = '') {
+		if($this->username != null) {
+			$this->load->model('transaction/Sales_stockist_model', 'm_sales_stk');
+			$data['form_action'] = "scan/ttp/save";
+			$data['currentperiod']= $this->m_sales_stk->getCurrentPeriod();
+			$data['ins'] = "1";
+			$data['stockist'] = $this->stockist;
+			$data['stockistnm'] = $this->stockistnm	;
+			$data['pricecode'] = $this->pricecode;
+			$data['listPay'] = $this->m_sales_stk->getListPaymentType();
+			$data['start_tabidx'] = 7;
+			$sctype = $this->m_sales_stk->getStockistInfo($data['stockist']);
+		    $data['sctype'] = $sctype[0]->sctype;
+			$data['co_sctype'] = $sctype[0]->sctype;
+            $data['prd_voucher'] = 0;
+            $data['head_form'] = "Input TTP Deposit Voucher";
+
+            $data['sc_dfno_readonly'] = "readonly=readonly";
+			$data['sc_co_readonly'] = "readonly=readonly";
+
+			if($data['ins'] == "1") {
+				$data['submit_value'] = "Simpan Transaksi";
+			} else {
+				$data['submit_value'] = "Update Transaksi";
+			}
+			$data['tot_dp'] = 0;
+			$data['tot_bv'] = 0;
+            $data['jum_rec'] = 1;
+
+            $data['iddepo']=$id;
+
+            $result = $this->scan_voucher_model->getDataEdit($id);
+            $data['kategori']="VC";
+            $data['nodepo']=$result[0]->no_trx;
+            $data['iddepo']=$id;
+            $data['sisa_deposit']=$result[0]->total_deposit - $result[0]->total_keluar;
+            $data['desc']='Product Voucer';
+            if($data['kategori']=='VC') {
+                $data['desc']='Voucher Cash';
+            }
+            $data['jenis']=strrev(strtolower($data['kategori']));
+
+			$this->load->view('transaction/stockist/inputTTPSubForm2',$data);
+			$this->load->view('transaction/stockist/viewProductPayment',$data);
+			$this->load->view($this->folderView.'viewPaymentForm',$data);
+
+		} else {
+           jsAlert();
+        }
+	}
 
     public function postFormTtpPvr() {
         if($this->stockist != NULL) {
@@ -445,5 +501,160 @@ class Scan_voucher extends MY_Controller
         } else {
             redirect('auth');
         }
+    }
+
+    //$route['scan/ttp/delete/(:any)'] = 'transaction/scan_voucher/hapusTtpVchDeposit/$1';
+    public function hapusTtpVchDeposit($id) {
+        $hapus = $this->scan_voucher_model->hapusTTPvchDeposit($id);
+        echo json_encode($hapus);
+    }
+
+    //$route['scan/ttp/save'] = 'transaction/scan_voucher/saveTrxDepositVch';
+	public function saveTrxDepositVch() {
+		if($this->username != null) {
+			$this->load->library('form_validation');
+			$data = $this->input->post(NULL, TRUE);
+
+			if ($this->form_validation->run('inputTtpStockist') === TRUE) {
+				$this->load->model('transaction/Sales_stockist_model', 'm_sales_stk');
+    			//check apakah produk ada yang kosong
+				$jum = count($data['prdcd']);
+				if($jum == 0) {
+					echo json_encode(jsonFalseResponse("Produk tidak boleh kosong.."));
+					return;
+				}
+
+				//check apakah distributor valid
+
+				$ifMemberExist = $this->m_sales_stk->getValidDistributor($data['dfno']);
+				if($ifMemberExist == null) {
+					echo json_encode(jsonFalseResponse("ID Member tidak valid.."));
+					return;
+				}
+
+				//check valid product
+				$sub_tot_bv = 0;
+				$sub_tot_dp = 0;
+				$total_dp = 0;
+				$total_bv = 0;
+				$jumPrd = count($data['prdcd']);
+				for($i=0; $i<$jumPrd; $i++) {
+					$prdcd = $data['prdcd'][$i];
+					$qty = $data['jum'][$i];
+
+					$prdArr = $this->m_sales_stk->showProductPrice($prdcd, $data['pricecode']);
+					if($prdArr['response'] == "false") {
+						echo json_encode($prdArr);
+						return;
+					}
+					$resPrd = $prdArr['arraydata'][0];
+					$data['harga'][$i] = $resPrd->dp;
+					$data['poin'][$i] = $resPrd->bv;
+
+					$data['sub_tot_bv'][$i] = $qty * $resPrd->bv;
+					$data['sub_tot_dp'][$i] = $qty * $resPrd->dp;
+
+					$total_dp += $qty * $resPrd->dp;
+					$total_bv += $qty * $resPrd->bv;
+				}
+
+				$data['total_all_bv'] = (float) $total_bv;
+                $data['total_all_dp'] = (float) $total_dp;
+
+                //check apakah pembayaran kosong
+				if(!isset($data['payChooseType'])) {
+					echo json_encode(jsonFalseResponse("Pembayaran tidak boleh kosong.."));
+					return;
+
+				} else {
+					/* $jumPay = count($data['payReff']);
+					for($i=0; $i < $jumPay; $i++) {
+						if($data['payChooseType'][$i] == "01") {
+							$data['payChooseValue'][$i] = floatval(str_replace('.', '', $data['payChooseValue'][$i]));
+						} else {
+							if($data['payChooseType'][$i] == "10") {
+								$typeVchx = "P";
+							} else if($data['payChooseType'][$i] == "08") {
+								$typeVchx = "C";
+							}
+							$arr = $this->m_sales_stk->checkValidCashVoucher($data['dfno'],$data['payReff'][$i], $typeVchx);
+							if($arr['response'] == "false") {
+								echo json_encode($arr);
+								return;
+							} else {
+								$datax = $arr['arrayData'][0];
+								$data['payChooseValue'][$i] = $datax->VoucherAmt;
+							}
+						}
+
+
+                    } */
+
+                    $checkVchDeposit = $this->scan_voucher_model->getsisaBARU($data['id_deposit']);
+                    $sisa_saldo = $checkVchDeposit[0]->saldo - $checkVchDeposit[0]->payamt;
+                    if($sisa_saldo <= 0) {
+                        echo json_encode(jsonFalseResponse("Sisa saldo deposit voucher adalah : $sisa_saldo.."));
+					    return;
+                    }
+
+                    if($sisa_saldo > $data['total_all_dp']) {
+                        $data['payChooseType'][0] = "08";
+                        $data['payChooseValue'][0] = $data['total_all_dp'];
+                    } else {
+                        $cash = $data['total_all_dp'] - $sisa_saldo;
+                        $data['payChooseType'][0] = "08";
+                        $data['payChooseValue'][0] = $sisa_saldo;
+                        $data['payChooseType'][1] = "01";
+                        $data['payChooseValue'][1] = $cash;
+                    }
+                    //print_r($checkVchDeposit);
+				}
+
+				$arr = array(
+					"table" => "sc_newtrh",
+					"param" => "orderno",
+					"value" => $data['orderno'],
+					"db" => "klink_mlm2010",
+				);
+
+				if($data['ins'] == "1") {
+					$checkOrderno = $this->m_sales_stk->checkExistingRecord($arr);
+					//CHECK apakah ORDERNO double
+					if($checkOrderno != null) {
+						echo jsonFalseResponse("No TTP sudah ada di database..");
+						return;
+					}
+				}
+
+
+
+				$data['no_deposit'] = $checkVchDeposit[0]->no_trx;
+                $data['id_deposit'] = $checkVchDeposit[0]->id_header;
+
+                /* echo "<pre>";
+				print_r($data);
+				echo "</pre>"; */
+
+                $res = $this->m_sales_stk->saveTrx($data);
+                if($res['response'] == "true") {
+                    $this->scan_voucher_model->updateSisaSaldo($data['id_deposit'], $data['payChooseValue'][0]);
+                }
+				echo json_encode($res);
+
+			} else {
+				$this->form_validation->set_error_delimiters("","");
+			    echo json_encode(jsonFalseResponse(validation_errors()));
+			    //jsAlert(validation_errors());
+			}
+
+		} else {
+           jsAlert();
+        }
+    }
+
+    //$route['scan/deposit/recalculate/(:any)'] = 'transaction/scan_voucher/recalculateDeposit/$1';
+    public function recalculateDeposit($id) {
+        $res = $this->scan_voucher_model->recalculateDeposit($id);
+        echo json_encode($res);
     }
 }

@@ -12,7 +12,8 @@ class Member_registration extends MY_Controller {
 	public function regMember() {
 		$data['form_header'] = "Member Registration";
 		$data['icon'] = "icon-pencil";
-        $data['form_reload'] = 'member/reg';
+		$data['form_reload'] = 'member/reg';
+		//echo "stk : ".$this->stockist;
 		   	
 		if($this->username != null) {	
 		   		   
@@ -25,8 +26,10 @@ class Member_registration extends MY_Controller {
 	}
 	
 	//$route['member/voucher/check/(:any)/(:any)'] = 'member/member_registration/checkVoucher/$1/$2';
-	public function checkVoucher($voucherno, $voucherkey) {		
-		$arr = $this->checkVoucherMemb($voucherno, $voucherkey);
+	public function checkVoucher($voucherno, $voucherkey) {	
+		$vchno = trim($voucherno);	
+		$vchkey = trim($voucherkey);
+		$arr = $this->checkVoucherMemb($vchno, $vchkey);
 		echo json_encode($arr);
 	}
 	
@@ -85,9 +88,11 @@ class Member_registration extends MY_Controller {
 		   $cnterr = 0;
 		   $regtype = 0;
 		   try {
-		   		//Check sponsor & rekruiter	
-		   		$idsponsor = $this->m_api->checkValidIdMember($data['idsponsor']);
-		   		$idrekruit = $this->m_api->checkValidIdMember($data['idrekrut']);	
+				   //Check sponsor & rekruiter
+				$sponsorid = trim(strtoupper(preg_replace("/[^\w\s]+/", "", $data['idsponsor'])));   	
+				$recruiterid = trim(strtoupper(preg_replace("/[^\w\s]+/", "", $data['idrekrut']))); 
+		   		$idsponsor = $this->m_api->checkValidIdMember($sponsorid);
+		   		$idrekruit = $this->m_api->checkValidIdMember($recruiterid);	
 				//Jika memilih pending voucher	
 				if($data['chosevoucher'] == "0") {
 					//Check Limit starterkit pending voucher
@@ -110,8 +115,9 @@ class Member_registration extends MY_Controller {
 				}
 				
 		   } catch(Exception $e) {
-		   	   $data['err'] = $e->getMessage();
-			   $cnterr++;
+				  $data['err'] = $e->getMessage();
+				  throw new Exception($e->getMessage());
+			      $cnterr++;
 		   }
 		   
 		   if($cnterr > 0) {
@@ -135,14 +141,40 @@ class Member_registration extends MY_Controller {
     
     //$route['member/reg/input/save'] = 'member/member_registration/saveInputMember';
     public function saveInputMember() {
-    	$data = $this->input->post(NULL, TRUE);	
+		$data = $this->input->post(NULL, TRUE);	
+		$this->load->model("be_api_model", "m_api");
 		try {
-		   	  $check = $this->checkValidation($data);
-			  $cekNoKtp  = $this->m_api->memberCheckExistingRecordByField("idno", $data['noktp']);
-		      $cekNohP  =  $this->m_api->memberCheckExistingRecordByField("tel_hp", $data['tel_hp']);
-			  
+				//Check sponsor & rekruiter	
+				$sponsorid = trim(strtoupper(preg_replace("/[^\w\s]+/", "", $data['idsponsor'])));   	
+				$recruiterid = trim(strtoupper(preg_replace("/[^\w\s]+/", "", $data['idrekrut']))); 
+				$idsponsor = $this->m_api->checkValidIdMember($sponsorid);
+				$idrekruit = $this->m_api->checkValidIdMember($recruiterid);	
+				$cekNoKtp  = $this->m_api->memberCheckExistingRecordByField("idno", $data['noktp']);
+				$cekNohP  =  $this->m_api->memberCheckExistingRecordByField("tel_hp", $data['tel_hp']);
+				$cnterr = 0;  
+				//jika memilih pending voucher
+				 if($data['chosevoucher'] == "0") {
+					//Check Limit starterkit pending voucher
+				   	$cekLimit = $this->m_member_reg->cekLimitKit($this->stockist);
+				   	if($cekLimit != null && $cekLimit[0]->arkit < 1) {
+				   		//print_r($cekLimit);
+				   		$data['err'] = "Limit starterkit : ".$cekLimit[0]->arkit;
+				   		$cnterr++;
+				   	}
+				} 
+				//jika memilih voucher
+				else {
+			   	  $checkVch = $this->checkVoucherMemb($data['voucherno'], $data['voucherkey']);
+				  if($checkVch['response'] !== "true") {
+				  	 $data['err'] = $checkVch['message'];
+					 $cnterr++;
+				  } else {
+				  	$regtype = $checkVch['arrayData'][0]->prdcd;
+				  }
+				}   
+			    //echo "okey";
 			  //Single member registration
-			  if($data['tipe_input'] == "1") {	
+			   if($data['tipe_input'] == "1") {	
 			      $lastkit = $this->m_member_reg->showLastkitno($this->stockist);
 				  if($lastkit != null) {
 				     //echo "dsdsd";		 
@@ -161,9 +193,10 @@ class Member_registration extends MY_Controller {
 		      //end if($data['tipe_input'] == "1")	  
 			  } else {
 			  //Couple member registration	
-			  }
+			  } 
 		} catch(Exception $e) {
 			$arr = jsonFalseResponse($e->getMessage());
+			//throw new Exception($e->getMessage());
 		}
 		echo json_encode($arr);
     }
@@ -201,7 +234,7 @@ class Member_registration extends MY_Controller {
 	            //$this->load->view($this->folderView.'memberRegInputResult', $data);
 	            
 	        } else {
-	            $dec_lastkitno = $this->m_member_reg->DecrementingLastKitNo($this->stockist);
+	            //$dec_lastkitno = $this->m_member_reg->DecrementingLastKitNo($this->stockist);
 				$res = jsonFalseResponse("Input member gagal..");
 	        }  
 	    } else {

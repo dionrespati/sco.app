@@ -22,7 +22,6 @@ class Userconfig_model extends MY_Model {
 		}
 		return $res;
 	}
-
 	function getListAllUserGroup() {
 		$qry = "SELECT * FROM ecomm_usergroup";
 		$res = $this->getRecordset($qry, NULL, $this->db2);
@@ -40,7 +39,6 @@ class Userconfig_model extends MY_Model {
 		}
 		return $res;
 	}
-
 	function saveInputUserGroup() {
 		$data = $this->input->post(NULL, TRUE);
 		$qry = "INSERT INTO ecomm_usergroup (groupname)
@@ -187,7 +185,6 @@ class Userconfig_model extends MY_Model {
 		}
 		return $res;
 	 }
-
 	 function saveInputApplication() {
 	 	$data = $this->input->post(NULL, TRUE);
 		$qry = "INSERT INTO app_table (app_id, app_name, app_url, status, createnm)
@@ -253,7 +250,6 @@ class Userconfig_model extends MY_Model {
 		}
 		return $res;
 	 }
-
 	 function getMenuID($prefix = "RT") {
 
 	 	$qry = "SELECT max(a.app_menu_id) as jum
@@ -345,7 +341,6 @@ class Userconfig_model extends MY_Model {
 			}
 			return $res;
 	 }
-
 	 function saveInputSubMenu($menu_id, $data) {
 		$qry = "INSERT INTO app_tabprg (app_id, app_menu_id, app_menu_parent_id, app_menu_desc, app_menu_url, status, createnm, menu_order)
 		        VALUES ('$data[app_id]','$menu_id', '$data[app_menu_parent_id]', '$data[app_menu_desc]', '$data[app_menu_url]', '$data[status]',

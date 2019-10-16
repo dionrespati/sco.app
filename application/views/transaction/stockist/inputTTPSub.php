@@ -27,6 +27,8 @@
 				<option value="batchno">No SSR / MSR</option>
 				<option value="orderno">No TTP</option>
 				<option value="receiptno">No KW</option>
+				<option value="prdcd">Kode Produk</option>
+				<option value="prdnm">Nama Produk</option>
 			</select>
         </div>
         
@@ -40,6 +42,7 @@
             <input tabindex="5" type="button" id="btn_input_user" class="btn btn-success" name="save" value="Cari" onclick="All.ajaxFormPost(this.form.id,'sales/stk/input/list')" />
             <input tabindex="6"  type="reset" class="btn btn-reset" value="Reset" />
             <input tabindex="7"  type="button" class="btn btn-primary" value="Input TTP Baru" onclick="javascript:All.ajaxShowDetailonNextForm('sales/sub/input/form')" />
+			<input tabindex="7"  type="button" class="btn btn-primary" value="Input Voucher Cash" onclick="javascript:All.ajaxShowDetailonNextForm('sales/sub/input/vcash')" />
          </div>
         </div> <!-- end control-group -->
      </fieldset>

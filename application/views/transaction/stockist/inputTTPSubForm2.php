@@ -37,12 +37,12 @@ if ($ins == "2") {
 <form id="salesSubStockist" class="formSales">
 	<table width="100%" class="table table-striped table-bordered bootstrap-datatable datatable">
 		<tr>
-			<th colspan="5">DATA PEMBELANJAAN MEMBER</th>
+			<th colspan="5"><?php echo strtoupper($head_form); ?></th>
 		</tr>
 		<tr>
 			<td width="13%">&nbsp;Stockist</td>
 			<td width="10%">
-			<input tabindex="1" type="text" class=" typeahead" id="sc_dfno"  name="sc_dfno" value="<?php echo $sc_dfno; ?>" onchange="Stockist.getStkScType(this)" />
+			<input tabindex="1" type="text" <?php echo $sc_dfno_readonly; ?> class=" typeahead" id="sc_dfno"  name="sc_dfno" value="<?php echo $sc_dfno; ?>" onchange="Stockist.getStkScType(this)" />
 			</td>
 			<td width="35%">
 			<input readonly="readonly" type="text" class="span20 typeahead" id="sc_name"  name="sc_name" value="<?php echo $sc_dfnonm; ?>" />
@@ -56,7 +56,7 @@ if ($ins == "2") {
 		<tr>
 			<td>&nbsp;C/O Stockist </td>
 			<td>
-			<input tabindex="2" type="text" class="typeahead" id="sc_co"  name="sc_co" value="<?php echo $sc_co; ?>"  onchange="Stockist.getStkScType(this)" />
+			<input tabindex="2" type="text" <?php echo $sc_co_readonly; ?> class="typeahead" id="sc_co"  name="sc_co" value="<?php echo $sc_co; ?>"  onchange="Stockist.getStkScType(this)" />
 			</td>
 			<td>
 			<input readonly="readonly" type="text" class="span20 typeahead" id="sc_co_name"  name="sc_co_name" value="<?php echo $sc_conm; ?>" />

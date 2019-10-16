@@ -44,7 +44,11 @@
                                 <td class="form_title_left">Member Code&nbsp;</td>
                                 <td>
                                     <input type="text" class="span12 typeahead" id="distributorcode"
+<<<<<<< HEAD
                                         name="distributorcode" onchange="Sales.get_distributor_info()" />
+=======
+                                        name="distributorcode" onchange="All.getFullNameByID(this.value,'api/member/check','#distributorname')" />
+>>>>>>> c62b4866924da804e9d15866a8e5f233ab009db3
                                 </td>
                             </tr>
                             <tr>

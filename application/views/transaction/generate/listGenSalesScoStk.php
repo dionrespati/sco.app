@@ -4,16 +4,40 @@
 ?>
 <script>
     function f1(objButton){
+            //sales/search/list/detail
             All.set_disable_button();
             $.ajax({
                 type : "POST",
-                url  : "<?php echo site_url('sales/search/list/detail');?>",
+                url  : "<?php echo site_url('sales/search/list/checkSelisih');?>",
                 data : {
                   ID_KW:objButton.value,
-                  from: $('#from').val(),
-                  to: $('#to').val(),
-                  bnsperiod: $('#bnsperiod').val(),
-                  idstkk: $('#idstkk').val()
+                  from: $(All.get_active_tab() + ' #from').val(),
+                  to: $(All.get_active_tab() +' #to').val(),
+                  bnsperiod: $(All.get_active_tab() +' #bnsperiod').val(),
+                  idstkk: $(All.get_active_tab() +' #idstkk').val()
+                },
+                success: function(data){
+
+                    All.set_enable_button();
+                    $(All.get_active_tab() + ".mainForm").hide();
+                    All.clear_div_in_boxcontent(".nextForm1");
+                    $(All.get_active_tab() + ".nextForm1").html(data);
+
+                }
+            });
+    }
+
+    function f2(objButton){
+            All.set_disable_button();
+            $.ajax({
+                type : "POST",
+                url  : "<?php echo site_url('sales/search/list/checkSelisih');?>",
+                data : {
+                  ID_KW:objButton.value,
+                  from: $(All.get_active_tab() +' #from').val(),
+                  to: $(All.get_active_tab() +' #to').val(),
+                  bnsperiod: $(All.get_active_tab() +' #bnsperiod').val(),
+                  idstkk: $(All.get_active_tab() +' #idstkk').val()
                 },
                 success: function(data){
 
@@ -46,8 +70,7 @@
                         <th>Stockist</th>
                         <th>Periode Bonus</th>
                         <th>Total Cash</th>
-                        <th>Total Vch Cash</th>
-                        <th>Total Vch Prd</th>
+                        <th>Total Vch</th>
                         <th>Total Pay</th>
                         <th>Total BV</th>
                         <th>Action</th>
@@ -62,37 +85,122 @@
 //                    $trxdate = date('d/m/Y', strtotime($row->etdt));
 //                    <input type=\"button\" class=\"btn btn-warning\" onClick=\"Sales_sco.getdetailCahyono($i);\" name=\"submit\" value=\"Detail\"/>
                     $bnsperiod = date("Y-m-d", strtotime($row->bnsperiod));
-                    echo "
-                    <tr>
-                        <td align=\"center\">
-                            <input type=checkbox id=cek[] name=cek[] value=\"".$row->tipe."|".$row->sc_dfno."\" />
-                        </td>
-                       <td align=\"center\"><input readonly=yes type=hidden  class=span12 id=tipe".$i."  name=tipe[] value='$row->tipe' />$row->tipe</td>
-                       <td>$row->sc_dfno - $row->scdfno</td>
-                       <td align=\"center\">$bnsperiod</td>
-                       <td><div align=right>".number_format($row->cash,0,".",".")."</div></td>
-                       <td><div align=right>".number_format($row->vcash,0,".",".")."</div></td>
-                       <td><div align=right>".number_format($row->pvch,0,".",".")."</div></td>
+
+                    if($row->tipe != "PVR") {
+                        $total_pay = $row->vcash + $row->cash;
+                        $readonly = "";
+                        $font_err_depan = "";
+                        $font_err_blkg = "";
+                        $btn_list_ttp = "f1(this)";
+                        $btn_value = "List TTP";
+                        $btn_class = "btn btn-mini btn-success";
+                        /* echo "totpay : ".$row->totpay;
+                        echo "total_pay : ".$total_pay; */
+                        if($row->totpay != $total_pay) {
+                            $readonly="disabled=disabled";
+                            $font_err_depan = "<font color=red>";
+                            $font_err_blkg = "</font>";
+                            $btn_list_ttp = "f2(this)";
+                            $btn_value = "Check";
+                            $btn_class = "btn btn-mini btn-primary";
+                        }
+
+                        echo "
+                        <tr>
+                            <td align=\"center\">
+                                <input $readonly type=checkbox id=cek[] name=cek[] value=\"".$row->tipe."|".$row->sc_dfno."\" />
+                            </td>
+                        <td align=\"center\"><input readonly=yes type=hidden  class=span12 id=tipe".$i."  name=tipe[] value='$row->tipe' />$font_err_depan $row->tipe $font_err_blkg</td>
+                        <td>$font_err_depan $row->sc_dfno - $row->scdfno $font_err_blkg</td>
+                        <td align=\"center\">$font_err_depan $bnsperiod $font_err_blkg</td>
+                        <td><div align=right>$font_err_depan ".number_format($row->cash,0,".",".")." $font_err_blkg</div></td>";
+                        echo "<td><div align=right>$font_err_depan".number_format($row->vcash,0,".",".")." $font_err_blkg</div></td>";
+                        echo "  
+                       <td><div align=right>$font_err_depan".number_format($row->totpay,0,".",".")." $font_err_blkg</div></td>
+                       <td><div align=right>$font_err_depan".number_format($row->tbv,0,".",".")." $font_err_blkg</div></td>
+                       <td align=\"center\">
+                            <button type=\"button\" class=\"$btn_class\" onclick=\"$btn_list_ttp\"  value='$row->tipe|$row->sc_dfno|$row->sc_co' >  $btn_value </button>
+                       </td>
+                       </tr>";
+                    }  else if($row->tipe == "PVR") {
+
+                        $total_pay = $row->pcash + $row->cash;
+                        $readonly = "";
+                        $font_err_depan = "";
+                        $font_err_blkg = "";
+                        $btn_list_ttp = "f1(this)";
+                        /* echo "total_pay : ".$total_pay;
+                        echo "<br />totpay : ".$row->totpay; */
+                        $btn_value = "List TTP";
+                        $btn_class = "btn btn-mini btn-success";
+                        if($total_pay < $row->totpay) {
+                            $readonly="disabled=disabled";
+                            $font_err_depan = "<font color=red>";
+                            $font_err_blkg = "</font>";
+                            $btn_list_ttp = "f2(this)";
+                            $btn_value = "Check";
+                            $btn_class = "btn btn-mini btn-primary";
+                        }
+
+                        echo "
+                        <tr>
+                            <td align=\"center\">
+                                <input $readonly type=checkbox id=cek[] name=cek[] value=\"".$row->tipe."|".$row->sc_dfno."\" />
+                            </td>
+                        <td align=\"center\"><input readonly=yes type=hidden  class=span12 id=tipe".$i."  name=tipe[] value='$row->tipe' />$font_err_depan $row->tipe $font_err_blkg</td>
+                        <td>$font_err_depan $row->sc_dfno - $row->scdfno $font_err_blkg</td>
+                        <td align=\"center\">$font_err_depan $bnsperiod $font_err_blkg</td>
+                        <td><div align=right>$font_err_depan".number_format($row->cash,0,".",".")."$font_err_blkg</div></td>";
+                        echo "<td><div align=right>$font_err_depan".number_format($row->pcash,0,".",".")."$font_err_blkg</div></td>";
+                        echo "  
+                       <td><div align=right>$font_err_depan".number_format($row->totpay,0,".",".")."$font_err_blkg</div></td>
+                       <td><div align=right>$font_err_depan".number_format($row->tbv,0,".",".")."$font_err_blkg</div></td>
+                       <td align=\"center\">
+                            <button type=\"button\" class=\"$btn_class\" onclick=\"$btn_list_ttp\"  value='$row->tipe|$row->sc_dfno|$row->sc_co' > $btn_value </button>
+                       </td>
+                       </tr>";    
+                    }  /* else {
+                        echo "
+                        <tr>
+                            <td align=\"center\">
+                                <input type=checkbox id=cek[] name=cek[] value=\"".$row->tipe."|".$row->sc_dfno."\" />
+                            </td>
+                        <td align=\"center\"><input readonly=yes type=hidden  class=span12 id=tipe".$i."  name=tipe[] value='$row->tipe' />$row->tipe</td>
+                        <td>$row->sc_dfno - $row->scdfno</td>
+                        <td align=\"center\">$bnsperiod</td>
+                        <td><div align=right>".number_format($row->cash,0,".",".")."</div></td>";
+                        echo "<td><div align=right>".number_format("0",0,".",".")."</div></td>";
+                        echo "  
                        <td><div align=right>".number_format($row->totpay,0,".",".")."</div></td>
                        <td><div align=right>".number_format($row->tbv,0,".",".")."</div></td>
                        <td align=\"center\">
-                            <button type=\"button\" class=\"btn btn-success\" onclick=\"f1(this)\"  value='$row->tipe|$row->sc_dfno|$row->sc_co' > List TTP </button>
+                            <button type=\"button\" class=\"btn btn-mini btn-success\" onclick=\"f1(this)\"  value='$row->tipe|$row->sc_dfno|$row->sc_co' > List TTP </button>
                        </td>
+                       </tr>";
+                    } */
+                    
 
-                    </tr>";
+                     /*   if($row->tipe == "Voucher Cash (Deposit)") {
+                         echo "<td><div align=right>".number_format($row->vcash,0,".",".")."</div></td>";
+                       } else if($row->tipe == "PVR") {
+                         echo "<td><div align=right>".number_format($row->pcash,0,".",".")."</div></td>";
+                       } else {
+                        echo "<td><div align=right>".number_format("0",0,".",".")."</div></td>";  
+                       } */
+                       
                     $totalDp += $row->totpay;
                     $totalbv += $row->tbv;
                 }
                 ?>
                     <tr>
-                        <td colspan="7" style="text-align: right;"><strong>TOTAL</strong></td>
+                        <td colspan="6" style="text-align: right;"><strong>TOTAL</strong></td>
                         <td style="text-align: right;"><?php echo number_format($totalDp,0,".",".");?></td>
                         <td style="text-align: right;"><?php echo number_format($totalbv,0,".",".");?></td>
                         <td>&nbsp;</td>
                     </tr>
                     <tr>
-                        <td colspan="10">
-                            <input type="button" class="btn btn-success" onclick='Stockist.get_group_preview()' name="submit" value="Process" id="checkss"/>
+                        <td colspan="9">
+                            <input type="button" class="btn btn-primary" onclick='Stockist.get_group_preview()' name="submit" value="Proses" id="checkss"/>
                         </td>
                     </tr>
                 </tbody>

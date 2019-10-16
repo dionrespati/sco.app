@@ -11,20 +11,30 @@ $stkname = $this -> session -> userdata("stockistnm");
 				<div class="controls">
 					<input <?php echo $mainstk_read; ?> type="text" name="mainstk" id="mainstk" value="<?php echo $stk; ?>" onchange="All.getFullNameByID(this.value,'db2/get/fullnm/from/mssc/loccd','#mainstknm')" />
 					<input type="text" class="fullnm_width" readonly="yes" name="mainstknm" id="mainstknm" value="<?php echo $stkname; ?>" />
+					<input type="hidden" id="idstkk" name="idstkk" placeholder="ID Stockist" class="" value="" />
 				</div>
 				<div class="clearfix"></div>
-				<label class="control-label" for="typeahead">Kode Stockist</label>
+				<!-- <label class="control-label" for="typeahead">Kode Stockist</label>
 				<div class="controls">
 					<input type="text" id="idstkk" name="idstkk" placeholder="ID Stockist" class="" onchange="All.getFullNameByID(this.value,'db2/get/fullnm/from/mssc/loccd','#stknmm')" tabindex="1"/>
 					<input type="text" class="fullnm_width" id="stknmm" name="stknmm" placeholder="Nama Stockist" class="" readonly="yes"/>
-				</div>
+				</div> -->
 				<div class="clearfix"></div>
-				<label class="control-label" for="typeahead">Period Bonus</label>
+				<label class="control-label" for="typeahead">Periode Bonus</label>
 				<div class="controls">
 					<select id="bnsperiod"  name="bnsperiod" class="span3 typeahead" tabindex="2">
 						<?php
-						  echo "<option value='" . date('m/Y', strtotime($curr_period[0] -> lastperiod)) . "'>" . date('M Y', strtotime($curr_period[0] -> lastperiod)) . "</option>";
-						  echo "<option value='" . date('m/Y', strtotime($curr_period[0] -> nextperiod)) . "'>" . date('M Y', strtotime($curr_period[0] -> nextperiod)) . "</option>";
+						  /* if($stk_login == "BID06") {
+							  
+							  $curr_bns = date('m/Y', strtotime($curr_period[0] -> lastperiod));
+							  $explode_bns = explode("/", $curr_bns);
+							  $kurang = $explode_bns[0] - 1; 
+							  echo $kurang;
+							  //echo "<option value='" . date('m/Y', strtotime($prev_bns)) . "'>" . date('M Y', strtotime($prev_bns)) . "</option>";
+						  }
+						  echo "<option value='" . $curr_bns . "'>" . date('M Y', strtotime($curr_period[0] -> lastperiod)) . "</option>";
+						  echo "<option value='" . date('m/Y', strtotime($curr_period[0] -> nextperiod)) . "'>" . date('M Y', strtotime($curr_period[0] -> nextperiod)) . "</option>"; */
+						  echo showBnsPeriod($stk_login, $curr_period);
 						?>
 					</select>
 				</div>

@@ -4,11 +4,12 @@
       <div class="control-group">
 	   <label class="control-label" for="typeahead">Kategori</label>
       	<div class="controls">
-      		<select id="kategori" name="kategori">
+      		<select id="kategori" name="kategori" onchange="pilihkategori(this.value)">
       			<option value="vc_prd">Voucher Produk</option>
       			<option value="vc_c">Voucher Cash</option>
 				<option value="vc_prm">Voucher Promo</option>
 				<option value="vc_umr">Voucher Umroh</option>
+				<option value="vc_reg">Voucher Registrasi Member</option>
       		</select>
       			
       	</div>
@@ -16,7 +17,7 @@
       	<div class="listM controls">
       		<input type="text" class="TabOnEnter span4" id="voucherno" name="voucherno" />	
       	</div>
-		<label class="listM control-label" for="typeahead">ID Member</label>
+		<label id="idmembx" class="listM control-label" for="typeahead">ID Member</label>
       	<div class="listM controls">
       		<input type="text" class="TabOnEnter span4" id="memberid" name="memberid" />	
       	</div>
@@ -61,7 +62,18 @@
        
       </div><!-- end control-group -->
     </fieldset>
-    <div class="result"></div>
+    <div class="result">
+		<pre>
+			* Voucher Produk biasa nya diawali dengan huruf "P", contoh nya P212222  
+			* Voucher Cash biasa nya diawali dengan huruf "V" dapat di klaim langsung atau ditukarkan dengan cash, contoh nya V212222
+			* Voucher Promo adalah Voucher Produk yang biasa nya di dalam nya sudah ada produk-produk hadiah non BV.
+			  Biasa nya diawali dengan "XPV" atau "ZVO" atau "XPP"
+			* Voucher Umroh sama seperti voucher cash, biasa nya bernilai Rp 2.000.000 dan dapat dibelanjakan produk
+			  dan mendapatkan BV
+			* Voucher Registrasi Member digunakan untuk mendaftarkan member baru, penginputan nya menggunakan
+			  nomor voucher dan voucher key    
+		</pre>	  
+	</div>
   </form>   
   
 </div><!--/end mainForm-->
@@ -75,4 +87,12 @@
 		
 		
 	});	
+
+	function pilihkategori(param) {
+		if(param == "vc_reg") {
+			$(All.get_active_tab() + "#idmembx").text("Voucher Key");
+		} else {
+			$(All.get_active_tab() + "#idmembx").text("ID Member");
+		}
+	}
 </script>

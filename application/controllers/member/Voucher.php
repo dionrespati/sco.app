@@ -27,9 +27,9 @@ class Voucher extends MY_Controller {
 		if($this->username != null) {	
 			$dt = $this->input->post(NULL, TRUE);
 			$searchby = $dt['searchby']; //dfno, cnno, batchno, trcd, orderno
-			$paramValue = $dt['paramValue'];
-			$from = $dt['trx_from'];
-			$to = $dt['trx_to'];
+			$paramValue = trim(strtoupper($dt['paramValue']));
+			$from = trim($dt['trx_from']);
+			$to = trim($dt['trx_to']);
 					
 	 		if(($searchby == 'trcd'|| $searchby == 'receiptno') && 
 	 			($paramValue != null && $paramValue != "")) {

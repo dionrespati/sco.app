@@ -61,8 +61,7 @@
 
 	echo "<form id=\"formDetailTrxByID\">";
 	echo "<table class='table table-striped table-bordered' width='100%'>
-			<tr><th >Rekap Transaksi</th></tr></table>";
-	echo "<table class='table table-striped table-bordered' width='100%'>";
+			<tr><th colspan=4>Rekap Transaksi</th></tr>";
 	echo "<tbody>
 			<tr><td width=12% align='right'><strong>Trx No&nbsp;&nbsp;</strong></td>
 				<td width=25%><strong>$trcd</strong></td>
@@ -117,10 +116,12 @@
 		  			<th width=15%>Kode Produk</th>
 		  			<th>Nama Produk</th>
 		  			<th width=5%>Qty</th>
-		  			<th width=10%>DP</th>
-		  			<th width=8%>BV</th>
-		  			<th width=13%>Tot DP</th>
-		  			<th width=10%>Tot BV</th>
+					  <th width=8%>BV</th>  
+					  <th width=10%>DP</th>
+		  			
+					<th width=10%>Tot BV</th>  
+					<th width=13%>Tot DP</th>
+		  			
 		  		</tr>
 		  	</thead>
 		  <tbody>";
@@ -143,20 +144,22 @@
 			$TOTDP = $data->qtyord * $data->dp;
 			
 			$qtyord = number_format($qtyord, 0, "", ".");	
+			$tbvnom = number_format($bv, 0, ",", ".");
 			$tdpnom = number_format($dp, 0, ",", ".");	
-			$tbvnom = number_format($bv, 0, ",", ".");	
-			$TOTDPx = number_format($TOTDP, 0, ",", ".");	
 			$TOTBVx = number_format($TOTBV, 0, ",", ".");	
+			$TOTDPx = number_format($TOTDP, 0, ",", ".");	
+				
 			
 			echo "<tr>
 					<td align=right>$i</td>
 					<td align=center>$prdcd</td>
 					<td align=left>$prdnm</td>
 					<td align=right>$qtyord</td>
-					<td align=right>$tdpnom</td>
 					<td align=right>$tbvnom</td>
-					<td align=right>$TOTDPx</td>
+					<td align=right>$tdpnom</td>
 					<td align=right>$TOTBVx</td>
+					<td align=right>$TOTDPx</td>
+				
 				 </tr>";
 			$tqty += $data->qtyord;
 			$tdp += $TOTDP;
@@ -164,14 +167,15 @@
 			$i++;
 		}	
 		
-	$tdp = number_format($tdp, 0, ",", ".");	
-	$tbv = number_format($tbv, 0, ",", ".");	
+	$tdp_frmt = number_format($tdp, 0, ",", ".");	
+	$tbv_frmt = number_format($tbv, 0, ",", ".");	
 	echo "<tr>
-			<td colspan='3' align='right'><strong>Grand Total</strong></td>
-			<td align=right><strong>$tqty</strong></td>
+			<td colspan='3' align='right'>Grand Total</td>
+			<td align=right>$tqty</td>
 			<td colspan='2'>&nbsp;</td>
-			<td align=right><strong>$tdp</strong></td>
-			<td align=right><strong>$tbv</strong></td>
+			<td align=right>$tbv_frmt</td>
+			<td align=right>$tdp_frmt</td>
+			
 		 </tr>";
 				 
 	echo "</tbody></table><br />
@@ -205,8 +209,20 @@
 				 $totalPay += $dataPay->payamt;
 				 $i++;
 		  }
-		  echo "<tr><td colspan=4 align=right><b>T O T A L</b></td><td align=right>".number_format($totalPay, 0, ",", ".")."</td></tr>";	
+		  $totalPay_frmt = number_format($totalPay, 0, ",", ".");
+		  echo "<tr><td colspan=4 align=right><b>T O T A L</b></td><td align=right>".$totalPay_frmt."</td></tr>";	
 		  echo "</tbody>";
 		  echo "</table>";
+		  $selisih = $totalPay - $tdp;
+		  $selisih_frmt = number_format($selisih, 0, ",", ".");
+		  $head = $result["header"];
+		  if($tdp != $totalPay && $head[0]->id_deposit != null && $head[0]->id_deposit != "") {
+			  $id_deposit = $head[0]->id_deposit;
+			  echo "<input type='button' class='btn btn-mini btn-primary' value='Recalculate Voucher Deposit' onclick=\"Stockist.recalculateDeposit('$id_deposit')\" />&nbsp;";
+			  echo "<font color=red>*Selisih pembayaran dan nilai produk $selisih_frmt</font>";
+		  } else if($tdp != $totalPay && ($head[0]->id_deposit == null || $head[0]->id_deposit == "") ){
+			echo "<input type='button' class='btn btn-mini btn-primary' value='Koreksi Data Transaksi' onclick=\"Stockist.koreksiTransaksi('$trcd')\" />&nbsp;";
+			echo "<font color=red>*Selisih pembayaran dan nilai produk $selisih_frmt</font>";
+		  }
 	}	  
 ?>

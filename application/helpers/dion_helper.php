@@ -515,6 +515,24 @@ if(! function_exists('button_set2')) {
     }
 }  
 
+if(! function_exists('showBnsPeriod')) {
+    function showBnsPeriod($stk, $curr_period) {
+	  $html = "";	
+	  $prev_period = date('m/Y', strtotime($curr_period[0] -> prevperiod));
+	  //echo $curr_period[0] -> lastperiod;
+	  $cur_period = date('m/Y', strtotime($curr_period[0] -> lastperiod));
+	  $next_period = date('m/Y', strtotime($curr_period[0] -> nextperiod));
+	  
+	  if($stk == "BID06") {
+		$html .= "<option value='" . $prev_period . "'>" . date('M Y', strtotime($curr_period[0] -> prevperiod)) . "</option>";
+	  }	
+	  $html .= "<option value='" . $cur_period . "' selected='selected'>" . date('M Y', strtotime($curr_period[0] -> lastperiod)) . "</option>";
+	  $html .= "<option value='" . $next_period . "'>" . date('M Y', strtotime($curr_period[0] -> nextperiod)) . "</option>";
+
+	  return $html;
+    }
+}  
+
 if(! function_exists('button_set_no_visible')) {
     function button_set_prdprice($save, $update, $view, $cancel = "Product.cancelUpdatePrdPrice()") {
       $html = "";	

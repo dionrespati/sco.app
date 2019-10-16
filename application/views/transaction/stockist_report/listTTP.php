@@ -6,8 +6,6 @@ onclick=\"$back_button\"
 class=\"btn btn-mini btn-warning span20\">";
         ?>
 
-
-
         <?php
     }else{
 ?>

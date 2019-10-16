@@ -45,7 +45,13 @@ class Do_stockist extends MY_Controller {
 		$this->load->model('transaction/do_stockist_model', 'do_stk');
 		$data['back_button'] = "All.back_to_form(' .nextForm1',' .mainForm')";
 		$data['no_do'] = $no_do;
-		$data['result'] = $this->do_stk->getListSSRbyDO($no_do);
+		$prefix_inv = substr($no_do, 0, 4);
+		if($prefix_inv == "GDOS") {
+			$data['result'] = $this->do_stk->getListSSRbyDO($no_do);
+		} else {
+			$data['result'] = $this->do_stk->getListInvoicebyDO($no_do);
+		}
+		
 		$this->load->view($this->folderView.'listSSRbyDO',$data);
 		/* echo "<pre>";
 		print_r($data['result']);

@@ -26,6 +26,8 @@
 				<option selected="selected" value="sc_dfno">Kode Stockist</option>
 				<option value="batchno">No PVR</option>
 				<option value="orderno">No TTP</option>
+				<option value="prdcd">Kode Produk</option>
+				<option value="prdnm">Nama Produk</option>
 				<!--<option value="csno">CN No.</option>-->
 			</select>
         </div>
@@ -39,7 +41,8 @@
         <div class="controls"  id="inp_btn">
             <input tabindex="5" type="button" id="btn_input_user" class="btn btn-success" name="save" value="Search" onclick="All.ajaxFormPost(this.form.id,'sales/pvr/input/list')" />
             <input tabindex="6"  type="reset" class="btn btn-reset" value="Reset" />
-            <input tabindex="7"  type="button" class="btn btn-primary" value="Input PVR Baru" onclick="javascript:All.ajaxShowDetailonNextForm('sales/pvr/input/form')" />
+            <!--<input tabindex="7"  type="button" class="btn btn-primary" value="Input PVR Baru" onclick="javascript:All.ajaxShowDetailonNextForm('sales/pvr/input/form')" />-->
+			<input tabindex="7"  type="button" class="btn btn-primary" value="Input PVR Baru" onclick="javascript:All.ajaxShowDetailonNextForm('sales/pvr2/input/form')" />
          </div>
         </div> <!-- end control-group -->
      </fieldset>

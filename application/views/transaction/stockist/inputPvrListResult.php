@@ -17,8 +17,9 @@ if($result == null) {
 				<th width="13%">Order No</th>
 				<th width="10%">Trx Date</th>
 				<th>Member Name</th>
-				<th width="10%">Payment</th>
 				<th width="6%">BV</th>
+				<th width="10%">DP</th>
+				
 				<th width="10%">Action</th>
 			</tr>
 		</thead>
@@ -39,14 +40,15 @@ if($result == null) {
 				    $dta->etdt
 				</td>
 				<td>
-				    $dta->fullnm
+				    ".substrwords($dta->fullnm, 20)."
+				</td>
+				<td align=\"right\">
+				   ".number_format($dta->tbv, 0, ",", ".")."
 				</td>
 				<td align=\"right\">
 				   ".number_format($dta->tdp, 0, ",", ".")."
 				</td>
-				<td align=\"right\">
-				   ".number_format($dta->tbv, 0, ",", ".")."
-				</td>";
+				";
 				if($dta->flag_batch == "0") {
 					echo "<td align=\"center\">
 						

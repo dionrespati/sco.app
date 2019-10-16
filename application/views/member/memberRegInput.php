@@ -3,18 +3,18 @@
 		<fieldset>
 			<table class="table table-striped table-bordered" width="95%" align="center">
 				<tr>
-					<td colspan="4">
-					<div class="alert1 alert-success">
+					<th colspan="4">
+					
 						<strong>
-						<center>
+						
 							SPONSOR & RECRUITER
-						</center></strong>
-					</div></td>
+						</strong>
+					</th>
 				</tr>
 				<tr>
 					<td width="15%">&nbsp;ID Sponsor</td>
 					<td width="35%">
-					<input type="text" name="idsponsor" id="idsponsor" class="span12" value="<?php echo $idsponsor; ?>" readonly="yes"/>
+					<input type="text" name="idsponsor" id="idsponsor" class="span12" value="<?php echo $idsponsor; ?>" onchange="All.getFullNameByID(this.value,'api/member/check','#nmsponsor')" />
 					</td>
 					<td width="15%">&nbsp;&nbsp;Nama Sponsor</td>
 					<td>
@@ -25,7 +25,7 @@
 				<tr>
 					<td>&nbsp;ID Rekruiter</td>
 					<td>
-					<input type="text" name="idrekrut" id="idrekrut" class="span12" value="<?php echo $idrekrut; ?>" readonly="yes"/>
+					<input type="text" name="idrekrut" id="idrekrut" class="span12" value="<?php echo $idrekrut; ?>" onchange="All.getFullNameByID(this.value,'api/member/check','#nmrekrut')" />
 					</td>
 					<td>&nbsp;&nbsp;Nama Rekruiter</td>
 					<td>
@@ -34,13 +34,13 @@
 				</tr>
 
 				<tr>
-					<td colspan="4">
-					<div class="alert1 alert-success">
+					<th colspan="4">
+					
 						<strong>
-						<center>
+						
 							DATA PERSONAL
-						</center></strong>
-					</div></td>
+						</strong>
+					</th>
 				</tr>
 				<tr>
 					<td>&nbsp;No Aplikasi</td>
@@ -127,13 +127,13 @@
 				</tr>
 
 				<tr>
-					<td colspan="4">
-					<div class="alert2 alert-success">
+					<th colspan="4">
+					
 						<strong>
-						<center>
+						
 							KARTU DAN STATEMENT BONUS
-						</center></strong>
-					</div></td>
+						</strong>
+					</th>
 				</tr>
 				<tr>
 					<td>&nbsp;Bank</td>
@@ -176,7 +176,7 @@
 				<tr>
 					<td colspan="4">
 					<input tabindex="17" value="<< Kembali" type="button" class="btn btn-warning" onclick="All.back_to_form(' .nextForm1',' .mainForm')"/>
-					<input tabindex="18" type="button" name="submitted" id="submitted" class="btn btn-success" value="Simpan Data Member"  onclick="Member.saveRegMember()"/>
+					<input tabindex="18" type="button" name="submitted" id="submitted" class="btn btn-primary" value="Simpan Data Member"  onclick="Member.saveRegMember()"/>
 					<input type="hidden" name="voucherno" id="voucherno" value="<?php echo $voucherno; ?>"/>
 					<input type="hidden" name="voucherkey" id="voucherno" value="<?php echo $voucherkey; ?>"/>
 					<input type="hidden" name="regtype" id="regtype" value="<?php echo $regtype; ?>"/>
