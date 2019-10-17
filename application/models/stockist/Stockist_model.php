@@ -93,8 +93,8 @@ class Stockist_model extends MY_Model {
 				WHERE A.kode_kec_JNE IS NOT NULL and c.kode_provinsi = ?
 				GROUP BY C.kode_provinsi, C.provinsi, A.kode_kabupaten, B.kabupaten
 				ORDER BY C.provinsi, B.kabupaten";
-		$param = array($province);
-		$res = $this->getRecordset($qry, NULL, $this->setDB(2));
+		$paramQry = array($province);
+		$res = $this->getRecordset($qry, $paramQry, $this->setDB(2));
 		return $res; 
 	}	
 	
@@ -108,8 +108,8 @@ class Stockist_model extends MY_Model {
 				GROUP BY A.kode_kabupaten, A.kode_kab_JNE, A.kode_kecamatan, a.kode_kec_JNE, a.kec_JNE, a.kecamatan
 				ORDER BY  a.kec_JNE, A.kode_kabupaten, A.kode_kab_JNE, A.kode_kecamatan, a.kode_kec_JNE, a.kecamatan";
 		//echo $qry;
-		$param = array($kabupaten);
-		$res = $this->getRecordset($qry, $param, $this->setDB(2));
+		$paramQry = array($kabupaten);
+		$res = $this->getRecordset($qry, $paramQry, $this->setDB(2));
 		return $res; 
 	}
 
@@ -122,8 +122,8 @@ class Stockist_model extends MY_Model {
 				WHERE A.kode_kec_JNE IS NOT NULL and a.kode_kec_JNE = ?
 				GROUP BY C.kode_kelurahan, C.kelurahan, C.kodepos
 				ORDER BY  C.kode_kelurahan, C.kelurahan, C.kodepos";
-	    $param = array($kecamatan);
-		$res = $this->getRecordset($qry, $param, $this->setDB(2));
+	    $paramQry = array($kecamatan);
+		$res = $this->getRecordset($qry, $paramQry, $this->setDB(2));
 		return $res; 
 	}		
 	
@@ -132,8 +132,8 @@ class Stockist_model extends MY_Model {
         $qry = "SELECT top 1 C.kode_kelurahan as kode, C.kelurahan as nama, C.kodepos
 				FROM db_ecommerce.dbo.master_wil_kelurahan C 
 				WHERE C.kode_kelurahan = ?";
-		$param = array($kelurahan);
-		$res = $this->getRecordset($qry, $param, $this->setDB(2));
+		$paramQry = array($kelurahan);
+		$res = $this->getRecordset($qry, $paramQry, $this->setDB(2));
 		return $res;
 	}
 	
