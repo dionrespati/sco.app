@@ -19,7 +19,7 @@ class Member_report extends MY_Controller {
 		$data['icon'] = "icon-search";
         $data['form_action'] = 'member/search/list';
 		$data['form_reload'] = 'member/search';
-
+		$data['stockist'] = $this->stockist;
 		if($this->username != null) {
 
 		   //cek apakah group adalah ADMIN atau BID06
@@ -43,11 +43,13 @@ class Member_report extends MY_Controller {
 	public function searchMemberList() {
 		$x = $this->input->post(NULL, TRUE);
 		if($x['paramMember'] == "dfno") {
-			$data['result'] = $this->m_member_report->getDetailMemberByID($x['paramMemberValue']);
+			$nilai = trim(strtoupper($x['paramMemberValue']));
+			$data['result'] = $this->m_member_report->getDetailMemberByID($nilai);
 			//print_r($data['result']);
 			$this->load->view($this->folderView.'detailsMember', $data);
 		} else if($x['paramMember'] == "tel_hp" || $x['paramMember'] == "fullnm" || $x['paramMember'] == "idno" || $x['paramMember'] == "sfno" || $x['paramMember'] == "sfno_reg") {
-			$data['result'] = $this->m_member_report->getListMemberByParam($x['paramMember'], $x['paramMemberValue']);
+			$nilai = trim(strtoupper($x['paramMemberValue']));
+			$data['result'] = $this->m_member_report->getListMemberByParam($x['paramMember'], $nilai );
 			$this->load->view($this->folderView.'listMember', $data);
 		} else if($x['paramMember'] == "jointdt") {
 			$data['result'] = $this->m_member_report->getListMemberByJoinDate($x['sc_dfno'], $x['mb_from'], $x['mb_to']);

@@ -34,19 +34,20 @@ class Member_report_model extends MY_Model {
 					LEFT JOIN msmemb c on (a.sfno_reg = c.dfno)
 					LEFT JOIN starterkit d ON (a.dfno = d.activate_dfno)
 					LEFT OUTER JOIN db_ecommerce.dbo.ecomm_memb_ok e ON (a.dfno = e.memberid COLLATE SQL_Latin1_General_CP1_CS_AS)
-				WHERE a.dfno = '$id'";
-
-		$result = $this->getRecordset($slc,null,$this->db2);
+				WHERE a.dfno = ?";
+		$paramQry = array($id);
+		$result = $this->getRecordset($slc,$paramQry,$this->db2);
 		return $result;
 	}
 
 	function getListMemberByParam($searchBy, $paramValue) {
-		    $where = "where a.$searchBy like '%$paramValue%'";
-		    $slc = "select a.dfno,a.fullnm,a.idno,a.addr1,a.tel_hp, a.password,a.novac,
-		               a.loccd
-					from msmemb a $where";
-			$result = $this->getRecordset($slc,null,$this->db2);
-			return $result;
+		$param_id = $this->db->escape_like_str($paramValue);
+		$where = "WHERE a.$searchBy like '%$param_id%' ESCAPE '!'";
+		$slc = "SELECT a.dfno,a.fullnm,a.idno,a.addr1,a.tel_hp, a.password,a.novac,
+					a.loccd
+				FROM klink_mlm2010.dbo.msmemb a $where";
+		$result = $this->getRecordset($slc,$paramQry,$this->db2);
+		return $result;
 	}
 
 	function getListMemberByJoinDate($sc_dfno, $from, $to) {
@@ -57,10 +58,11 @@ class Member_report_model extends MY_Model {
 		    	$where = "where a.loccd = '".$sc_dfno."' AND CONVERT(VARCHAR(10), a.jointdt,20) BETWEEN '$from' AND '$to'";
 		    }*/
 
-		    $where = "where a.loccd = '".$sc_dfno."' AND CONVERT(VARCHAR(10), a.jointdt,20) BETWEEN '$from' AND '$to'";
-		    $slc = "select a.dfno,a.fullnm,a.idno,a.addr1,a.tel_hp, a.password,a.novac,
+			$where = "WHERE a.loccd = '".$sc_dfno."' AND CONVERT(VARCHAR(10), a.jointdt,20)
+			          BETWEEN '$from' AND '$to'";
+		    $slc = "SELECT a.dfno,a.fullnm,a.idno,a.addr1,a.tel_hp, a.password,a.novac,
 		            a.loccd
-					from msmemb a $where";
+					from klink_mlm2010.dbo.msmemb a $where";
 		    //echo $slc;
 			$result = $this->getRecordset($slc,null,$this->db2);
 			return $result;
