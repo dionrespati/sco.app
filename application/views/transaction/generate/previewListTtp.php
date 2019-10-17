@@ -3,7 +3,7 @@ if($result['header'] == null) {
     echo setErrorMessage("Data tidak ditemukan..");
     backToMainForm();
 } else {
-   $header = $result['header']; 
+   $header = $result['header'];
 ?>
 <table style="width: 100%;" class="table table-striped table-bordered bootstrap-datatable datatable" align="center">
     <thead>
@@ -16,7 +16,7 @@ if($result['header'] == null) {
         <th width="10%">Periode Bonus</th>
         <th width="15%">BV</th>
         <th width="15%">DP</th>
-       </tr>  
+       </tr>
     </thead>
     <tbody>
        <?php
@@ -25,7 +25,7 @@ if($result['header'] == null) {
        $sub_totbv = 0;
        foreach($header as $dtahead) {
            echo "<tr>";
-           echo "<td align=right>$i</td>"; 
+           echo "<td align=right>$i</td>";
            echo "<td align=center>".$dtahead->trcd."</td>";
            echo "<td>".$dtahead->dfno." / ".$dtahead->fullnm."</td>";
            echo "<td align=center>".$dtahead->etdt."</td>";
@@ -42,7 +42,7 @@ if($result['header'] == null) {
         <th colspan="5" align="center">T O T A L</th>
         <td align="right"><?php echo number_format($sub_totbv,0,".","."); ?></td>
         <td align="right"><?php echo number_format($sub_totpay,0,".","."); ?></td>
-        
+
        </tr>
     </tbody>
 </table>
@@ -51,7 +51,7 @@ if($result['payment'] != null) {
     $payment = $result['listVch'];
     $totalVch = $result['totalVch'];
     $totalCash = $result['totalCash'];
-?>   
+?>
 <table style="width: 100%;" class="table table-striped table-bordered bootstrap-datatable datatable" align="center">
     <thead>
        <tr>
@@ -79,7 +79,7 @@ if($result['payment'] != null) {
         <th width="10%">Voucher</th>
         <th>Member</th>
         <th width="15%">Nominal</th>
-       </tr>  
+       </tr>
     </thead>
     <tbody>
     <?php
@@ -103,7 +103,7 @@ if($result['payment'] != null) {
             <td align="right"><?php echo number_format($total_vch,0,".","."); ?></td>
     </tr>
     </tbody>
-</table>    
+</table>
 <?php
 }
 /* echo "<pre>";

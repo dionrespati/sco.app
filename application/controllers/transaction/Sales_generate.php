@@ -15,11 +15,11 @@ class Sales_generate extends MY_Controller
     //$route['sales/generate'] = 'transaction/sales_generate/formGenerateScoTrx';
     public function formGenerateScoTrx()
     {
-        $data['form_header'] = "Generate Sales Report";
+        $data['form_header'] = "Generate Sales TTP & PVR";
         $data['form_action'] = base_url('sales/generate/list');
         $data['icon'] = "icon-edit";
         $data['form_reload'] = 'sales/generate';
-        $data['stk_login'] = $this->stockist;
+
         if ($this->username != null) {
             //cek apakah group adalah ADMIN atau BID06
             if ($this->stockist == "BID06") {
@@ -43,15 +43,36 @@ class Sales_generate extends MY_Controller
     {
         if ($this->username != null) {
             $x = $this->input->post(null, true);
-            /* echo '<pre>';
-            print_r($x);
-            echo '</pre>'; */
-            
+            /**
+             * @Author: Ricky
+              * @Date: 2019-08-16 09:56:38
+              * @Desc: Temporarily disabled
+              */
+            // -- start comment -- //
+            /* if($x['searchs'] == "stock" || $x['searchs'] == "apl") {
+                $x['tipess'] = 'ID Stockist';
+                $x['idstk'] =  $this->m_sales_generate->getGenerateByStk($x);
+                $this->load->view($this->folderView.'listGenSalesScoStk',$x);
+            } else if($x['searchs'] == "pvr") {
+              $x['idstk'] =  $this->m_sales_generate->getGenerateByPVR($x);
+                //print_r($x['idstk']);
+                $this->load->view($this->folderView.'listGenSalesPvr',$x);
+            } else {
+                if($x['searchs'] == "sub") {
+                    $x['tipess'] = 'Kode Sub Stk';
+                    $x['namess'] = 'Nama Sub Stk';
+                } else {
+                    $x['tipess'] = 'Kode MS';
+                    $x['namess'] = 'Nama MS';
+                }
+                $x['idstk'] =  $this->m_sales_generate->getGenerateBySUbMs($x);
+                $this->load->view($this->folderView.'listGenSalesSco',$x);
+            } */
+            // -- end comment -- //
             $x['tipe'] = $this->input->post('searchs');
             $x['tipess'] = 'ID Stockist';
             $x['idstk'] =  $this->m_sales_generate->getGenerateByStk($x);
-            $x['stockist'] = $this->stockist == "BID06" ? $x['mainstk'] : $this->stockist ;
-            //echo "kode stk : ".$x['stockist'];
+            $x['stockist'] = $this->stockist;
             $this->load->view($this->folderView.'listGenSalesScoStk', $x);
         } else {
             echo sessionExpireMessage();
@@ -83,7 +104,7 @@ class Sales_generate extends MY_Controller
             $x['tipe'] = $this->input->post('ID_KW');
             $x['dari'] = $this->input->post('from');
             $x['ke'] = $this->input->post('to');
-            $x['idstkk'] = $this->stockist == "BID06" ? $x['scDfno'] : $this->stockist ;
+            $x['idstkk'] = $this->input->post('idstkk');
 
             $x['groupitem']= $this->m_sales_generate->getDetItem($x['dari'],$x['ke'],$x['idstkk'],$bnsperiod,$x['cek']);
 
@@ -102,7 +123,7 @@ class Sales_generate extends MY_Controller
     public function generateSales()
     {
         //$username = $this->session->userdata('username');
-        $username = $this->stockist; //== "BID06" ? :  = $this->stockist;
+        $username = $this->stockist;
         $createdt = date('Y-m-d');
         $x['head'] = 'SSR';
         $x['trcd'] = $this->input->post('trcd');
@@ -156,9 +177,6 @@ class Sales_generate extends MY_Controller
             }
 
             if ($x['tipechmlm'][$k]=="Voucher Cash (Deposit)") {
-               /*  echo "<pre>";
-                print_r($x['trcd']);
-                echo "</pre>"; */
                 $lastVCD = $this->m_sales_generate->get_SSRno('stock', $x['bonusperiod'], $username, $x['scdfnomlm'][$k]);
                 $VCD++;
                 $generates=0;
@@ -187,15 +205,15 @@ class Sales_generate extends MY_Controller
                             $new_id = $row->hasil;
                             $x['new_id'] = $row->hasil;
                             //$generates = $this->m_sales_generate->generate_sales_save2($new_id, $x['trcd'][$d], $x['bonusperiod'], $username);
-                            $generates = $this->m_sales_generate->generatePvr($new_id, $x['trcd'][$d], $x['bonusperiod'], $username);
+                            $generates = $this->m_sales_generate->updateSSR($new_id, $x['trcd'][$d], $x['bonusperiod'], $username);
                             $arrayy .= "'".$new_id."', ";
                         }
                         $sdss=$d;
                     }
                 }
-                 /* if ($generates > 0) {
+                /* if ($generates > 0) {
                     $this->m_sales_generate->incoming_paymentV($new_id, $username, $x['scCOxd'][$sdss], $x['scCO'][$sdss]);
-                }  */
+                } */
             }
 
 
@@ -290,43 +308,4 @@ class Sales_generate extends MY_Controller
         $this->load->view('transaction/generate/previewListTtp', $data);
 
     }
-
-    //$route['sales/search/list/checkSelisih'] = 'transaction/sales_generate/checkSelisih';
-    public function checkSelisih() {
-        $explode=explode("|", $this->input->post('ID_KW'));
-        $tipe = $explode[0];
-        $sc_dfno = $explode[1];
-        $sc_co = $explode[2];
-        $dari = $this->input->post('from');
-        $ke = $this->input->post('to');
-        $idstkk = $this->input->post('mainstk');
-        $bnsperiod = $this->input->post('bnsperiod');
-
-
-        $data['tipe'] = $tipe;
-        $data['result'] = $this->m_sales_generate->getDetailTrxCheckTTP($idstkk, $bnsperiod, $tipe, $sc_co, $sc_dfno);
-        /* backToMainForm();
-        echo "<pre>";
-        print_r($data['result']);
-        echo "<pre>";
-        backToMainForm(); */
-
-        $this->load->view('transaction/generate/previewListTtpV2', $data);
-    }
-
-    //$route['sales/preview/(:any)/(:any)'] = 'transaction/sales_generate/listTTPbySSR/$1/$2';
-    public function listTTPbySSR($field, $value) {
-		//$this->load->model('transaction/do_stockist_model', 'do_stk');
-		$this->load->model('transaction/Sales_stockist_report_model', 'm_ssr');
-		if($field == "batchno") {
-			$data['back_button'] = "All.back_to_form(' .nextForm2',' .nextForm1')";
-			$data['result'] = $this->m_ssr->listTtpById($field, $value);
-			$data['rekapPrd'] = $this->m_ssr->summaryProductBySSR($value);
-			$this->load->view('transaction/stockist_report/listTTP', $data);
-		} else if($field == "trcd") {
-			$data['back_button'] = "All.back_to_form(' .nextForm2',' .nextForm1')";
-			$data['result'] = $this->m_ssr->detailTrxByTrcd($field, $value);
-			$this->load->view('transaction/stockist_report/detailTrx', $data);
-		}
-	}
 }

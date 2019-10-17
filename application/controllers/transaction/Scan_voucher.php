@@ -383,7 +383,7 @@ class Scan_voucher extends MY_Controller
 			$data['start_tabidx'] = 7;
 			$sctype = $this->m_sales_stk->getStockistInfo($data['stockist']);
 		    $data['sctype'] = $sctype[0]->sctype;
-			$data['co_sctype'] = $sctype[0]->sctype;	
+			$data['co_sctype'] = $sctype[0]->sctype;
             $data['prd_voucher'] = 0;
             $data['head_form'] = "Input TTP Deposit Voucher";
 
@@ -398,9 +398,9 @@ class Scan_voucher extends MY_Controller
 			$data['tot_dp'] = 0;
 			$data['tot_bv'] = 0;
             $data['jum_rec'] = 1;
-            
+
             $data['iddepo']=$id;
-            
+
             $result = $this->scan_voucher_model->getDataEdit($id);
             $data['kategori']="VC";
             $data['nodepo']=$result[0]->no_trx;
@@ -412,13 +412,13 @@ class Scan_voucher extends MY_Controller
             }
             $data['jenis']=strrev(strtolower($data['kategori']));
 
-			$this->load->view('transaction/stockist/inputTTPSubForm2',$data);	
+			$this->load->view('transaction/stockist/inputTTPSubForm2',$data);
 			$this->load->view('transaction/stockist/viewProductPayment',$data);
 			$this->load->view($this->folderView.'viewPaymentForm',$data);
-			
+
 		} else {
            jsAlert();
-        } 
+        }
 	}
 
     public function postFormTtpPvr() {
@@ -514,7 +514,7 @@ class Scan_voucher extends MY_Controller
 		if($this->username != null) {
 			$this->load->library('form_validation');
 			$data = $this->input->post(NULL, TRUE);
-			
+
 			if ($this->form_validation->run('inputTtpStockist') === TRUE) {
 				$this->load->model('transaction/Sales_stockist_model', 'm_sales_stk');
     			//check apakah produk ada yang kosong
@@ -522,10 +522,10 @@ class Scan_voucher extends MY_Controller
 				if($jum == 0) {
 					echo json_encode(jsonFalseResponse("Produk tidak boleh kosong.."));
 					return;
-				} 
+				}
 
 				//check apakah distributor valid
-				
+
 				$ifMemberExist = $this->m_sales_stk->getValidDistributor($data['dfno']);
 				if($ifMemberExist == null) {
 					echo json_encode(jsonFalseResponse("ID Member tidak valid.."));
@@ -556,16 +556,16 @@ class Scan_voucher extends MY_Controller
 
 					$total_dp += $qty * $resPrd->dp;
 					$total_bv += $qty * $resPrd->bv;
-				}	
+				}
 
 				$data['total_all_bv'] = (float) $total_bv;
                 $data['total_all_dp'] = (float) $total_dp;
-                
+
                 //check apakah pembayaran kosong
 				if(!isset($data['payChooseType'])) {
 					echo json_encode(jsonFalseResponse("Pembayaran tidak boleh kosong.."));
-					return; 
-					
+					return;
+
 				} else {
 					/* $jumPay = count($data['payReff']);
 					for($i=0; $i < $jumPay; $i++) {
@@ -585,26 +585,26 @@ class Scan_voucher extends MY_Controller
 								$datax = $arr['arrayData'][0];
 								$data['payChooseValue'][$i] = $datax->VoucherAmt;
 							}
-						} 
-						
-						
+						}
+
+
                     } */
-                    
+
                     $checkVchDeposit = $this->scan_voucher_model->getsisaBARU($data['id_deposit']);
                     $sisa_saldo = $checkVchDeposit[0]->saldo - $checkVchDeposit[0]->payamt;
                     if($sisa_saldo <= 0) {
                         echo json_encode(jsonFalseResponse("Sisa saldo deposit voucher adalah : $sisa_saldo.."));
-					    return; 
+					    return;
                     }
-                    
+
                     if($sisa_saldo > $data['total_all_dp']) {
-                        $data['payChooseType'][0] = "08";  
-                        $data['payChooseValue'][0] = $data['total_all_dp']; 
+                        $data['payChooseType'][0] = "08";
+                        $data['payChooseValue'][0] = $data['total_all_dp'];
                     } else {
                         $cash = $data['total_all_dp'] - $sisa_saldo;
-                        $data['payChooseType'][0] = "08";  
+                        $data['payChooseType'][0] = "08";
                         $data['payChooseValue'][0] = $sisa_saldo;
-                        $data['payChooseType'][1] = "01";  
+                        $data['payChooseType'][1] = "01";
                         $data['payChooseValue'][1] = $cash;
                     }
                     //print_r($checkVchDeposit);
@@ -618,7 +618,7 @@ class Scan_voucher extends MY_Controller
 				);
 
 				if($data['ins'] == "1") {
-					$checkOrderno = $this->m_sales_stk->checkExistingRecord($arr);	
+					$checkOrderno = $this->m_sales_stk->checkExistingRecord($arr);
 					//CHECK apakah ORDERNO double
 					if($checkOrderno != null) {
 						echo jsonFalseResponse("No TTP sudah ada di database..");
@@ -626,11 +626,11 @@ class Scan_voucher extends MY_Controller
 					}
 				}
 
-				
+
 
 				$data['no_deposit'] = $checkVchDeposit[0]->no_trx;
                 $data['id_deposit'] = $checkVchDeposit[0]->id_header;
-                
+
                 /* echo "<pre>";
 				print_r($data);
 				echo "</pre>"; */
@@ -638,20 +638,20 @@ class Scan_voucher extends MY_Controller
                 $res = $this->m_sales_stk->saveTrx($data);
                 if($res['response'] == "true") {
                     $this->scan_voucher_model->updateSisaSaldo($data['id_deposit'], $data['payChooseValue'][0]);
-                }	
+                }
 				echo json_encode($res);
-				
+
 			} else {
 				$this->form_validation->set_error_delimiters("","");
 			    echo json_encode(jsonFalseResponse(validation_errors()));
 			    //jsAlert(validation_errors());
 			}
-			
+
 		} else {
            jsAlert();
-        } 
+        }
     }
-    
+
     //$route['scan/deposit/recalculate/(:any)'] = 'transaction/scan_voucher/recalculateDeposit/$1';
     public function recalculateDeposit($id) {
         $res = $this->scan_voucher_model->recalculateDeposit($id);

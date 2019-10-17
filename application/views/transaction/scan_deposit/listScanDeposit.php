@@ -95,7 +95,7 @@
                 $action3="<button class='btn btn-sm btn-danger' onClick='myFunction(this)' value='$row->id' title='Hapus TTP'><i class='icon-trash icon-white'></i></button>";
             }
             $action4="<button class='btn btn-sm btn-info' onclick=\"Stockist.recalculateDeposit('$row->id')\" title='Recalculate Deposit'><i class='icon-wrench icon-white'></i></button>";
-        } 
+        }
         echo "
         <tr class =\"record\" id=\"$n\">
             <td>$n</td>

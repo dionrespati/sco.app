@@ -111,7 +111,7 @@ var Stockist = {
 				  pricecode: pricecode,
 				  jenis: jenis_trx
 				},
-            success: 
+            success:
             function(data){
                 All.set_enable_button();
 				if(data.response == "true") {
@@ -225,7 +225,7 @@ var Stockist = {
 		        	count_rec++
 		        }
 			}
-			
+
 			if(ins == "2" && jenis_bayar == "id") {
 				var tipe_byr = $(All.get_active_tab() + " #payChoose input[name^=payChooseType]").val();
 				if(tipe_byr == "01") {
@@ -483,7 +483,7 @@ var Stockist = {
 		},"json").fail(function() {
             alert("Error requesting page");
             All.set_enable_button();
-        });	
+        });
 	},
 
 	recalculateDeposit: function(id_deposit) {
@@ -685,21 +685,21 @@ var Stockist = {
             }
         });
 	},
-	
+
 	get_pvr_info: function (tipe) {
 		//$(All.get_active_tab() + " #save").attr("disabled", "disabled");
 		var distributorcode = $(All.get_active_tab() + " #distributorcode").val();
 		var vchno = $(All.get_active_tab() + " #vchno").val();
 		var registerno = $(All.get_active_tab() + " #registerno").val();
-		
-	
+
+
 		if (distributorcode == '0' || distributorcode == '' || vchno == '0' || vchno == '') {
 		  $(All.get_active_tab() + " #distributorcode").focus();
 		  alert('Voucher No dan Distributor Code tidak boleh kosong');
 		  //$(All.get_active_tab() + " #save").attr("disabled", "disabled");
-	
+
 		} else {
-			
+
 		  var paramx = distributorcode + "/" + vchno + "/" + tipe;
 		  vchdpn = vchno.substring(0, 3);
 		  All.set_disable_button();
@@ -708,7 +708,7 @@ var Stockist = {
 			url: All.get_url("sales/vc/check/") + paramx,
 			dataType: 'json',
 			success: function (data) {
-				//$(All.get_active_tab() + " #save").removeAttr("disabled");	
+				//$(All.get_active_tab() + " #save").removeAttr("disabled");
 				All.set_enable_button();
 				if (data.response == 'false') {
 					alert(data.message);
@@ -717,7 +717,7 @@ var Stockist = {
 					alert(data.message);
 					console.log(data.message);
 				} else {
-					
+
 					var exist = 0;
 					var tipe_promo = 0;
 					var jum_vch = 0;
@@ -733,12 +733,12 @@ var Stockist = {
 							alert("Voucher sudah ada di dalam list pembayaran..");
 							//return false;
 						}
-						
+
 					});
 
 				/* 	console.log("double : " +exist);
-					console.log("jum vch : " +jum_vch); 
-					console.log("ISPRDprOMO : " +Stockist.isPrdpromo); */	
+					console.log("jum vch : " +jum_vch);
+					console.log("ISPRDprOMO : " +Stockist.isPrdpromo); */
 					if(exist == 0) {
 						$(All.get_active_tab() + " #paynominal").val(parseInt(data.arrayData[0].VoucherAmt));
 						$(All.get_active_tab() + " #amt").val(parseInt(data.arrayData[0].VoucherAmt));
@@ -746,12 +746,12 @@ var Stockist = {
 						var arrayData = data.arrayData;
 						var detProd = data.detProd;
 
-						
+
 						if(vchdpn == "XPV" || vchdpn == "ZVO" || vchdpn == "XPP" || vchdpn == "XHD") {
 							console.log("tipe : " +vchdpn);
 							if(jum_vch > 0) {
 								alert("Voucher promo ini hanya dapat digunakan dalam 1 TTP pembelanjaan, semua voucher dan produk yang sudah diinput akan di reset");
-							} 
+							}
 
 							$(All.get_active_tab() + " #new_record").attr("disabled", "disabled");
 							$(All.get_active_tab() + " #dataVch").html(null);
@@ -763,7 +763,7 @@ var Stockist = {
 							/* var detProd = data.detProd;
 							if(detProd != null) {
 								$(All.get_active_tab() + " #addPrd").html(null);
-							}	 */ 
+							}	 */
 						} else {
 
 							var isPrdpromo = $(All.get_active_tab() + " #isPrdpromo").val("1");
@@ -772,14 +772,14 @@ var Stockist = {
 							} else {
 								$(All.get_active_tab() + " #new_record").removeAttr("disabled");
 								Stockist.add_voucher_row(arrayData);
-							}	
+							}
 						}
 					}
 				}
 			}
 		  });
 		}
-	
+
 	  },
 
 	  addProductPromo : function(detProd, setTo) {
@@ -809,7 +809,7 @@ var Stockist = {
 				rowPrd += "</td>";
 				rowPrd += "<td align=center>&nbsp;</td>";
 				rowPrd += "</tr>";
-				
+
 				prd_subtotalbv += value.qtyord * value.bv;
 				prdx++;
 			});
@@ -830,8 +830,8 @@ var Stockist = {
 			distributorname = $(All.get_active_tab() + ' #distributorname').val(),
 			vchno = hasil[0].VoucherNo,
 			amount = parseInt(hasil[0].VoucherAmt);
-	
-		
+
+
 		var rowshtml = "<tr id=" + vchno + ">";
 		rowshtml += "<td><input value=" + distributorcode + " type=text class=span20 id=dfno" + vchno + " name=distcode[] readonly /></td>";
 
@@ -845,38 +845,38 @@ var Stockist = {
 		// rowshtml += "<td><input readonly=yes style=text-align:right; type=text class=kanan value=" + amount + " name=sub_total[] /></td>";
 		// rowshtml += "<input style=text-align:right; type=hidden class=kanan id=total_dp_real" + amount + "  name=total_dp_real[] /></td>";
 		rowshtml += "<td align=center><button class='btn btn-mini btn-danger' href=# id=" + amount + " onclick=Stockist.remove_vch_row('" + vchno + "')><i class='icon-trash icon-white'></i> </button>";
-	
+
 		rowshtml += "</tr>";
 		$(All.get_active_tab() + " #dataVch").append(rowshtml);
 		Stockist.sum_amount();
-	
+
 		Stockist.hitungSisaPembayaran();
 		$(All.get_active_tab() + " .kanan").removeClass().addClass("span12 text-right");
 		$(All.get_active_tab() + " .tombol").removeClass().addClass("btn btn-small btn-danger");
 		$(All.get_active_tab() + " .ikon").removeClass().addClass("icon-trash icon-white");
 	  },
-	
+
 	  hitungSisaPembayaran: function() {
 		var nilaiVch = 0;
 		$(All.get_active_tab() + " input[attr=amt]").each(function(){
 		  nilai = $(this).val();
-	
+
 		  if(isNaN(nilai)) {
 			nilai = 0;
 			nilaiVch += nilai;
 		  } else {
 			nilaiVch += parseInt(nilai);
 		  }
-	
+
 		  //nilaiVch += parseInt($(this).val());
 		  //console.log("nilaiVch : " +nilaiVch);
 		});
-	
+
 		var nilaiPrd = 0;
 		$(All.get_active_tab() + " input[attr=prd]").each(function(){
 		  nprd = $(this).val();
 		  //console.log("nilaiVch : " +nilaiVch);
-	
+
 		  if(isNaN(nilai)) {
 			nprd = 0;
 			nilaiPrd += nprd;
@@ -885,39 +885,39 @@ var Stockist = {
 		  }
 		  console.log("nilaiPrd : " +nilaiPrd);
 		});
-	
+
 		var kurang_bayar = nilaiVch - nilaiPrd;
 		//console.log("total vch : " +nilaiVch);
 		//console.log("total prd : " +nilaiPrd);
-	
+
 		$(All.get_active_tab() + " #tot_all_payment").val(All.num(nilaiVch));
 		$(All.get_active_tab() + " #tot_all_payment_real").val(nilaiVch);
-	
+
 		var sisa_cash = 0;
 		if(kurang_bayar < 0) {
 		  sisa_cash = kurang_bayar * -1;
 		}
-	
+
 		$(All.get_active_tab() + " #sisa_cash").val(All.num(sisa_cash));
 		$(All.get_active_tab() + " #sisa_cash_real").val(sisa_cash);
-	
+
 	  },
 
 	  hitungSisaPembayaranVcash : function() {
 		var total_dp = $(All.get_active_tab() + " #total_all_dp_real").val();
-		
+
 
 		var nilaiVch = 0;
 		$(All.get_active_tab() + " input[attr=amt]").each(function(){
 		  nilai = $(this).val();
-	
+
 		  if(isNaN(nilai)) {
 			nilai = 0;
 			nilaiVch += nilai;
 		  } else {
 			nilaiVch += parseInt(nilai);
 		  }
-	
+
 		  //nilaiVch += parseInt($(this).val());
 		  //console.log("nilaiVch : " +nilaiVch);
 		});
@@ -926,28 +926,28 @@ var Stockist = {
 
 		$(All.get_active_tab() + " #tot_all_payment").val(All.num(nilaiVch));
 		$(All.get_active_tab() + " #tot_all_payment_real").val(nilaiVch);
-	
+
 		var sisa_cash = 0;
 		if(kurang_bayar < 0) {
 		  sisa_cash = kurang_bayar * -1;
 		}
-	
+
 		$(All.get_active_tab() + " #sisa_cash").val(All.num(sisa_cash));
 		$(All.get_active_tab() + " #sisa_cash_real").val(sisa_cash);
 	  },
-	
+
 	  remove_vch_row: function (param) {
 		var prefixVch = param.substr(0, 3);
 		if(prefixVch == "XPV" || prefixVch == "XPP" || prefixVch == "ZVO" || prefixVch == "XHD") {
 			$(All.get_active_tab() + " #dataPrd").html(null);
 			$(All.get_active_tab() + " #new_record").removeAttr("disabled");
 			$(All.get_active_tab() + " #isPrdpromo").val("0");
-		}  
+		}
 		$(All.get_active_tab() + " tr#" + param).remove();
 		Stockist.sum_amount();
 		Stockist.hitungSisaPembayaran();
 	  },
-	
+
 	  sum_amount: function () {
 		var sum = 0;
 		$(All.get_active_tab() + " #dataVch tr").each(function(){
@@ -958,7 +958,7 @@ var Stockist = {
 		$(All.get_active_tab() + " #pay_nominal").val(All.num(sum));
 		$(All.get_active_tab() + " #pay_nominal_real").val(sum);
 	  },
-	
+
 	  sum_product: function () {
 		var sum = 0;
 		$(All.get_active_tab() + " #dataPrd tr").each(function() {
@@ -976,9 +976,9 @@ var Stockist = {
 		var j = tabidx;
 		var z = parseInt($(All.get_active_tab() + " #amt_record").val()) + 1;
 		$(All.get_active_tab() + " #amt_record").val(z);
-	
+
 		var koma = ",";
-	
+
 		var rowshtml = "<tr id=" + amount + ">";
 		rowshtml += "<td><input onchange=Stockist.helper_show_prod_by_id(" + amount + ") tabindex=" + j + " type=text class=span12 id=productcode" + amount + " name=productcode[] /></td>";
 		rowshtml += "<td><input readonly=yes type=text class=span12 id=productname" + amount + "  name=productname[] /></td>";
@@ -995,12 +995,12 @@ var Stockist = {
 		rowshtml += "<td><input readonly=yes style=text-align:right; type=text class=kanan id=total_dp" + amount + "  name=total_dp[] />";
 		rowshtml += "<input style=text-align:right; type=hidden class='kanan' attr=prd id=total_dp_real" + amount + "  name=total_dp_real[] /></td>";
 		rowshtml += "<td align=center><button class='btn btn-mini btn-danger' href=# id=" + amount + " onclick=Stockist.delete_row('" + amount + "')><i class='icon-trash icon-white'></i> </button>";
-	
+
 		rowshtml += "</tr>";
 		var x = amount + 1;
 		var y = tabidx + 2;
-	
-	
+
+
 		$(All.get_active_tab() + " #amount").val(x);
 		$(All.get_active_tab() + " #tabidx").val(y);
 		$(All.get_active_tab() + " #dataPrd").append(rowshtml);
@@ -1008,7 +1008,7 @@ var Stockist = {
 		$(All.get_active_tab() + " .tombol").removeClass().addClass("btn btn-small btn-danger");
 		$(All.get_active_tab() + " .ikon").removeClass().addClass("icon-trash icon-white");
 		$(All.get_active_tab() + " #productcode" + amount).focus();
-	
+
 		//$("#new_record").focus();
 	  },
 
@@ -1021,16 +1021,16 @@ var Stockist = {
 		  var nama = $(All.get_active_tab() + " #productcode" + i).val();
 		  console.log("nama=" + nama);
 		  console.log("i=" + i);
-	
+
 		  if ($(All.get_active_tab() + " #productcode" + frm).val() == nama && i != frm) {
 			counter++;
 		  }
 		}
-	
+
 		if (counter > 0) {
 		  $(All.get_active_tab() + " #productcode" + frm).val('')
 		  alert('Produk yang anda masukkan sama (duplikat)');
-	
+
 		} else {
 		  $.ajax({
 			dataType: 'json',
@@ -1043,7 +1043,7 @@ var Stockist = {
 			},
 			success: function (data) {
 			  if (data.response == 'true') {
-	
+
 				$(All.get_active_tab() + " #productname" + frm).val(data.arraydata[0].prdnm);
 				var bv = parseInt(data.arraydata[0].bv);
 				var dp = parseInt(data.arraydata[0].dp);
@@ -1055,13 +1055,13 @@ var Stockist = {
 				var tot_dp = dp * qty;
 				var tot_all_price = 0;
 				var tot_all_bv = 0;
-	
+
 				//alert('tot_bv' +tot_bv);
 				$(All.get_active_tab() + " #qty" + frm).val('1');
 				$(All.get_active_tab() + " #dp" + frm).val(All.num(dp));
 				//$("#bv" +frm).val(parseInt(0));
 				$(All.get_active_tab() + " #bv" + frm).val(All.num(bv));
-	
+
 				$(All.get_active_tab() + " #dp_real" + frm).val(parseInt(dp));
 				$(All.get_active_tab() + " #bv_real" + frm).val(parseInt(bv));
 				$(All.get_active_tab() + " #total_dp" + frm).val(All.num((tot_dp)));
@@ -1074,9 +1074,9 @@ var Stockist = {
 				  $(All.get_active_tab() + ' #tot_bv_real' + frm).val(0);
 				  $(All.get_active_tab() + ' #total_bv' + frm).val(All.num(parseInt(0)));
 				}
-	
+
 				//}
-	
+
 				var jum_trx = parseInt($(All.get_active_tab() + " #amt_record").val());
 				for (i = 1; i <= jum_trx; i++) {
 				  var ss = $(All.get_active_tab() + " #qty" + i).val();
@@ -1091,18 +1091,18 @@ var Stockist = {
 				$(All.get_active_tab() + " #new_record" + frm).focus();
 				$(All.get_active_tab() + " #total_all").val(All.num(tot_all_price));
 				$(All.get_active_tab() + " #total_all_real").val(tot_all_price);
-	
-	
+
+
 				$(All.get_active_tab() + " #totals_all_bv").val(All.num(0));
 				$(All.get_active_tab() + " #total_all_real_bv").val(0);
 				$(All.get_active_tab() + ' #total_bv').val(All.num(0));
-	
+
 				$(All.get_active_tab() + " #new_record" + frm).focus();
-	
+
 				$(All.get_active_tab() + " #totalDp").val(All.num(tot_all_price));
 				$(All.get_active_tab() + " #totalDp_real").val(tot_all_price);
 				$(All.get_active_tab() + " #new_record" + frm).focus();
-	
+
 				//Stockist.hitung();
 				Stockist.hitungSisaPembayaran();
 			  } else {
@@ -1123,9 +1123,9 @@ var Stockist = {
 			  alert(thrownError + ':' + xhr.status);
 			}
 		  });
-	
+
 		}
-	
+
 		//alert('isi : ' +data.dp);
 	  },
 
@@ -1151,7 +1151,7 @@ var Stockist = {
 
 	  delete_row: function (frm) {
 		$("tr#" + frm).remove();
-	
+
 		Stockist.sum_amount();
 		Stockist.sum_product();
 		Stockist.hitungSisaPembayaran();
@@ -1160,7 +1160,7 @@ var Stockist = {
 	  },
 
 	  hapusTTPvchDeposit : function(notrx) {
-		var id_deposit = $(All.get_active_tab() + " #depost").val(); 
+		var id_deposit = $(All.get_active_tab() + " #depost").val();
 		$.ajax({
 				url: All.get_url('scan/ttp/delete/') +notrx ,
 				type: 'GET',
@@ -1179,7 +1179,7 @@ var Stockist = {
 					 alert(thrownError + ':' +xhr.status);
 					 All.set_enable_button();
 				}
-		  }); 
+		  });
 	}
 }
 

@@ -1,13 +1,13 @@
 
-<?php 
-$linkTTP = "All.ajaxShowDetailonNextForm('scan/list/detail/ttp/$deposit')";    
+<?php
+$linkTTP = "All.ajaxShowDetailonNextForm('scan/list/detail/ttp/$deposit')";
 echo "<div class='form-group'>";
 if($status == "1" && $sisaDeposit > 0) {
 echo "<input type='button' value='TTP Baru' onclick=\"All.ajaxShowDetailonNextForm2('scan/ttp/input/$deposit')\" class='btn btn-primary'>";
-}  
+}
 echo "&nbsp;<input type='button' class='btn btn-sm btn-warning' title='Refresh Halaman ini' value='Refresh' onclick=$linkTTP />";
 echo "</div>";
-    
+
 
 if($list['total_vch'] != $list['total_deposit_out'] || $list['stt_balance'] == "1") {
     $total_vch = number_format($list['total_vch'], 0, ".", ".");
@@ -55,8 +55,8 @@ echo "</pre>"; */
             $statusx = 'Aktif';
             $action2='<a class="btn btn-sm btn-primary" href="'.base_url().'transaction/scan_voucher/viewTTP/'.$row->transaksi.'/'.$deposit.'/'.$status.'  " title="TTP">VIEW TTP</a>';
         } */
-        $sisa=$row->voucher + $row->cash; 
-        
+        $sisa=$row->voucher + $row->cash;
+
         ?>
         <tr class="record" id="<?php echo $n; ?>">
             <td style="text-align: right"><?php echo $n; ?></td>
@@ -70,7 +70,7 @@ echo "</pre>"; */
             if($row->tdp != $sisa) {
                 echo "<td style='text-align: right'><font color=red>".number_format($row->tdp, 0, ".", ".")."</font></td>";
                 echo "<td style='text-align: right'><font color=red>".number_format($row->voucher, 0, ".", ".")."</font></td>";
-                $kurang = $row->tdp - $sisa; 
+                $kurang = $row->tdp - $sisa;
                 if($row->cash > 0) {
                     echo "<td style='text-align: right'><font color=red>(".number_format($row->cash, 0, ".", ".").")</font></td>";
                 } else {
@@ -82,7 +82,7 @@ echo "</pre>"; */
                 echo "<td style='text-align: right'>".number_format($row->cash, 0, ".", ".")."</td>";
             }
             ?>
-            
+
             <td style="text-align: center"><?php echo $action2 ?></td>
         </tr>
     <?php $n++; } ?>
@@ -98,26 +98,26 @@ $sisa_cash = $list['total_belanja'] - $list['total_deposit_in']
     </tr>
     <tr>
         <td align="right">Total Deposit Voucher</td>
-        <td align="right"><?php echo number_format($list['total_deposit_in'], 0, ".", ".") ?></td>    
+        <td align="right"><?php echo number_format($list['total_deposit_in'], 0, ".", ".") ?></td>
         <td align="right">&nbsp;Total Nilai Pembelanjaan</td>
-        <td align="right"><?php echo number_format($list['total_belanja'], 0, ".", ".") ?></td> 
+        <td align="right"><?php echo number_format($list['total_belanja'], 0, ".", ".") ?></td>
     </tr>
     <tr>
         <td align="right">Total Pemakaian Deposit</td>
-        <td align="right"><?php echo number_format($list['total_vch'], 0, ".", ".") ?></td>  
+        <td align="right"><?php echo number_format($list['total_vch'], 0, ".", ".") ?></td>
         <td align="right">&nbsp;Sisa Cash yang seharus nya dibayar</td>
-        <td align="right"><?php echo number_format($sisa_cash, 0, ".", ".") ?></td>   
+        <td align="right"><?php echo number_format($sisa_cash, 0, ".", ".") ?></td>
     </tr>
     <tr>
         <td align="right">Selisih Pemakaian Deposit</td>
-        <td align="right"><?php echo number_format($selisih_deposit, 0, ".", ".") ?></td>    
+        <td align="right"><?php echo number_format($selisih_deposit, 0, ".", ".") ?></td>
         <td align="right">&nbsp;Sisa Cash yang harus dibayar saat ini</td>
-        <td align="right"><?php echo number_format($list['total_cash'], 0, ".", ".") ?></td> 
-    </tr>            
+        <td align="right"><?php echo number_format($list['total_cash'], 0, ".", ".") ?></td>
+    </tr>
 </table>
 <input type="button" class="btn btn-warning" name="back" value="<< Kembali"
     onclick="All.back_to_form(' .nextForm1', ' .mainForm')" />
-                
+
 <script>
 $(document).ready(function() {
     $(All.get_active_tab() + " .datatable").dataTable( {

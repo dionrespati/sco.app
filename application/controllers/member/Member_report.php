@@ -7,12 +7,12 @@ class Member_report extends MY_Controller {
 		$this->folderView = "member/";
 		$this->load->model('member/Member_report_model', 'm_member_report');
 	}
-	
+
 	//$route['member/reg'] = 'member/member/regMember';
 	public function regMember() {
-		
+
 	}
-	
+
 	//$route['member/search'] = 'member/member/searchMember';
 	public function searchMember() {
 		$data['form_header'] = "Member Search";
@@ -24,24 +24,24 @@ class Member_report extends MY_Controller {
 		   		   
 		   //cek apakah group adalah ADMIN atau BID06
 		   if($this->stockist == "BID06") {
-		   	  //$data['onchange'] = "onchange=Stockist.getStockistInfo(this.value)"; 
+		   	  //$data['onchange'] = "onchange=Stockist.getStockistInfo(this.value)";
 			  //$data['loccd_read'] = "";
 		   } else {
 		   	  //$data['onchange'] = "";
 		      //$data['loccd_read'] = "readonly=readonly";
 		   }
-		   
+
 		   //$data['result'] = $this->m_stockist->getStockistInfo($this->stockist);
-           $this->setTemplate($this->folderView.'searchMember', $data); 
+           $this->setTemplate($this->folderView.'searchMember', $data);
         } else {
            //echo sessionExpireMessage(false);
 		   $this->setTemplate('includes/inline_login', $data);
-        } 
+        }
 	}
-	
+
 	//$route['member/search/list'] = 'member/member/searchMemberList';
 	public function searchMemberList() {
-		$x = $this->input->post(NULL, TRUE); 
+		$x = $this->input->post(NULL, TRUE);
 		if($x['paramMember'] == "dfno") {
 			$nilai = trim(strtoupper($x['paramMemberValue']));
 			$data['result'] = $this->m_member_report->getDetailMemberByID($nilai);
@@ -53,7 +53,7 @@ class Member_report extends MY_Controller {
 			$this->load->view($this->folderView.'listMember', $data);
 		} else if($x['paramMember'] == "jointdt") {
 			$data['result'] = $this->m_member_report->getListMemberByJoinDate($x['sc_dfno'], $x['mb_from'], $x['mb_to']);
-			
+
 		    $this->load->view($this->folderView.'listMember', $data);
 		} else if($x['paramMember'] == "mm") {
 			$data['result'] = $this->m_member_report->getListMemberByMM($x['paramMemberValue']);
@@ -61,7 +61,7 @@ class Member_report extends MY_Controller {
 			$this->load->view($this->folderView.'listMemberByMM', $data);
 		}
 	}
-	
+
 	//$route['member/id/(:any)'] = 'member/member/getMemberByID/$1';
 	public function getMemberByID($id) {
 		$data['result'] = $this->m_member_report->getDetailMemberByID($id);

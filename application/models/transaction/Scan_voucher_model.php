@@ -46,13 +46,13 @@ class Scan_voucher_model extends MY_Model {
         $this->db->where('a.id', $id);
         $this->db->join('msmemb b', 'a.dfno = b.dfno COLLATE SQL_Latin1_General_CP1_CS_AS', 'left');
         return $this->db->get('deposit_H a'); */
-        /* $qry = "SELECT a.*, b.fullnm 
+        /* $qry = "SELECT a.*, b.fullnm
                 FROM deposit_H a
                 LEFT JOIN msmemb b
                 ON a.dfno = b.dfno COLLATE SQL_Latin1_General_CP1_CS_AS
                 WHERE a.id = '$id'"; */
 
-        $qry = "SELECT a.* 
+        $qry = "SELECT a.*
                 FROM deposit_H a
                 WHERE a.id = '$id'";
         return $this->getRecordset($qry, NULL, $this->db2);
@@ -142,10 +142,10 @@ class Scan_voucher_model extends MY_Model {
                 "total_deposit_out" => 0,
                 "stt_balance" => $stt_balance,
                 "stt_balance_msg" => $stt_balance_msg,
-            );    
+            );
         }
 
-        
+
         return $arrTotal;
     }
 
@@ -298,14 +298,14 @@ class Scan_voucher_model extends MY_Model {
         $this->db->join('mssc c', 'a.sc_dfno = c.loccd', 'left');
         return $this->db->get('sc_newtrh a');
  */
-        /* $qry = "SELECT a.*, b.fullnm, c.fullnm AS nama_penuh,   
+        /* $qry = "SELECT a.*, b.fullnm, c.fullnm AS nama_penuh,
                    CONVERT(CHAR(4), a.bnsperiod, 100) + CONVERT(CHAR(4), a.bnsperiod, 120) AS bns
                 FROM sc_newtrh a
                 LEFT JOIN msmemb b ON a.dfno = b.dfno
                 LEFT JOIN mssc c ON a.sc_dfno = c.loccd
                 WHERE a.trcd = '$id'"; */
-        $qry = "SELECT a.trcd, a.dfno, b.fullnm, a.sc_dfno, a.sc_co, a.loccd, a.createnm, 
-                    c.fullnm AS nama_penuh,   
+        $qry = "SELECT a.trcd, a.dfno, b.fullnm, a.sc_dfno, a.sc_co, a.loccd, a.createnm,
+                    c.fullnm AS nama_penuh,
                 CONVERT(CHAR(10), a.bnsperiod, 121) AS bns,
                 CONVERT(CHAR(10), a.createdt, 121) AS createdt,
                 a.pricecode, a.orderno, a.remarks, a.tdp, CONVERT(CHAR(10), a.trdt, 121) AS trdt
@@ -323,14 +323,14 @@ class Scan_voucher_model extends MY_Model {
     }
 
     function reactivateVoucherCashInDeposit($id) {
-        $qry = "SELECT kategori, dfno, no_trx, voucher_scan 
-                FROM klink_mlm2010.dbo.deposit_D 
+        $qry = "SELECT kategori, dfno, no_trx, voucher_scan
+                FROM klink_mlm2010.dbo.deposit_D
                 WHERE id_header = '$id'";
         $query2 = $this->db->query($qry);
         $result = $query2->result();
         if($result != null) {
             foreach ($result as $data2) {
-                $updateVch = "UPDATE klink_mlm2010.dbo.tcvoucher 
+                $updateVch = "UPDATE klink_mlm2010.dbo.tcvoucher
                                 SET status = 0, claimstatus = 0, remarks = 'PREV $data2->no_trx'
                               WHERE voucherkey = '$data2->voucher_scan' AND DistributorCode = '$data2->dfno'";
                 $this->db->query($updateVch);
@@ -346,7 +346,7 @@ class Scan_voucher_model extends MY_Model {
     }
 
     function HapusDeposit($id) {
-        
+
         $rowcount = $this->sumTrxByDepositId($id);
         if ($rowcount > 0) {
             return jsonFalseResponse("Sudah ada $rowcount TTP dalam deposit voucher ini..");
@@ -369,7 +369,7 @@ class Scan_voucher_model extends MY_Model {
             on b.trcd=c.trcd AND c.paytype='08'
             GROUP BY a.id_header, a.saldo"; */
 
-        $qry = "SELECT a.id_header, a.no_trx, a.saldo, ISNULL(sum(c.payamt), 0) as payamt  
+        $qry = "SELECT a.id_header, a.no_trx, a.saldo, ISNULL(sum(c.payamt), 0) as payamt
                 FROM
                 (SELECT x.id_header, x.no_trx, sum (x.nominal) as saldo
                 FROM klink_mlm2010.dbo.deposit_D x
@@ -394,7 +394,7 @@ class Scan_voucher_model extends MY_Model {
 
     function updateSisaSaldo($id, $pengurangan) {
         $qryTrx = $this->load->database($this->db2, true);
-        $upd = "UPDATE deposit_H 
+        $upd = "UPDATE deposit_H
                 SET total_keluar = ISNULL(total_keluar, 0) + $pengurangan WHERE id = '$id'";
         $query = $qryTrx->query($upd);
         return $query;
@@ -660,14 +660,14 @@ class Scan_voucher_model extends MY_Model {
 
         $ssrno = $hasil[0]->batchno;
         if($hasil != null && $hasil[0]->batchno != null && $hasil[0]->batchno != "") {
-            
+
             $arr = jsonFalseResponse("Transaksi $id sudah digenerate dengan No SSR : $ssrno..");
             return;
         }
 
         $nodeposit = $hasil[0]->no_deposit;
         if($hasil != null && $hasil[0]->status == 0) {
-            
+
             $arr = jsonFalseResponse("Voucher Deposit $nodeposit status nya sudah di generate..");
             return;
         }
@@ -680,10 +680,10 @@ class Scan_voucher_model extends MY_Model {
 
         $del = "DELETE FROM sc_newtrh WHERE trcd = '$id'";
         $db_qryx->query($del);
-        
+
         $del2 = "DELETE FROM sc_newtrd WHERE trcd = '$id'";
         $db_qryx->query($del2);
-        
+
         $del3 = "DELETE FROM sc_newtrp WHERE trcd = '$id'";
         $db_qryx->query($del3);
 
@@ -691,7 +691,7 @@ class Scan_voucher_model extends MY_Model {
                     FROM deposit_H a
                     LEFT OUTER JOIN sc_newtrh b ON (a.no_trx = b.no_deposit)
                     LEFT OUTER JOIN sc_newtrp c ON (b.trcd = c.trcd AND c.paytype != '01')
-                    WHERE a.id = '$id_deposit' and a.no_trx = '$nodeposit' 
+                    WHERE a.id = '$id_deposit' and a.no_trx = '$nodeposit'
                     GROUP BY a.id, a.no_trx, a.total_deposit, a.total_keluar";
          //echo $checkAmt;
          $resCheckAmt = $db_qryx->query($checkAmt);
@@ -699,7 +699,7 @@ class Scan_voucher_model extends MY_Model {
         //print_r($hasilCheckAmt);
         if($hasilCheckAmt !== null) {
             $deposit_out = $hasilCheckAmt[0]->jum_vch;
-            //jika di sc_newtrp 
+            //jika di sc_newtrp
             $sisa_deposit = 0;
             if($deposit_out != null) {
                 $sisa_deposit = $deposit_out;
@@ -714,11 +714,11 @@ class Scan_voucher_model extends MY_Model {
         if ($db_qryx->trans_status() === FALSE) {
             $db_qryx->trans_rollback();
             $return = array("response" => "false", "message" => "Transaksi $id gagal di hapus..");
-            return $return; 
+            return $return;
         } else {
             $db_qryx->trans_commit();
             $return = array("response" => "true", "message" => "Transaksi $id berhasil di hapus..");
-            return $return; 
+            return $return;
         }
     }
 
@@ -726,7 +726,7 @@ class Scan_voucher_model extends MY_Model {
         $qryTrx = $this->load->database('klink_mlm2010', true);
 
         //hitung ulang total nilai voucher yg ada di deposit_D
-        $qry1 = "SELECT ISNULL(SUM(a.nominal), 0) as jumlah_deposit, 
+        $qry1 = "SELECT ISNULL(SUM(a.nominal), 0) as jumlah_deposit,
                    a.no_trx, a.id_header
                 FROM klink_mlm2010.dbo.deposit_D a
                 WHERE a.id_header = '$id'
@@ -738,23 +738,23 @@ class Scan_voucher_model extends MY_Model {
 
         $nominalDepositBaru = 0;
         if($hasil != null) {
-            $nominalDepositBaru = $hasil[0]->jumlah_deposit; 
+            $nominalDepositBaru = $hasil[0]->jumlah_deposit;
         }
 
         $qryTrx->set('total_deposit', $nominalDepositBaru);
         $qryTrx->where('id', $id);
         $qryTrx->update('klink_mlm2010.dbo.deposit_H');
-        
-         $qry2 = "SELECT a.id, a.no_trx, b.trcd, a.total_deposit, 
-                    tdp, ndp, totpay, a.total_keluar, 
-                    ISNULL(SUM(c.payamt), 0) as jml_vch_cash, 
+
+         $qry2 = "SELECT a.id, a.no_trx, b.trcd, a.total_deposit,
+                    tdp, ndp, totpay, a.total_keluar,
+                    ISNULL(SUM(c.payamt), 0) as jml_vch_cash,
                     ISNULL(SUM(d.payamt), 0) as jml_cash
                   FROM klink_mlm2010.dbo.deposit_H a
                   LEFT OUTER JOIN sc_newtrh b ON (a.id = b.id_deposit)
                   LEFT OUTER JOIN sc_newtrp c ON (b.trcd = c.trcd AND c.paytype = '08')
                   LEFT OUTER JOIN sc_newtrp d ON (b.trcd = d.trcd AND d.paytype = '01')
                   WHERE a.id = '$id'
-                  GROUP BY a.id, a.no_trx, b.trcd, a.total_deposit, 
+                  GROUP BY a.id, a.no_trx, b.trcd, a.total_deposit,
                     tdp, ndp, totpay, a.total_keluar
                   ORDER by trcd";
          //echo $qry2;
@@ -778,7 +778,7 @@ class Scan_voucher_model extends MY_Model {
             $jum_trx = 0;
             $tot_vch_usage = 0;
             foreach($hasil2 as $dtax) {
-                $jum_bayar = $dtax->jml_vch_cash + $dtax->jml_cash; 
+                $jum_bayar = $dtax->jml_vch_cash + $dtax->jml_cash;
                 //$sisa_deposit = $sisa_deposit - $dtax->jml_vch_cash;
                 if($dtax->tdp != $jum_bayar && $sisa_deposit >=  $dtax->tdp) {
                     /* echo "Total TTP       : ".$dtax->tdp."<br />";
@@ -797,7 +797,7 @@ class Scan_voucher_model extends MY_Model {
                     $ins['voucher'] = "1";
                     $ins['vchtype'] = "C";
                     $qryTrx->insert("klink_mlm2010.dbo.sc_newtrp", $ins);
-                    $tot_vch_usage += $dtax->tdp; 
+                    $tot_vch_usage += $dtax->tdp;
                     $sisa_deposit = $sisa_deposit - $dtax->tdp;
                 } else if($sisa_deposit <= $dtax->tdp) {
                     $qryTrx->where('trcd', $dtax->trcd);
@@ -811,7 +811,7 @@ class Scan_voucher_model extends MY_Model {
                     $ins['voucher'] = "1";
                     $ins['vchtype'] = "C";
                     $qryTrx->insert("klink_mlm2010.dbo.sc_newtrp", $ins);
-                    $tot_vch_usage += $sisa_deposit; 
+                    $tot_vch_usage += $sisa_deposit;
 
                     $sisa_cash = $dtax->tdp - $sisa_deposit;
                     if($sisa_cash > 0) {
@@ -822,21 +822,21 @@ class Scan_voucher_model extends MY_Model {
                         $ins2['payamt'] = $sisa_cash;
                         $ins2['voucher'] = "0";
                         //$ins2['vchtype'] = "C";
-                        
+
                         $qryTrx->insert("klink_mlm2010.dbo.sc_newtrp", $ins2);
                     }
-                    
+
                 } else {
-                    $tot_vch_usage += $dtax->tdp; 
+                    $tot_vch_usage += $dtax->tdp;
                     $sisa_deposit = $sisa_deposit - $dtax->tdp;
                 }
-                
+
             }
-        
+
         } else {
             $total_keluar_seharusnya = 0;
         }
-        
+
 
          $total_keluar_seharusnya = $tot_vch_usage;
          $qryTrx->set('total_keluar', $total_keluar_seharusnya);
@@ -846,11 +846,11 @@ class Scan_voucher_model extends MY_Model {
          if ($qryTrx->trans_status() === FALSE) {
             $qryTrx->trans_rollback();
             $return = array("response" => "false", "message" => "Deposit Voucher $no_trx_deposit gagal di recalculate");
-            return $return; 
+            return $return;
          } else {
             $qryTrx->trans_commit();
             $return = array("response" => "true", "message" => "Deposit Voucher $no_trx_deposit berhasil di recalculate");
-            return $return; 
+            return $return;
          }
     }
 }
