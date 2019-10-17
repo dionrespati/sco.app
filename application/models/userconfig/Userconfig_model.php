@@ -16,7 +16,7 @@ class Userconfig_model extends MY_Model {
 
 	function getListUserGroup($param, $value) {
 		$qry = "SELECT * FROM ecomm_usergroup WHERE $param = ?";
-		$res = $this->getRecordset($qry, $value, NULL, $this->db2);
+		$res = $this->getRecordset($qry, $value, $this->db2);
 		if($res == null) {
 			throw new Exception("No result", 1);
 		}
