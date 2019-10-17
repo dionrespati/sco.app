@@ -40,7 +40,7 @@ class Member_report_model extends MY_Model {
 		return $result;
 	}
 
-	function getListMemberByParam($searchBy, $paramValue) {	
+	function getListMemberByParam($searchBy, $paramValue) {
 		$param_id = $this->db->escape_like_str($paramValue);
 		$where = "WHERE a.$searchBy like '%$param_id%' ESCAPE '!'";
 		$slc = "SELECT a.dfno,a.fullnm,a.idno,a.addr1,a.tel_hp, a.password,a.novac,

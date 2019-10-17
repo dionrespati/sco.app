@@ -19,9 +19,9 @@ class Member_report extends MY_Controller {
 		$data['icon'] = "icon-search";
         $data['form_action'] = 'member/search/list';
 		$data['form_reload'] = 'member/search';
-		$data['stockist'] = $this->stockist;   
-		if($this->username != null) {	
-		   		   
+		$data['stockist'] = $this->stockist;
+		if($this->username != null) {
+
 		   //cek apakah group adalah ADMIN atau BID06
 		   if($this->stockist == "BID06") {
 		   	  //$data['onchange'] = "onchange=Stockist.getStockistInfo(this.value)";
