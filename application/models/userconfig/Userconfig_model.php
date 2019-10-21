@@ -57,7 +57,8 @@ class Userconfig_model extends MY_Model {
             'groupname' => $data['groupname'],
             'groupid' => $data['id']
         );
-        $res = $this->db->insert('klink_mlm2010.dbo.ecomm_usergroup', $arr);
+        $this->db->where('groupid', $data['id']);
+        $res = $this->db->update('klink_mlm2010.dbo.ecomm_usergroup', $arr);
         if($res > 0) {
             $arr = jsonTrueResponse(null, "Berhasil memperbarui user group..");
         }
@@ -154,7 +155,7 @@ class Userconfig_model extends MY_Model {
             'groupid' => $data['groupid']
         );
         $this->db->where('username', $data['username']);
-        $res = $this->db->insert('klink_mlm2010.dbo.ecomm_user', $arr);
+        $res = $this->db->update('klink_mlm2010.dbo.ecomm_user', $arr);
          if($res > 0) {
              $arr = jsonTrueResponse(null, "Berhasil menambahkan user..");
          }
@@ -221,7 +222,7 @@ class Userconfig_model extends MY_Model {
             'status' => $data['status']
         );
         $this->db->where('app_id', $data['app_id']);
-        $res = $this->db->insert('klink_mlm2010.dbo.app_table', $arr);
+        $res = $this->db->update('klink_mlm2010.dbo.app_table', $arr);
         if($res > 0) {
             $arr = jsonTrueResponse(null, "Berhasil memperbarui user application..");
         }
@@ -317,17 +318,17 @@ class Userconfig_model extends MY_Model {
 
 
 	 function saveUpdateGroupMenu($data) {
-        $qry = "UPDATE app_tabprg SET app_menu_desc = '$data[app_menu_desc]',
+        /* $qry = "UPDATE app_tabprg SET app_menu_desc = '$data[app_menu_desc]',
                     app_id = '$data[app_id]', status = '$data[status]',
                     menu_order = '$data[menu_order]'
-                WHERE app_menu_id = '$data[id]'";
+                WHERE app_menu_id = '$data[id]'"; */
         $arr = array(
             'app_id' => $data['app_id'],
             'status' => $data['status'],
             'menu_order' => $data['menu)order']
         );
         $this->db->where('app_menu_id', $data['id']);
-        $res = $this->db->insert('klink_mlm2010.dbo.app_tabprg', $arr);
+        $res = $this->db->update('klink_mlm2010.dbo.app_tabprg', $arr);
          if($res > 0) {
              $arr = jsonTrueResponse(null, "Berhasil menambahkan group menu..");
          }
@@ -410,7 +411,7 @@ class Userconfig_model extends MY_Model {
             'app_menu_parent_id' => $data['app_menu_parent_id']
         );
         $this->db->where('app_menu_id', $data['id']);
-        $res = $this->db->insert('klink_mlm2010.dbo.app_tabprg', $arr);
+        $res = $this->db->update('klink_mlm2010.dbo.app_tabprg', $arr);
          if($res > 0) {
              $arr = jsonTrueResponse(null, "Berhasil menambahkan group menu..");
          }
