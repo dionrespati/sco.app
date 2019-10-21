@@ -16,6 +16,7 @@ class Userconfig_model extends MY_Model {
 
 	function getListUserGroup($param, $value) {
 		$qry = "SELECT * FROM ecomm_usergroup WHERE $param = ?";
+		echo $qry;
 		$res = $this->getRecordset($qry, $value, $this->db2);
 		if($res == null) {
 			throw new Exception("No result", 1);
@@ -33,6 +34,7 @@ class Userconfig_model extends MY_Model {
 
 	function getListAllUserGroupByID($id) {
 		$qry = "SELECT * FROM ecomm_usergroup WHERE groupid = ?";
+		echo $qry;
 		$res = $this->getRecordset($qry, $id, $this->db2);
 		if($res == null) {
 			throw new Exception("Data user group is empty..!", 1);
@@ -200,10 +202,11 @@ class Userconfig_model extends MY_Model {
 
 	 function saveUpdateApplication() {
 		$data = $this->input->post(NULL, TRUE);
-		$qry = "UPDATE app_table SET app_name = '$data[app_name]',
-		              app_url = '$data[app_url]', status = '$data[status]'
-		        WHERE app_id = '$data[app_id]'";
-		$query = $this->executeQuery($qry);
+		$qry = "UPDATE app_table SET app_name = ?,
+		              app_url = ?, status = ?
+				WHERE app_id = ?";
+		$qryParam = array($data['app_name'], $data['app_url'], $data['status'], $data['app_id']);		
+		$query = $this->executeQuery2($qry, $qryParam);
 		if(!$query) {
 			throw new Exception("Update User failed..!!", 1);
 		}

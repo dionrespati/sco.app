@@ -14,7 +14,7 @@
 				<tr>
 					<td width="15%">&nbsp;ID Sponsor</td>
 					<td width="35%">
-					<input type="text" name="idsponsor" id="idsponsor" class="span12" value="<?php echo $idsponsor; ?>" onchange="All.getFullNameByID(this.value,'api/member/check','#nmsponsor')" />
+					<input type="text" name="idsponsor" id="idsponsor" class="span12" value="<?php echo $idsponsor; ?>" onkeyup="All.AlphaNumOnly(this)" onchange="All.getFullNameByID(this.value,'api/member/check','#nmsponsor')" />
 					</td>
 					<td width="15%">&nbsp;&nbsp;Nama Sponsor</td>
 					<td>
@@ -25,7 +25,7 @@
 				<tr>
 					<td>&nbsp;ID Rekruiter</td>
 					<td>
-					<input type="text" name="idrekrut" id="idrekrut" class="span12" value="<?php echo $idrekrut; ?>" onchange="All.getFullNameByID(this.value,'api/member/check','#nmrekrut')" />
+					<input type="text" name="idrekrut" id="idrekrut" class="span12" value="<?php echo $idrekrut; ?>" onkeyup="All.AlphaNumOnly(this)" onchange="All.getFullNameByID(this.value,'api/member/check','#nmrekrut')" />
 					</td>
 					<td>&nbsp;&nbsp;Nama Rekruiter</td>
 					<td>
@@ -45,37 +45,37 @@
 				<tr>
 					<td>&nbsp;No Aplikasi</td>
 					<td>
-					<input tabindex="1" type="text" name="noapl" autofocus="autofocus" id="noapl" class="span12" placeholder="Wajib Isi" onchange="Member.checkDoubleInputMemb('api/member/double/','dfnotemp',this.value)" />
+					<input tabindex="1" type="text" name="noapl" autofocus="autofocus" onkeyup="All.upperCaseValue(this)"  id="noapl" class="span12" placeholder="Wajib Isi" onchange="Member.checkDoubleInputMemb('api/member/double/','dfnotemp',this.value)" />
 					</td>
 					<td>&nbsp;&nbsp;Alamat</td>
 					<td>
-					<input tabindex="7" type="text" name="addr1" id="addr1" class="span12" placeholder="Wajib Isi" />
+					<input tabindex="7" type="text" name="addr1" id="addr1" onkeyup="All.upperCaseValue(this)" class="span12" placeholder="Wajib Isi" />
 					</td>
 				</tr>
 				<tr>
 					<td>&nbsp;Nama Member</td>
 					<td>
-					<input tabindex="2" type="text" name="nmmember" id="nmmember" class="span12" placeholder="Wajib Isi" />
+					<input tabindex="2" type="text" name="nmmember" onkeyup="All.AlphaOnly(this)" id="nmmember" class="span12" placeholder="Wajib Isi" />
 					</td>
 					<td>&nbsp;</td>
 					<td>
-					<input tabindex="8" type="text" name="addr2" id="addr2" class="span12" />
+					<input tabindex="8" type="text" name="addr2" id="addr2" onkeyup="All.upperCaseValue(this)" class="span12" />
 					</td>
 				</tr>
 				<tr>
 					<td>&nbsp;No KTP</td>
 					<td>
-					<input tabindex="3" type="text" name="noktp" id="noktp" class="span12" placeholder="Wajib Isi" onchange="Member.checkDoubleInputMemb('api/member/double/','idno',this.value)" />
+					<input tabindex="3" type="text" name="noktp" id="noktp" onkeyup="All.numOnly(this)" class="span12" placeholder="Wajib Isi" onchange="Member.checkDoubleInputMemb('api/member/double/','idno',this.value)" />
 					</td>
 					<td>&nbsp;</td>
 					<td>
-					<input tabindex="9" type="text" name="addr3" id="addr3" class="span12" />
+					<input tabindex="9" type="text" name="addr3" id="addr3" onkeyup="All.upperCaseValue(this)" class="span12" />
 					</td>
 				</tr>
 				<tr>
 					<td>&nbsp;Tgl Lahir</td>
 					<td>
-					<input tabindex="4" type="text" name="tgllahir" id="tgllahir" class="span12" placeholder="dd/mm/yyyy" onchange="Member.checkBirthday()" />
+					<input tabindex="4" type="text" name="tgllahir" id="tgllahir" onkeyup="All.dateOnly(this)" class="span12" placeholder="dd/mm/yyyy" onchange="Member.checkBirthday()" />
 					</td>
 					<td>&nbsp;&nbsp;Kode Pos </td>
 					<td>
@@ -101,7 +101,7 @@
 					</td>
 					<td>&nbsp;&nbsp;Telepon HP</td>
 					<td>
-					<input tabindex="12" type="text" name="tel_hp" id="tel_hp"  class="span12" placeholder="Wajib Isi" onkeyup="this.value = this.value.replace(/[^0-9\.]/g,'')" onchange="Member.checkDoubleInputMemb('api/member/double/','tel_hp',this.value)" />
+					<input tabindex="12" type="text" name="tel_hp" id="tel_hp"  class="span12" placeholder="Wajib Isi" onkeyup="All.numOnly(this)" onchange="Member.checkDoubleInputMemb('api/member/double/','tel_hp',this.value)" />
 					</td>
 				</tr>
 				<tr>
@@ -166,7 +166,7 @@
 				<tr>
 					<td>&nbsp;No rekening</td>
 					<td>
-					<input tabindex="14" type="text" name="norek" id="norek" class="span12" onkeyup="this.value = this.value.replace(/[^0-9\.]/g,'')" disabled="yes"/>
+					<input tabindex="14" type="text" name="norek" id="norek" class="span12" onkeyup="All.numOnly(this)" disabled="yes"/>
 					</td>
 					<td>&nbsp;&nbsp;Stockist</td>
 					<td><select tabindex="16" id="bnstmt" name="bnstmt" class="span12">

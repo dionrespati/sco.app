@@ -7,7 +7,7 @@ if($result !== null) {
       <div class="control-group">
       	<label class="control-label" for="typeahead">Kode Stockist</label>
       	<div class="controls">
-      		<input <?php echo $onchange; ?> <?php echo $loccd_read; ?> type="text" class="TabOnEnter" id="loccd" style="width: 150px;" name="loccd" value="<?php echo $result[0]->loccd ?>" placeholder="Stockist Code" />	
+      		<input <?php echo $onchange; ?> <?php echo $loccd_read; ?> type="text" class="TabOnEnter" id="loccd" style="width: 150px;" name="loccd" value="<?php echo $result[0]->loccd ?>" placeholder="Kode Stockist" onkeydown="All.upperCaseValue(this)" />	
       	</div>
       	<label class="control-label" for="typeahead">Nama Stockist</label>
       	<div class="controls">
@@ -15,27 +15,27 @@ if($result !== null) {
       	</div>
       	<label class="control-label" for="typeahead">Alamat</label>
       	<div class="controls">
-      		<input value="<?php echo $result[0]->addr1 ?>"  type="text" class="TabOnEnter span6" id="addr1" name="addr1" />	
+      		<input value="<?php echo $result[0]->addr1 ?>"  type="text" class="TabOnEnter span6" id="addr1" name="addr1" onkeydown="All.upperCaseValue(this)" />	
       	</div>
       	<label class="control-label" for="typeahead">&nbsp;</label>
       	<div class="controls">
-      		<input value="<?php echo $result[0]->addr2 ?>"  type="text" class="TabOnEnter span6" id="addr2" name="addr2" />	
+      		<input value="<?php echo $result[0]->addr2 ?>"  type="text" class="TabOnEnter span6" id="addr2" name="addr2" onkeydown="All.upperCaseValue(this)" />	
       	</div>
       	<label class="control-label" for="typeahead">&nbsp;</label>
       	<div class="controls">
-      		<input value="<?php echo $result[0]->addr3 ?>"  type="text" class="TabOnEnter span6" id="addr3" name="addr3" />	
+      		<input value="<?php echo $result[0]->addr3 ?>"  type="text" class="TabOnEnter span6" id="addr3" name="addr3" onkeydown="All.upperCaseValue(this)" />	
       	</div>
       	<label class="control-label" for="typeahead">No HP</label>
       	<div class="controls">
-      		<input value="<?php echo $result[0]->tel_hp ?>"  type="text" class="TabOnEnter span6" id="tel_hp" name="tel_hp" />	
+      		<input value="<?php echo $result[0]->tel_hp ?>"  type="text" class="TabOnEnter span6" id="tel_hp" name="tel_hp" onkeyup="All.numOnly(this)" />	
       	</div>
       	<label class="control-label" for="typeahead">No Telp Kantor</label>
       	<div class="controls">
-      		<input value="<?php echo $result[0]->tel_of ?>"  type="text" class="TabOnEnter span6" id="tel_of" name="tel_of" />	
+      		<input value="<?php echo $result[0]->tel_of ?>"  type="text" class="TabOnEnter span6" id="tel_of" name="tel_of" onkeyup="All.numOnly(this)" />	
       	</div>
       	<label class="control-label" for="typeahead">No Telp Rumah</label>
       	<div class="controls">
-      		<input value="<?php echo $result[0]->tel_hm ?>"  type="text" class="TabOnEnter span6" id="tel_hm" name="tel_hm" />	
+      		<input value="<?php echo $result[0]->tel_hm ?>"  type="text" class="TabOnEnter span6" id="tel_hm" name="tel_hm" onkeyup="All.numOnly(this)" />	
       	</div>
 		  <label class="control-label" for="typeahead">Latitude</label>
       	<div class="controls">

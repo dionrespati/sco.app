@@ -71,7 +71,7 @@ class Stockist extends MY_Controller {
 	//$route['stockist/id'] = 'stockist/stockist/getDetailStockistByID/$1';
 	public function getDetailStockistByID($id) {
 		$arr = jsonFalseResponse("Invalid ID Stockist");
-		$idstokist = trim(strtoupper(preg_replace("/[^a-zA-Z0-9]+/", "", $str)));
+		$idstokist = trim(strtoupper(preg_replace("/[^a-zA-Z0-9]+/", "", $id)));
 		$res = $this->m_stockist->getStockistInfo($idstokist);
 		if($res != null) {
 			$arr = jsonTrueResponse($res);

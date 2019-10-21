@@ -715,7 +715,34 @@ var All = {
             alert("Error requesting page"); 
             All.set_enable_button();
         }); 
-     }
+     },
+
+    upperCaseValue : function(a){
+		setTimeout(function(){
+			a.value = a.value.toUpperCase();
+		}, 1);
+    },
+    
+    numOnly : function(a) {
+        var newValue = $(a).val().trim().replace(/[^0-9]/g,'');
+        $(a).val(newValue);  
+    },
+
+    dateOnly : function(a) {
+        var newValue = $(a).val().trim().replace(/[^0-9-/]/g,'');
+        $(a).val(newValue);  
+    },
+
+    AlphaNumOnly : function(a) {
+        var newValue = $(a).val().trim().toUpperCase().replace(/[^a-zA-Z0-9]/g,'');
+        $(a).val(newValue);  
+    },
+
+    AlphaOnly : function(a) {
+        var newValue = $(a).val().trimStart().toUpperCase().replace(/[^a-zA-Z ]/g,'');
+        $(a).val(newValue); 
+    },
+
      
      /*
      getJsonResponse : function(urlx) {

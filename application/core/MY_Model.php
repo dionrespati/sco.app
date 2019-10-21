@@ -81,6 +81,14 @@ class MY_Model extends CI_Model {
 	    return $this->db->affected_rows();
 	}
 
+	function executeQuery2($qry, $qryParam, $choose_db = 'klink_mlm2010') {
+		//if ($choose_db != 'default') {
+	    $this->db = $this->load->database($choose_db, true);
+	    //}
+	    $query = $this->db->query($qry, $qryParam);
+	    return $this->db->affected_rows();
+	}
+
 
 	public function checkDataFromTable($param, $fromTable, $value) {
 		$qry = "SELECT $param FROM $fromTable WHERE $param = '$value'";
