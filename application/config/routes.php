@@ -321,4 +321,3 @@ $route['scan/ttp/view/(:any)/(:any)/(:any)'] = 'transaction/scan_voucher/viewTTP
 $route['scan/ttp/delete/(:any)'] = 'transaction/scan_voucher/hapusTtpVchDeposit/$1';
 $route['scan/ttp/save'] = 'transaction/scan_voucher/saveTrxDepositVch';
 $route['scan/deposit/recalculate/(:any)'] = 'transaction/scan_voucher/recalculateDeposit/$1';
-

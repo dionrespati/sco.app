@@ -13,7 +13,12 @@ function set_nbsp($i) {
 			<div class="control-group">
 				<label class="control-label" for="typeahead">ID Member</label>
 				<div class="controls">
-					<input type="text" class="TabOnEnter span4" id="idmember" name="idmember" onchange="Member.checkLbcByID(this.value)" />
+					<input
+                        type="text"
+                        class="TabOnEnter span4"
+                        id="idmember" name="idmember"
+                        onchange="Member.checkLbcByID(this.value)"
+                        onkeyup="All.AlphaNumOnly(this)" />
 				</div>
 				<label class="control-label" for="typeahead">Nama Member</label>
 				<div class="controls">
@@ -29,7 +34,7 @@ function set_nbsp($i) {
 				</div>
 				<label class="control-label" for="typeahead">Email</label>
 				<div class="controls">
-					<input type="text" class="TabOnEnter span4" id="email" name="email" />
+					<input type="text" class="TabOnEnter span4" id="email" name="email" onkeyup="All.emailOnly(this)" />
 				</div>
 				<label class="control-label"  for="typeahead">Masa Berlaku</label>
 				<div class="controls">
@@ -38,7 +43,7 @@ function set_nbsp($i) {
 				</div>
 				<!--<label class="control-label" for="typeahead">Tgl Berakhir LBC</label>
 				<div class="controls">
-					
+
 				</div>-->
 				<label class="control-label" for="typeahead">Alamat</label>
 				<div class="controls">
@@ -84,5 +89,5 @@ function set_nbsp($i) {
 			dateFormat : 'yy-mm-dd',
 		}).datepicker();
 
-	}); 
+	});
 </script>

@@ -31,18 +31,19 @@
                         <tr>
                             <thead>
                               <th colspan="4"><?php echo $form_head; ?></th>
-                            </thead>  
+                            </thead>
                         </tr>
                         <tr>
                           <td class="form_title_left">&nbsp;ID Member&nbsp;</td>
                           <td>
                             <input tabindex="1" type="text" class="span20 typeahead" id="distributorcode" name="distributorcode"
-                            onchange="All.getFullNameByID(this.value,'api/member/check','#distributorname')" />
+                                onchange="All.getFullNameByID(this.value,'api/member/check','#distributorname')"
+                                onkeyup="All.AlphaNumOnly(this)" />
                               <input type="hidden" readonly="yes" class="span20 typeahead" id="loccd"
                               name="loccd" value="<?php echo $stockist; ?>" />
                               <input type="hidden" readonly="yes" class="span20 typeahead" id="sctype"
                               name="sctype" value="<?php echo $sctype; ?>" />
-                              
+
                               <input type="hidden" readonly="yes" class="span20 typeahead" id="pricecode" name="pricecode"
                               value="<?php echo $pricecode; ?>" />
                           </td>
@@ -104,22 +105,22 @@
                           <td class="form_title_left">&nbsp;No/Kode Voucher&nbsp;</td>
                           <td>
                             <input tabindex="3" type="text" style="width: 200px;" id="vchno" name="vch_no"
-                              placeholder="Wajib Di isi" onchange="Stockist.get_pvr_info('10')" />
+                              placeholder="Wajib Di isi" onchange="Stockist.get_pvr_info('10')" onkeyup="All.AlphaNumOnly(this)" />
                               <input type="button" value="Tambah Voucher" onclick="Stockist.get_pvr_info('10')" class="btn btn-mini btn-success">
                           </td>
                         </tr>
-                        
-                       
+
+
                       </table>
-                   
+
 
 
                 <!--<span id="show_form"></span> -->
                 <table width="100%" class="table table-striped table-bordered"> <!-- voucher table -->
                   <thead>
                     <tr bgcolor="#f4f4f4">
-                       <th colspan="5">List Penggunaan Voucher</th>       
-                    </tr>          
+                       <th colspan="5">List Penggunaan Voucher</th>
+                    </tr>
                     <tr bgcolor="#f4f4f4">
                       <th width="15%">ID Member</th>
                       <th>Nama Member</th>
@@ -158,7 +159,7 @@
                 <table width="100%" class="table table-striped table-bordered"> <!-- product table -->
                   <thead>
                   <tr bgcolor="#f4f4f4">
-                       <th colspan="6">List Pembelanjaan Produk</th>       
+                       <th colspan="6">List Pembelanjaan Produk</th>
                     </tr>
                     <tr bgcolor="#f4f4f4">
                       <th width="15%">Kode Produk</th>
@@ -188,7 +189,7 @@
                       </td>
                       <td>&nbsp;</td>
                     </tr>
-                    
+
                   </tbody>
                 </table> <!-- product table -->
                 <!--
@@ -292,12 +293,12 @@
                 </table>
                 <br />
                 <!-- <input type="button" class="btn btn-success span14" name="submit" value="Save" id="save"/> -->
-                
+
                 <!--</div> -->
               </div> <!-- end control-group -->
             </fieldset>
           </form>
-        
+
 
 
 <script>
@@ -323,7 +324,7 @@
           var datax =hasil.data;
           alert("Transaksi PVR berhasil, no transaksi : " +datax.trcd);
           All.back_to_form(" .nextForm1", " .mainForm");
-          
+
         } else {
           alert(hasil.message);
         }

@@ -61,8 +61,8 @@ if ($ins == "2") {
 			<td>
 			<input readonly="readonly" type="text" class="span20 typeahead" id="sc_co_name"  name="sc_co_name" value="<?php echo $sc_conm; ?>" />
 			<input type="hidden" id="co_sctype" name="co_sctype" value="<?php echo $co_sctype; ?>" />
-			</td> 
-			
+			</td>
+
 			<td>&nbsp;Tgl Trx</td>
 			<td>
 			<input readonly="readonly" type="text" class="span12 typeahead" id="trxdate"  name="trxdate" value="<?php echo $etdt; ?>" />
@@ -82,12 +82,21 @@ if ($ins == "2") {
 			</td>
 		</tr>
 		<tr>
-			
+
 			<td> &nbsp;ID Member</td>
 			<td colspan="2">
-			<input tabindex="3" type="text" placeholder="Tidak boleh kosong, untuk ID Luar Negeri diisi kode 0000999" class="span12 typeahead" id="dfno"  name="dfno" onchange="All.getFullNameByID(this.value,'api/member/check','#fullnm')" value="<?php echo $dfno; ?>" />
+                <input
+                    tabindex="3"
+                    type="text"
+                    placeholder="Tidak boleh kosong, untuk ID Luar Negeri diisi kode 0000999"
+                    class="span12 typeahead"
+                    id="dfno"
+                    name="dfno"
+                    onchange="All.getFullNameByID(this.value,'api/member/check','#fullnm')"
+                    onkeyup="All.AlphaNumOnly(this)"
+                    value="<?php echo $dfno; ?>" />
 			</td>
-			
+
 			<td>&nbsp;Periode Bonus</td>
 			<td>
 			<select tabindex="4" id="bnsperiod"  name="bnsperiod" class="span8 typeahead">
@@ -144,9 +153,8 @@ if ($ins == "2") {
 			<td>
 			&nbsp;
 			</td>-->
-			
+
 		</tr>
-		
+
 
 	</table>
-	

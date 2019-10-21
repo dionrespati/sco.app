@@ -41,7 +41,7 @@ class Login_model extends MY_Model {
 		        WHERE a.username = '$formData[username]' AND a.password = '$formData[password]'";
 		$res = $this->getRecordset($qry, NULL, $this->setDB(2));
 		if($res == null) {
-			throw new Exception("Login gagal, username atau password anda salah..", 1);
+			throw new Exception("Login failed, invalid username or password", 1);
 		}
 		return $res;
 	}

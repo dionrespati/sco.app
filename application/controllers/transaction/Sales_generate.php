@@ -308,4 +308,41 @@ class Sales_generate extends MY_Controller
         $this->load->view('transaction/generate/previewListTtp', $data);
 
     }
+    public function checkSelisih() {
+        $explode=explode("|", $this->input->post('ID_KW'));
+        $tipe = $explode[0];
+        $sc_dfno = $explode[1];
+        $sc_co = $explode[2];
+        $dari = $this->input->post('from');
+        $ke = $this->input->post('to');
+        $idstkk = $this->input->post('mainstk');
+        $bnsperiod = $this->input->post('bnsperiod');
+
+
+        $data['tipe'] = $tipe;
+        $data['result'] = $this->m_sales_generate->getDetailTrxCheckTTP($idstkk, $bnsperiod, $tipe, $sc_co, $sc_dfno);
+        /* backToMainForm();
+        echo "<pre>";
+        print_r($data['result']);
+        echo "<pre>";
+        backToMainForm(); */
+
+        $this->load->view('transaction/generate/previewListTtpV2', $data);
+    }
+
+    //$route['sales/preview/(:any)/(:any)'] = 'transaction/sales_generate/listTTPbySSR/$1/$2';
+    public function listTTPbySSR($field, $value) {
+		//$this->load->model('transaction/do_stockist_model', 'do_stk');
+		$this->load->model('transaction/Sales_stockist_report_model', 'm_ssr');
+		if($field == "batchno") {
+			$data['back_button'] = "All.back_to_form(' .nextForm2',' .nextForm1')";
+			$data['result'] = $this->m_ssr->listTtpById($field, $value);
+			$data['rekapPrd'] = $this->m_ssr->summaryProductBySSR($value);
+			$this->load->view('transaction/stockist_report/listTTP', $data);
+		} else if($field == "trcd") {
+			$data['back_button'] = "All.back_to_form(' .nextForm2',' .nextForm1')";
+			$data['result'] = $this->m_ssr->detailTrxByTrcd($field, $value);
+			$this->load->view('transaction/stockist_report/detailTrx', $data);
+		}
+	}
 }

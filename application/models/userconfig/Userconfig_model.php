@@ -16,7 +16,6 @@ class Userconfig_model extends MY_Model {
 
 	function getListUserGroup($param, $value) {
 		$qry = "SELECT * FROM ecomm_usergroup WHERE $param = ?";
-		echo $qry;
 		$res = $this->getRecordset($qry, $value, $this->db2);
 		if($res == null) {
 			throw new Exception("No result", 1);
@@ -34,7 +33,6 @@ class Userconfig_model extends MY_Model {
 
 	function getListAllUserGroupByID($id) {
 		$qry = "SELECT * FROM ecomm_usergroup WHERE groupid = ?";
-		echo $qry;
 		$res = $this->getRecordset($qry, $id, $this->db2);
 		if($res == null) {
 			throw new Exception("Data user group is empty..!", 1);
@@ -42,30 +40,33 @@ class Userconfig_model extends MY_Model {
 		return $res;
 	}
 	function saveInputUserGroup() {
-		$data = $this->input->post(NULL, TRUE);
-		$qry = "INSERT INTO ecomm_usergroup (groupname)
-		        VALUES ('$data[groupname]')";
-		$query = $this->executeQuery($qry);
-		if(!$query) {
-			throw new Exception("Save Group Menu failed..!!", 1);
-		}
-		return $query;
-	}
+        $data = $this->input->post(NULL, TRUE);
+        $arr = array(
+            'groupname' => $data['groupname']
+        );
+        $res = $this->db->insert('klink_mlm2010.dbo.ecomm_usergroup', $arr);
+        if($res > 0) {
+            $arr = jsonTrueResponse(null, "Berhasil menyimpan data user..");
+        }
+        return $arr;
+    }
 
 	function updateUserGroup() {
-		$data = $this->input->post(NULL, TRUE);
-		$qry = "UPDATE ecomm_usergroup SET groupname = '$data[groupname]'
-		        WHERE groupid = '$data[id]'";
-		$query = $this->executeQuery($qry);
-		if(!$query) {
-			throw new Exception("Update Group Menu failed..!!", 1);
-		}
-		return $query;
+        $data = $this->input->post(NULL, TRUE);
+        $arr = array(
+            'groupname' => $data['groupname'],
+            'groupid' => $data['id']
+        );
+        $res = $this->db->insert('klink_mlm2010.dbo.ecomm_usergroup', $arr);
+        if($res > 0) {
+            $arr = jsonTrueResponse(null, "Berhasil memperbarui user group..");
+        }
+        return $arr;
 	}
 
 	function deleteUserGroup($id) {
-		$qry = "DELETE FROM ecomm_usergroup WHERE groupid = '$id'";
-		$query = $this->executeQuery($qry);
+		$qry = "DELETE FROM ecomm_usergroup WHERE groupid = ?";
+		$query = $this->executeQuery2($qry, $id);
 		if(!$query) {
 			throw new Exception("Delete Group Menu failed..!!", 1);
 		}
@@ -125,36 +126,44 @@ class Userconfig_model extends MY_Model {
 		return $res;
 	 }
 
-	 function saveInputUser() {
-	 	$data = $this->input->post(NULL, TRUE);
-		$qry = "INSERT INTO ecomm_user (username, password, status, branchid,
-		                    departmentid, createnm, groupid)
-		        VALUES ('$data[username]','$data[password]','$data[status]','$data[branchid]',
-		               '$data[departmentid]', '".$this->username."', '$data[groupid]')";
-		$query = $this->executeQuery($qry);
-		if(!$query) {
-			throw new Exception("Save User failed..!!", 1);
-		}
-		return $query;
-	 }
+    function saveInputUser() {
+         $data = $this->input->post(NULL, TRUE);
+         $arr = array(
+             'username' => $data['username'],
+             'password' => $data['password'],
+             'status' => $data['status'],
+             'branchid' => $data['branchid'],
+             'departmentid' => $data['deparmentid'],
+             'createnm' => $this->username,
+             'groupid' => $data['groupid']
+         );
+         $res = $this->db->insert('klink_mlm2010.dbo.ecomm_user', $arr);
+         if($res > 0) {
+             $arr = jsonTrueResponse(null, "Berhasil menambahkan user..");
+         }
+         return $arr;
+    }
 
-	 function saveUpdateUser() {
-		$data = $this->input->post(NULL, TRUE);
-		$qry = "UPDATE ecomm_user SET password = '$data[password]',
-		              status = '$data[status]', branchid = '$data[branchid]', departmentid = '$data[departmentid]',
-		              groupid = '$data[groupid]'
-		        WHERE username = '$data[username]'";
-
-		$query = $this->executeQuery($qry);
-		if(!$query) {
-			throw new Exception("Update User failed..!!", 1);
-		}
-		return $query;
-	 }
+    function saveUpdateUser() {
+        $data = $this->input->post(NULL, TRUE);
+        $arr = array(
+            'password' => $data['password'],
+            'status' => $data['status'],
+            'branchid' => $data['branchid'],
+            'departmentid' => $data['departmentid'],
+            'groupid' => $data['groupid']
+        );
+        $this->db->where('username', $data['username']);
+        $res = $this->db->insert('klink_mlm2010.dbo.ecomm_user', $arr);
+         if($res > 0) {
+             $arr = jsonTrueResponse(null, "Berhasil menambahkan user..");
+         }
+         return $arr;
+    }
 
 	 function deleteUser($id) {
-	 	$qry = "DELETE FROM ecomm_user WHERE username = '$id'";
-		$query = $this->executeQuery($qry);
+	 	$qry = "DELETE FROM ecomm_user WHERE username = ?";
+		$query = $this->executeQuery($qry, $id);
 		if(!$query) {
 			throw new Exception("Delete User failed..!!", 1);
 		}
@@ -188,34 +197,40 @@ class Userconfig_model extends MY_Model {
 		return $res;
 	 }
 	 function saveInputApplication() {
-	 	$data = $this->input->post(NULL, TRUE);
-		$qry = "INSERT INTO app_table (app_id, app_name, app_url, status, createnm)
-		        VALUES ('$data[app_id]','$data[app_name]','$data[app_url]','$data[status]',
-		               '".$this->username."')";
-		$query = $this->executeQuery($qry);
-		if(!$query) {
-			throw new Exception("Save User failed..!!", 1);
-		}
-		return $query;
+         $data = $this->input->post(NULL, TRUE);
+         $arr = array(
+             'app_id' => $data['app_id'],
+             'app_name' => $data['app_name'],
+             'app_url' => $data['app_url'],
+             'status' => $data['status'],
+             'createnm' => $this->username
+         );
+         $res = $this->db->insert('klink_mlm2010.dbo.app_table', $arr);
+         if($res > 0) {
+             $arr = jsonTrueResponse(null, "Berhasil menambahkan user application..");
+         }
+         return $arr;
 	 }
 
 
 	 function saveUpdateApplication() {
-		$data = $this->input->post(NULL, TRUE);
-		$qry = "UPDATE app_table SET app_name = ?,
-		              app_url = ?, status = ?
-				WHERE app_id = ?";
-		$qryParam = array($data['app_name'], $data['app_url'], $data['status'], $data['app_id']);		
-		$query = $this->executeQuery2($qry, $qryParam);
-		if(!$query) {
-			throw new Exception("Update User failed..!!", 1);
-		}
-		return $query;
+        $data = $this->input->post(NULL, TRUE);
+        $arr = array(
+            'app_name' => $data['app_name'],
+            'app_url' => $data['app_url'],
+            'status' => $data['status']
+        );
+        $this->db->where('app_id', $data['app_id']);
+        $res = $this->db->insert('klink_mlm2010.dbo.app_table', $arr);
+        if($res > 0) {
+            $arr = jsonTrueResponse(null, "Berhasil memperbarui user application..");
+        }
+        return $arr;
 	 }
 
 	 function deleteApplication($id) {
-	 	$qry = "DELETE FROM app_table WHERE app_id = '$id'";
-		$query = $this->executeQuery($qry);
+	 	$qry = "DELETE FROM app_table WHERE app_id = ?";
+		$query = $this->executeQuery2($qry, $id);
 		if(!$query) {
 			throw new Exception("Delete User failed..!!", 1);
 		}
@@ -269,39 +284,54 @@ class Userconfig_model extends MY_Model {
 	 }
 
 	 function saveInputGroupMenu($id) {
-	 	$data = $this->input->post(NULL, TRUE);
-		$qry = "INSERT INTO app_tabprg (app_id, app_menu_id, app_submenu_prefix, app_menu_desc, app_menu_url, status, createnm, menu_order)
-		        VALUES ('$data[app_id]','$id', '$data[app_submenu_prefix]', '$data[app_menu_desc]', '#', '$data[status]',
-		               '".$this->username."', '$data[menu_order]')";
-		$query = $this->executeQuery($qry);
-		if(!$query) {
-			throw new Exception("Save User failed..!!", 1);
-		}
-		return $query;
+         $data = $this->input->post(NULL, TRUE);
+         $arr = array(
+            'app_id' => $data['app_id'],
+            'app_menu_id' => $data['id'],
+            'app_menu_submenu_prefix' => $data['app_submenu_prefix'],
+            'app_menu_desc' => $data['app_menu_desc'],
+            'app_menu_url' => '#',
+            'status' => $data['status'],
+            'createnm' => $this->username,
+            'menu_order' => $data['menu_order']
+         );
+         $res = $this->db->insert('klink_mlm2010.dbo.app_tabprg', $arr);
+         if($res > 0) {
+             $arr = jsonTrueResponse(null, "Berhasil menambahkan group menu..");
+         }
+         return $arr;
 	 }
 
 	 function updateAppIdOnSubMenu($data) {
-	 	$qry = "UPDATE app_tabprg SET app_id = '$data[app_id]'
-		        WHERE app_menu_parent_id = '$data[id]'";
+        $arr = array(
+            'app_id' => $data['app_id']
+        );
+        $this->db->where('app_menu_parent_id', $data['id']);
 		$query = $this->executeQuery($qry);
-		if(!$query) {
-			throw new Exception("Update Sub Menu failed..!!", 1);
-		}
-		return $query;
+		$res = $this->db->insert('klink_mlm2010.dbo.app_tabprg', $arr);
+         if($res > 0) {
+             $arr = jsonTrueResponse(null, "Berhasil menambahkan group menu..");
+         }
+         return $arr;
 	 }
 
 
 	 function saveUpdateGroupMenu($data) {
-
-		$qry = "UPDATE app_tabprg SET app_menu_desc = '$data[app_menu_desc]',
-		              app_id = '$data[app_id]', status = '$data[status]',
-		              menu_order = '$data[menu_order]'
-		        WHERE app_menu_id = '$data[id]'";
-		$query = $this->executeQuery($qry);
-		if(!$query) {
-			throw new Exception("Update User failed..!!", 1);
-		}
-		return $query;
+        $qry = "UPDATE app_tabprg SET app_menu_desc = '$data[app_menu_desc]',
+                    app_id = '$data[app_id]', status = '$data[status]',
+                    menu_order = '$data[menu_order]'
+                WHERE app_menu_id = '$data[id]'";
+        $arr = array(
+            'app_id' => $data['app_id'],
+            'status' => $data['status'],
+            'menu_order' => $data['menu)order']
+        );
+        $this->db->where('app_menu_id', $data['id']);
+        $res = $this->db->insert('klink_mlm2010.dbo.app_tabprg', $arr);
+         if($res > 0) {
+             $arr = jsonTrueResponse(null, "Berhasil menambahkan group menu..");
+         }
+         return $arr;
 	 }
 
 	 function deleteGroupMenu($id) {
@@ -348,12 +378,21 @@ class Userconfig_model extends MY_Model {
 		$qry = "INSERT INTO app_tabprg (app_id, app_menu_id, app_menu_parent_id, app_menu_desc, app_menu_url, status, createnm, menu_order)
 		        VALUES ('$data[app_id]','$menu_id', '$data[app_menu_parent_id]', '$data[app_menu_desc]', '$data[app_menu_url]', '$data[status]',
 		               '".$this->username."', '$data[menu_order]')";
-
-		$query = $this->executeQuery($qry);
-		if(!$query) {
-			throw new Exception("Save Sub menu failed..!!", 1);
-		}
-		return $query;
+        $arr = array(
+            'app_id' => $data['app_id'],
+            'app_menu_id' => $menu_id,
+            'app_menu_parent_id' => $data['app_menu_parent_id'],
+            'app_menu_desc' => $data['app_menu_desc'],
+            'app_menu_url' => $data['app_menu_url'],
+            'status' => $data['status'],
+            'createnm' => $this->username,
+            'menu_order' => $data['menu_order']
+         );
+         $res = $this->db->insert('klink_mlm2010.dbo.app_tabprg', $arr);
+         if($res > 0) {
+             $arr = jsonTrueResponse(null, "Berhasil menambahkan group menu..");
+         }
+         return $arr;
 	  }
 
 	  function saveUpdateSubMenu($data) {
@@ -362,12 +401,20 @@ class Userconfig_model extends MY_Model {
 	  	              menu_order = '$data[menu_order]',
 		              status = '$data[status]',
 		              app_menu_parent_id = '$data[app_menu_parent_id]'
-		        WHERE app_menu_id = '$data[id]'";
-		$query = $this->executeQuery($qry);
-		if(!$query) {
-			throw new Exception("Update User failed..!!", 1);
-		}
-		return $query;
+                WHERE app_menu_id = '$data[id]'";
+        $arr = array(
+            'app_menu_desc' => $data['app_menu_desc'],
+            'app_menu_url' => $data['app_menu_url'],
+            'menu_order' => $data['menu_order'],
+            'status' => $data['status'],
+            'app_menu_parent_id' => $data['app_menu_parent_id']
+        );
+        $this->db->where('app_menu_id', $data['id']);
+        $res = $this->db->insert('klink_mlm2010.dbo.app_tabprg', $arr);
+         if($res > 0) {
+             $arr = jsonTrueResponse(null, "Berhasil menambahkan group menu..");
+         }
+         return $arr;
 	  }
 
 
@@ -410,12 +457,20 @@ class Userconfig_model extends MY_Model {
                 }
                 $qry2 = "INSERT INTO ecomm_scoauth (groupid, menuid, toggle_add, toggle_edit, toggle_delete, toggle_view, createnm)
                        VALUES ('$data[grpid]', '".$data['menuid'][$i]."', '$add', '$edit', '$view', '$delete', '".$this->username."')";
-
+                $arr = array(
+                    'groupid' => $data['grpid'],
+                    'menuid' => $data['menuid'][$i],
+                    'toggle_add' => $add,
+                    'toggle_edit' => $edit,
+                    'toggle_delete' => $delete,
+                    'createnm' => $this->username
+                );
+                $query = $this->db->insert('klink_mlm2010.dbo.ecomm_scoauth', $arr);
 				//echo $qry2;
 				//echo "<br />";
 				//$query2 = $this->db->query($qry2);
-				$query2 = $this->executeQuery($qry2);
-				if(!$query2) {
+				// $query2 = $this->executeQuery($qry2);
+				if($query < 0) {
 					throw new Exception("Save User Access failed..!!", 1);
 				} else {
 					$res++;
