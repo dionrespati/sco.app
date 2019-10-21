@@ -51,20 +51,22 @@ class Stockist_model extends MY_Model {
 		$kelurahan = trim($data['kelurahan']);
 		$postcd = trim(strtoupper(preg_replace("/[^a-zA-Z0-9]+/", "", $data['postcd'])));
 		$loccd = trim(strtoupper(preg_replace("/[^a-zA-Z0-9]+/", "", $data['loccd'])));
-		$qry = "UPDATE mssc
-			    SET addr1 = '$addr1',
-			        addr2 = '$addr2',
-			        addr3 = '$addr3',
-			        tel_hp = '$tel_hp',
-			        tel_hm = '$tel_hm',
-			        tel_of = '$tel_of',
-					kabupaten = '$kabupaten',
-					KEC_JNE = '$kecamatan',
-					kecamatan = '$kecamatan',
-					kelurahan = '$kelurahan',
-					postcd = '$postcd'
-				WHERE loccd = '$loccd'";
-		$res = $this->executeQuery($qry, $this->setDB(2));
+		
+		$arr = array(
+			"addr1" => $addr1,
+			"addr2" => $addr2,
+			"addr3" => $addr3,
+			"tel_hp" => $tel_hp,
+			"tel_hm" => $tel_hm,
+			"tel_of" => $tel_of,
+			"kabupaten" => $kabupaten,
+			"KEC_JNE" => $kecamatan,
+			"kecamatan" => $kecamatan,
+			"kelurahan" => $kelurahan,
+			"postcd" => $postcd
+		);
+		$this->db->where('loccd', $loccd);
+		$res = $this->db->update('klink_mlm2010.dbo.mssc', $arr);
 		if($res > 0) {
 			$arr = jsonTrueResponse(null, "Update Data Stockist berhasil..");
 		} 
@@ -88,8 +90,10 @@ class Stockist_model extends MY_Model {
 		//ORDER BY C.provinsi, B.kabupaten, A.kab_JNE"
         $qry = "SELECT C.kode_provinsi, A.kode_kabupaten as kode, B.kabupaten as nama 
 				FROM db_ecommerce.dbo.master_wil_kecamatan A
-					 INNER JOIN db_ecommerce.dbo.master_wil_kabupaten B ON A.kode_kabupaten=B.kode_kabupaten
-				     INNER JOIN db_ecommerce.dbo.master_wil_provinsi C ON B.kode_provinsi=C.kode_provinsi
+				INNER JOIN db_ecommerce.dbo.master_wil_kabupaten B 
+					ON A.kode_kabupaten=B.kode_kabupaten
+				INNER JOIN db_ecommerce.dbo.master_wil_provinsi C 
+					ON B.kode_provinsi=C.kode_provinsi
 				WHERE A.kode_kec_JNE IS NOT NULL and c.kode_provinsi = ?
 				GROUP BY C.kode_provinsi, C.provinsi, A.kode_kabupaten, B.kabupaten
 				ORDER BY C.provinsi, B.kabupaten";

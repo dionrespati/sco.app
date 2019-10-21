@@ -1,14 +1,14 @@
 <?php
 class Member_registration_model extends MY_Model {
-
+		
 	function __construct() {
         // Call the Model constructor
         parent::__construct();
-
+		
     }
-
+	
 	function getListMemberByMM($mmno) {
-		$qry = "SELECT a.orderno, a.dfno, a.batchno,
+		$qry = "SELECT a.orderno, a.dfno, a.batchno, 
 				       a.batchdt,  a.tdp, a.sc_dfno, a.sc_co, a.loccd,
 				       CONVERT(VARCHAR(10), a.batchdt, 20) as batchdt
 				FROM sc_newtrh a
@@ -18,17 +18,17 @@ class Member_registration_model extends MY_Model {
 		$result = $this->getRecordset($slc,null,$this->db2);
 	    return $result;
 	}
-
+	
 	public function cekValidVoucher($voucherno,$voucherkey) {
         $qry = "SELECT a.formno, a.activate_dfno, a.activate_by, a.status, b.fullnm,
-                  CONVERT(VARCHAR(10), a.activate_dt, 20) as activate_dt, prdcd
+                  CONVERT(VARCHAR(10), a.activate_dt, 20) as activate_dt, prdcd 
                 FROM starterkit a
-                LEFT OUTER JOIN msmemb b ON (a.activate_dfno = b.dfno)
+                LEFT OUTER JOIN msmemb b ON (a.activate_dfno = b.dfno) 
                 WHERE a.formno = '".$voucherno."' and a.vchkey = '".$voucherkey."'";
         $result = $this->getRecordset($qry,null,$this->db2);
 	    return $result;
     }
-
+	
 	function cekLimitKit($idstockist) {
         $qry = "select a.limitkit-a.arkit as limitstock,a.arkit,a.limitkit
                 from mssc a where a.loccd = ?";
@@ -38,12 +38,12 @@ class Member_registration_model extends MY_Model {
     }
 
 	function showStockistByArea($state) {
-
-        $cc = "SELECT loccd, fullnm,state
-               FROM mssc
-               WHERE loccd = ? and sctype != '3'
+        
+        $cc = "SELECT loccd, fullnm,state 
+               FROM mssc 
+               WHERE loccd = ? and sctype != '3' 
                 AND fullnm not in('TERMINATION','CANCEL','BUSSINESS & DEVELOPMENT','INTERNET ID','CENCEL',
-				    'UNITED STATES OF AME', 'THAILAND', 'SWITZERLAND',
+				    'UNITED STATES OF AME', 'THAILAND', 'SWITZERLAND', 
                     'SPANYOL', 'SRILANKA', 'SINGAPORE', 'JAPAN',
 					'CANADA','INTERNET CODE','UNITED ARAB EMIRATES')";
 
@@ -51,24 +51,24 @@ class Member_registration_model extends MY_Model {
         $result = $this->getRecordset($qry,$paramQry,$this->db2);
 	    return $result;
     }
-
+    
     function getListState() {
-        $qry = "select st_id, description
-                FROM state where cn_id = 'ID' and description not IN ('TEMPORARY','UNITED STATES OF AME',
+        $qry = "select st_id, description 
+                FROM state where cn_id = 'ID' and description not IN ('TEMPORARY','UNITED STATES OF AME', 
                        'THAILAND', 'SWITZERLAND', 'SPANYOL', 'SRILANKA', 'SINGAPORE', 'JAPAN',
 					   'CANADA','INTERNET CODE','UNITED ARAB EMIRATES')";
         $result = $this->getRecordset($qry,null,$this->db2);
 	    return $result;
     }
-
+    
     function getListStockistByState($state) {
-        $qry = "SELECT loccd, fullnm
-                FROM mssc where state = ? and sctype != '3'
-                    AND fullnm not in('TERMINATION','CANCEL','BUSSINESS & DEVELOPMENT','INTERNET ID','CENCEL',
-                       'UNITED STATES OF AME', 'THAILAND', 'SWITZERLAND',
+        $qry = "SELECT loccd, fullnm 
+                FROM mssc where state = ? and sctype != '3' 
+                    AND fullnm not in('TERMINATION','CANCEL','BUSSINESS & DEVELOPMENT','INTERNET ID','CENCEL', 
+                       'UNITED STATES OF AME', 'THAILAND', 'SWITZERLAND', 
                        'SPANYOL', 'SRILANKA', 'SINGAPORE', 'JAPAN',
-					   'CANADA','INTERNET CODE','UNITED ARAB EMIRATES')
-                    AND scstatus='1'
+					   'CANADA','INTERNET CODE','UNITED ARAB EMIRATES') 
+                    AND scstatus='1' 
                     AND loccd NOT IN ('JNE', 'MKT', 'PR', 'IDJD01','PT MASS')
                     AND loccd NOT LIKE 'WR%'
 		        ORDER BY sctype, fullnm ";
@@ -76,19 +76,19 @@ class Member_registration_model extends MY_Model {
         $result = $this->getRecordset($qry, $paramQry, $this->db2);
 	    return $result;
     }
-
+    
     function getListBank() {
-        $qry = "SELECT *
-                FROM klink_mlm2010.dbo.bank
-                WHERE bankid NOT IN('VCA','NA','BLK','CIC','BKU')
+        $qry = "SELECT * 
+                FROM klink_mlm2010.dbo.bank 
+                WHERE bankid NOT IN('VCA','NA','BLK','CIC','BKU') 
                 AND web_status='1' ORDER BY bankid";
         $result = $this->getRecordset($qry,null,$this->db2);
 	    return $result;
     }
-
+	
 	function showLastkitno($stk) {
-        $qry = "SELECT memberprefix, lastcodememb, lastkitno
-                FROM klink_mlm2010.dbo.mssc
+        $qry = "SELECT memberprefix, lastcodememb, lastkitno 
+                FROM klink_mlm2010.dbo.mssc 
                 WHERE loccd = ?";
         $paramQry = array($stk);
         $result = $this->getRecordset($qry,$paramQry,$this->db2);
@@ -99,44 +99,44 @@ class Member_registration_model extends MY_Model {
 	    	$s = $this->executeQuery($input, $this->db2);
 			return null;
 	    }
-
+        
         //echo $sql;
     }
 
 	function setLastKitNo($stk) {
-        $sql = "UPDATE klink_mlm2010.dbo.mssc
-                SET lastkitno = lastkitno + 1
+        $sql = "UPDATE klink_mlm2010.dbo.mssc 
+                SET lastkitno = lastkitno + 1 
                 WHERE loccd = ?";
-        $paramQry = array($stk);
+        $paramQry = array($stk);        
         $this->db->query($qry, $paramQry);
         $hasil = $this->db->affected_rows();
         return $hasil;
     }
-
+	
 	function cek_seQ() {
         $this->db = $this->load->database($this->db2, true);
          $y1=date("y");
          $m=date("m");
-
+        
         $this->db->trans_begin();
-
+ 
         $tbl = "SEQ_MEMB"."$y1"."$m";
-
+        
         $cek = "select * from $tbl";
-
+        
         $query = $this->db->query($cek);
         if($query->num_rows < 1)
         {
             $input = "INSERT INTO $tbl (SeqVal) VALUES('a')";
             $query = $this->db->query($input);
-
+           
         }
         else
         {
             $input = "INSERT INTO $tbl (SeqVal) VALUES('a')";
             $query = $this->db->query($input);
         }
-
+        
         if ($this->db->trans_status() === FALSE)
             {
                 $this->db->trans_rollback();
@@ -144,23 +144,23 @@ class Member_registration_model extends MY_Model {
             else
             {
                 $this->db->trans_commit();
-            }
-
+            }      
+        
         return $query;
     }
-
+	
 	function get_idno()
     {
         $this->db = $this->load->database($this->db2, true);
         $y1=date("y");
          $m=date("m");
-
+        
         $this->db->trans_begin();
-
+ 
         $tbl = "SEQ_MEMB"."$y1"."$m";
-        $qry = "SELECT * FROM $tbl
+        $qry = "SELECT * FROM $tbl 
            		 WHERE SeqID = ( SELECT MAX(SeqID) FROM $tbl )";
-
+        
         //echo $qry;
         $query = $this->db->query($qry);
         if($query == null)
@@ -172,14 +172,14 @@ class Member_registration_model extends MY_Model {
             foreach($query->result() as $data)
             {
                 $ss = $data->SeqID;
-            }
+            }  
         }
          $jumlah = $query->num_rows();
-
+         
        	$next_seq = sprintf("%06s",$ss);
         $prefix = date('ym');
         $y =  strval($prefix.$next_seq);
-
+         
           if ($query->result() === FALSE)
             {
                 $this->db->trans_rollback();
@@ -187,23 +187,23 @@ class Member_registration_model extends MY_Model {
             else
             {
                 $this->db->trans_commit();
-            }
-
+            }      
+       
          return $y;
     }
 
     function insert_new_member($new_id,$usr,$idnoo, $group_stk)
     {
         $this->db = $this->load->database($this->db2, true);
-
+        
         $data['voucherno'] = $this->input->post('voucherno');
         $data['voucherkey'] = $this->input->post('voucherkey');
         $data['idsponsor'] = strtoupper($this->input->post('idsponsor'));
         $data['nmsponsor'] = strtoupper($this->input->post('nmsponsor'));
-
+        
         $data['idrekrut'] = strtoupper($this->input->post('idrekrut'));
         $data['nmrekrut'] = strtoupper($this->input->post('nmrekrut'));
-
+        
         $data['tgllahir'] = $this->input->post('tgllahir');
         $data['noapl'] = $this->input->post('noapl');
         $data['nmmember'] = strtoupper($this->input->post('nmmember'));
@@ -220,45 +220,45 @@ class Member_registration_model extends MY_Model {
         $data['email'] = $this->input->post('email');
         $data['bankid'] = $this->input->post('bankid');
         $data['banknm'] = $this->input->post('banknm');
-        $data['norek'] = $this->input->post('norek');
+        $data['norek'] = $this->input->post('norek'); 
         //$data['username'] = $this->input->post('username');
         $data['regtype'] = $this->input->post('regtype');
         $data['kdpos'] = $this->input->post('kdpos');
         $data['choosevoucher'] = $this->input->post('chosevoucher');
-
+        
         $search_for = "'";
         $replace = "`";
-
+        
         $nmsponsor = str_replace($search_for,$replace,$data['nmsponsor']);
         $nmmember = str_replace($search_for,$replace,$data['nmmember']);
         $addr1 = str_replace($search_for,$replace,$data['addr1']);
         $addr2 = str_replace($search_for,$replace,$data['addr2']);
         $addr3 = str_replace($search_for,$replace,$data['addr3']);
-
+        
         //$bonusperiod = date("m")."/"."1"."/".date("Y");
         $period = $this->get_current_period();
         $bonusperiod = date('m/d/Y', strtotime($period[0]->lastperiod));
-
+        
         //$bonusperiod = $this->showKitPrdcd();
-
+        
         //echo "bonus period ".$bonusperiod."";
-
+        
         $createdt = date('Y-m-d H:i:s');
-
+        
         $birth = explode("/", $data['tgllahir']);
         $thn = substr($birth[2], 2, 2);
         $now = date("Y-m-d");
         $password = $birth[0]."".$birth[1]."".$thn;
         $ip = $_SERVER['REMOTE_ADDR'];
-
+        
         $alamat3 = $data['addr3']." ".$data['kdpos'];
         //$postcode = '000004';
         $postcode = $data['kdpos'];
-
-
+        
+      
         $tgllahir = $birth[2]."-".$birth[1]."-".$birth[0];
-
-
+        
+        
         if($data['regtype']=="" || $data['regtype']=="0")
         {
             $test = $this->showKitPrdcd($usr);
@@ -276,7 +276,7 @@ class Member_registration_model extends MY_Model {
             $totbv = $test[0]->bv;
             $pricecode = $test[0]->pricecode;
         }
-
+        
         if($data['choosevoucher'] == '1')
         {
             $ordtypee = 'V';
@@ -287,7 +287,7 @@ class Member_registration_model extends MY_Model {
             $ordtypee = 'P';
             $kitstatus = '0';
         }
-
+        
         if($data['norek']!="")
         {
             $nmmembery = $nmmember;
@@ -296,10 +296,10 @@ class Member_registration_model extends MY_Model {
         {
             $nmmembery = "";
         }
-
-
+        
+       
         //$alamat3 = $this->input->post('addr3')." ". $this->input->post('postcode');
-                $insMsmemb = "INSERT into msmemb
+                $insMsmemb = "INSERT into msmemb 
                                 (dfno, sfno, sfno_reg, memberid,password,
                                  sponsorid, sponsorregid, fullnm,idno,birthdt,
                                  sex,citizen,addr1,addr2,addr3,
@@ -320,15 +320,15 @@ class Member_registration_model extends MY_Model {
                         0,'$ip','ID','1','".$data['bnstmt']."',
                         '".$usr."','".$usr."','".$data['voucherno']."','".$data['voucherkey']."','".$data['noapl']."',
                         '".$data['banknm']."', '".$ordtypee."','".$kitstatus."','$now','$now','".$idnoo."','$group_stk')";
-
-
+                        
+               
         //echo "QUERY MSMEMB ".$insMsmemb."";
         //echo "<br /><br />";
         $query1 = $this->db->query($insMsmemb);
-
+        
         if($data['choosevoucher'] == '1')
         {
-            $insSc_newtrh = "INSERT INTO sc_newtrh
+            $insSc_newtrh = "INSERT INTO sc_newtrh 
                             (trcd,trtype,trdt,dfno,loccd,tdp,taxrate,taxamt,discamt,shcharge,
                             othcharge,tpv,tbv,npv,nbv,ndp,whcd,branch,pricecode,
                             paytype1,paytype2,paytype3,pay1amt,pay2amt,pay3amt,totpay,createnm,
@@ -345,26 +345,26 @@ class Member_registration_model extends MY_Model {
                             '0',0,0,0,0,'0','".$createdt."','0',0,0,'1','1','0','0','0',
                             0,'0','0','0','1','ID','".$usr."','".$usr."','".$bonusperiod."',
                             0,'2','0','0','0','MEMB',4,'1','1','IDBL','IDBL','".$createdt."')";
-
+        
             //echo "QUERY NEWTRH ".$insSc_newtrh."";
             //echo "<br /><br />";
             $query2 = $this->db->query($insSc_newtrh);
-
-
-            $insStarterkit = " UPDATE starterkit
+            
+            
+            $insStarterkit = " UPDATE starterkit 
                                SET activate_dfno='".$new_id."',
                                   activate_by = '".$usr."',activate_fromip = '".$ip."',
                                   activate_dt='".$createdt."',status = '2'
                                WHERE formno = '".$data['voucherno']."' AND vchkey = '".$data['voucherkey']."'";
-
+        
             //echo "QUERY STARTERKIT ".$insStarterkit."";
             //echo "<br /><br />";
            $query3 = $this->db->query($insStarterkit);
-
+            
         }
         else
         {
-            $insSc_newtrh = "insert into sc_newtrh
+            $insSc_newtrh = "insert into sc_newtrh 
                             (trcd,trtype,trdt,dfno,loccd,tdp,taxrate,taxamt,discamt,shcharge,
                             othcharge,tpv,tbv,npv,nbv,ndp,whcd,branch,pricecode,
                             paytype1,paytype2,paytype3,pay1amt,pay2amt,pay3amt,totpay,createnm,
@@ -381,39 +381,39 @@ class Member_registration_model extends MY_Model {
                             '0',0,0,0,0,'0','".$createdt."','0',0,0,'1','1','0','0','0',
                             0,'0','0','0','1','ID','".$usr."','".$usr."','".$bonusperiod."',
                             0,'0','0','0','0','MEMBP',4,'1','0')";
-
+        
             //echo "QUERY NEWTRH ".$insSc_newtrh."";
             //echo "<br /><br />";
             $query2 = $this->db->query($insSc_newtrh);
-
-
-            $insStarterkit = "insert into starterkit
+            
+            
+            $insStarterkit = "insert into starterkit 
                         (formno,vchkey,createdt,createnm,
                         status,activate_by,activate_dfno,activate_fromip,activate_dt,
-                        actseq,updatenm,updatedt,prdcd,PT_SVRID)
+                        actseq,updatenm,updatedt,prdcd,PT_SVRID) 
                         VALUES
                         ('".$new_id."','".$new_id."','".$createdt."','".$usr."','2','".$usr."','".$new_id."',
                         '".$ip."','".$createdt."',0,'".$usr."','".$createdt."','".$regtype."','ID')";
-
+        
             //echo "QUERY STARTERKIT ".$insStarterkit."";
             //echo "<br /><br />";
             $query3 = $this->db->query($insStarterkit);
         }
-
-        $insSc_newtrd = "insert into sc_newtrd
+        
+        $insSc_newtrd = "insert into sc_newtrd 
                         (trcd,prdcd,qtyord,qtyship,qtyremain,dp,pv,bv,taxrate,sp,sb,scdisc,seqno,scdiscamt,
-                        syn2web,qty_used,qty_avail,PT_SVRID,pricecode)
+                        syn2web,qty_used,qty_avail,PT_SVRID,pricecode) 
                         VALUES
                         ('".$idnoo."', '".$regtype."',1,0,0,".$totdp.",
                         ".$totbv.",".$totbv.",0,0,0,0,0,0,'0',0,0,'ID','".$pricecode."')";
-
+        
         //echo "QUERY NEWTRD ".$insSc_newtrd."";
         //echo "<br /><br />";
-        $query4 = $this->db->query($insSc_newtrd);
+        $query4 = $this->db->query($insSc_newtrd);   
 
-
-        // return $query4;
-
+                    
+        // return $query4;           
+        
         if(!$query1)
         {
             return 0;
@@ -439,36 +439,36 @@ class Member_registration_model extends MY_Model {
                     else
                     {
                         return 1;
-                    }
-                }
-            }
-        }
+                    }   
+                }   
+            }   
+        }   
     }
-
+    
     function show_new_member($new_id)
     {
         $this->db = $this->load->database($this->db2, true);
-
+        
         $qry = "SELECT a.dfno, a.fullnm, a.password, a.sponsorid, a.createnm,
                     b.fullnm as sponsorname, a.sfno_reg, c.fullnm as rekruiternm
-                FROM klink_mlm2010.dbo.msmemb a
-                INNER join klink_mlm2010.dbo.msmemb b
+                FROM klink_mlm2010.dbo.msmemb a 
+                INNER join klink_mlm2010.dbo.msmemb b 
                     ON a.sponsorid=b.dfno COLLATE SQL_Latin1_General_CP1_CS_AS
-                INNER join klink_mlm2010.dbo.msmemb c
+                INNER join klink_mlm2010.dbo.msmemb c 
                     ON a.sfno_reg=c.dfno COLLATE SQL_Latin1_General_CP1_CS_AS
                 WHERE a.dfno = ?";
         $paramQry = array($new_id);
         $result = $this->getRecordset($qry,$paramQry,$this->db2);
         return $result;
-
+        
     }
-
+	
 	function DecrementingLastKitNo($stk)
     {
         $this->db = $this->load->database($this->db2, true);
-
-        $sql = "UPDATE klink_mlm2010.dbo.mssc
-                SET lastkitno = lastkitno - 1
+        
+        $sql = "UPDATE klink_mlm2010.dbo.mssc 
+                SET lastkitno = lastkitno - 1 
                 WHERE loccd = ?";
         $paramQry = array($stk);
         $query = $this->db->query($sql, $paramQry);
@@ -479,14 +479,14 @@ class Member_registration_model extends MY_Model {
         else
         {
             return 1;
-        }
+        } 
     }
-
+    
     function setLastKitToZero($stk)
     {
-        $this->db = $this->load->database($this->db2, true);
-        $sql = "UPDATE klink_mlm2010.dbo.mssc
-                SET lastkitno = 0, lastcodememb = lastcodememb + 1
+        $this->db = $this->load->database($this->db2, true);  
+        $sql = "UPDATE klink_mlm2010.dbo.mssc 
+                SET lastkitno = 0, lastcodememb = lastcodememb + 1 
                 WHERE loccd = ?";
         //echo $sql;
         //echo "<br /><br />";
@@ -499,14 +499,14 @@ class Member_registration_model extends MY_Model {
         else
         {
             return 1;
-        }
+        } 
     }
-
+	
 	function update_limitkit($username)
     {
         $this->db = $this->load->database($this->db2, true);
-        $upd = "UPDATE klink_mlm2010.dbo.mssc
-                SET arkit = arkit + 1
+        $upd = "UPDATE klink_mlm2010.dbo.mssc 
+                SET arkit = arkit + 1 
                 WHERE loccd = ?";
         $paramQry = array($username);
         $query = $this->db->query($upd, $paramQry);
@@ -517,44 +517,44 @@ class Member_registration_model extends MY_Model {
         else
         {
             return 1;
-        }
+        } 
     }
-
+	
 	public function get_current_period()
     {
-        $qry = "SELECT a.currperiodSCO as lastperiod
+        $qry = "SELECT a.currperiodSCO as lastperiod 
                 FROM klink_mlm2010.dbo.syspref a";
         $result = $this->getRecordset($qry,null,$this->db2);
         return $result;
     }
-
+	
 	public function showKitPrdcd($username)
     {
         $this->db = $this->load->database($this->db2, true);
-
+        
         $qry = "SELECT a.pricecode,a.loccd,a.kitprdcd,c.bv,c.dp
                 FROM klink_mlm2010.dbo.mssc a
-                INNER JOIN klink_mlm2010.dbo.pricetab c
+                INNER JOIN klink_mlm2010.dbo.pricetab c 
                     ON a.kitprdcd = c.prdcd COLLATE SQL_Latin1_General_CP1_CS_AS
                 WHERE a.loccd = ? AND a.pricecode=c.pricecode";
-        $paramQry = array($username);
+        $paramQry = array($username);        
         $result = $this->getRecordset($qry,$paramQry,$this->db2);
         return $result;
     }
-
-
+    
+    
     public function showKitPrdcdV($username,$prdcd)
     {
         $this->db = $this->load->database($this->db2, true);
-
+        
         $sql = "SELECT a.pricecode,c.prdcd,c.bv,c.dp
                 FROM klink_mlm2010.dbo.mssc a
-                INNER JOIN klink_mlm2010.dbo.pricetab c
+                INNER JOIN klink_mlm2010.dbo.pricetab c 
                   ON (a.pricecode = c.pricecode COLLATE SQL_Latin1_General_CP1_CS_AS)
                 WHERE a.loccd = ? AND c.prdcd = ?";
         $paramQry = array($username, rprdcd);
         $result = $this->getRecordset($qry,$paramQry,$this->db2);
         return $result;
     }
-
-}
+	
+}  
