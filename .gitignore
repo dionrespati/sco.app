@@ -25,3 +25,16 @@ user_guide_src/cilexer/pycilexer.egg-info/*
 *.stTheme.cache
 *.sublime-workspace
 *.sublime-project
+
+.htaccess
+.project
+Moustach.zip
+readme.rst
+unzip.php
+contributing.md
+.editorconfig
+
+
+/.vscode/
+
+
