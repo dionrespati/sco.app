@@ -34,7 +34,7 @@
 				<option selected="selected" value="sc_dfno">Kode Stockist</option>
 				<option value="batchno">No. SSR / MSR</option>
 				<option value="orderno">No. TTP</option>
-o				<option value="receiptno">No. KW</option>
+				<option value="receiptno">No. KW</option>
 				<option value="prdcd">Kode Produk</option>
 				<option value="prdnm">Nama Produk</option>
 			</select>

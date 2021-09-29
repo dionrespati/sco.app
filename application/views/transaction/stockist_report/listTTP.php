@@ -44,12 +44,13 @@ class=\"btn btn-mini btn-warning span20\">";
 			</tr>
 			<tr>
 			    <th width="5%">No</th>
-				<th width="13%">No Trx</th>
-				<th width="13%">Order No</th>
+				<th width="14%">No Trx</th>
+				<th width="14%">No TTP/Vch</th>
 				<th>Nama Member</th>
 				<th width="10%">Tgl Trx</th>
-				<th width="12%">Total DP</th>
-				<th width="5%">Total BV</th>
+				<th width="10%">Total BV</th>
+				<th width="10%">Total DP</th>
+				
 				<!--<th width="10%">Bonus Month</th>
 				<th width="10%">No Deposit Vch</th>-->
 
@@ -62,15 +63,36 @@ class=\"btn btn-mini btn-warning span20\">";
 		$total_bv = 0;
 		foreach($result as $datax) {
 
+			$prefTrcd = substr($datax->trcd, 0, 2);
+
+			$cash = $datax->cash;
+			$fontDepan = "";
+			$fontBlkg= "";
+			$err = 0;
+			if($prefTrcd == "CV" && ($datax->tdp > ($cash + $datax->vcash))) {	
+				$fontDepan = "<font color=red>";
+				$fontBlkg= "</font>";
+				$err=1;
+			} else if($prefTrcd == "PV" && ($datax->tdp > ($cash + $datax->pcash))) {
+				$fontDepan = "<font color=red>";
+				$fontBlkg= "</font>";
+				$err=1;
+			} 
+
 			$url = "sales/reportstk/trcd/".$datax->trcd;
 			echo "<tr>";
-			echo "<td align=right>$no</td>";
-			echo "<td align=center><a onclick=All.ajaxShowDetailonNextForm2('".$url."')>$datax->trcd</a></td>";
-			echo "<td align=center>$datax->orderno</td>";
-			echo "<td>$datax->dfno / $datax->fullnm</td>";
-			echo "<td align=center>$datax->etdt</td>";
-			echo "<td align=right>".number_format($datax->totpay, 0, ",",".")."</td>";
-			echo "<td align=right>".number_format($datax->tbv, 0, ",",".")."</td>";
+			echo "<td align=right>$fontDepan $no $fontBlkg</td>";
+			if($err == 1) {
+				echo "<td align=center>$fontDepan <a class='btn btn-mini btn-success' onclick=All.ajaxShowDetailonNextForm2('".$url."')>$datax->trcd $fontBlkg</a></td>";
+			} else {
+				echo "<td align=center>$fontDepan <a onclick=All.ajaxShowDetailonNextForm2('".$url."')>$datax->trcd $fontBlkg</a></td>";
+			}
+			echo "<td align=center>$fontDepan $datax->orderno $fontBlkg</td>";
+			echo "<td>$fontDepan $datax->dfno / $datax->fullnm $fontBlkg</td>";
+			echo "<td align=center>$fontDepan $datax->etdt $fontBlkg</td>";
+			echo "<td align=right>$fontDepan ".number_format($datax->tbv, 0, ",",".")." $fontBlkg</td>";
+			echo "<td align=right>$fontDepan ".number_format($datax->totpay, 0, ",",".")." $fontBlkg</td>";
+			
 			//echo "<td align=center>$datax->bnsperiod</td>";
 			//echo "<td align=center>$datax->no_deposit</td>";
 			echo "</tr>";
@@ -79,9 +101,12 @@ class=\"btn btn-mini btn-warning span20\">";
 			$no++;
 		}
 		?>
-		<tr><td colspan="5" align="center">T O T A L</td><td align="right"><?php echo number_format($total_dp, 0, ",","."); ?></td><td align="right"><?php echo number_format($total_bv, 0, ",","."); ?></td></tr>
+		<tr><td colspan="5" align="center">T O T A L</td>
+		<td align="right"><?php echo number_format($total_bv, 0, ",","."); ?></td>
+		<td align="right"><?php echo number_format($total_dp, 0, ",","."); ?></td>
+		</tr>
 		</tbody>
-</table>
+   </table>
 	<table>
 	   <tr><td>
 		 <?php echo "<input type=\"button\" value=\"&lt;&lt; Kembali\"
@@ -102,8 +127,9 @@ class=\"btn btn-mini btn-warning span20\">"; ?>
 				<th width="5%">Qty</th>
 				<th width="8%">DP</th>
 				<th width="8%">BV</th>
-				<th width="10%">Sub Total DP</th>
 				<th width="10%">Sub Total BV</th>
+				<th width="10%">Sub Total DP</th>
+				
 			</tr>
 		</thead>
 		<tbody>
@@ -121,8 +147,9 @@ class=\"btn btn-mini btn-warning span20\">"; ?>
 			echo "<td align=right>".number_format($datax->total_qty, 0, ",",".")."</td>";
 			echo "<td align=right>".number_format($datax->dp, 0, ",",".")."</td>";
 			echo "<td align=right>".number_format($datax->bv, 0, ",",".")."</td>";
-			echo "<td align=right>".number_format($datax->total_dp, 0, ",",".")."</td>";
 			echo "<td align=right>".number_format($datax->total_bv, 0, ",",".")."</td>";
+			echo "<td align=right>".number_format($datax->total_dp, 0, ",",".")."</td>";
+			
 			//echo "<td align=center>$datax->bnsperiod</td>";
 			//echo "<td align=center>$datax->no_deposit</td>";
 			echo "</tr>";
@@ -131,7 +158,10 @@ class=\"btn btn-mini btn-warning span20\">"; ?>
 			$noPrd++;
 		}
 		?>
-		<tr><td colspan="6" align="center">T O T A L</td><td align="right"><?php echo number_format($total_dpx, 0, ",","."); ?></td><td align="right"><?php echo number_format($total_bvx, 0, ",","."); ?></td></tr>
+		<tr><td colspan="6" align="center">T O T A L</td>
+		<td align="right"><?php echo number_format($total_bvx, 0, ",","."); ?></td>
+		<td align="right"><?php echo number_format($total_dpx, 0, ",","."); ?></td>
+		</tr>
 		</tbody>
 	</table>
 	</form>

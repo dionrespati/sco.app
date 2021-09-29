@@ -27,31 +27,32 @@
 			if ($ins == "2") {
 				$tot_dp = 0; 
 				$tot_bv = 0;
-                $submit_value = "Update Transaksi";
-				foreach ($detail as $prd) {
-					$qty = number_format($prd -> qtyord, 0, ",", ".");
-					$bv_display = number_format($prd -> bv, 0, ",", ".");
-					$dp_display = number_format($prd -> dp, 0, ",", ".");
-					$sub_tot_dp = number_format($prd -> TOTDP, 0, ",", ".");
-					$sub_tot_bv = number_format($prd -> TOTBV, 0, ",", ".");
-					echo "<tr>";
-					echo "<td><input onchange=\"Stockist.getProductPrice($i)\" tabindex=\"$tabindex\" type=\"text\" class=\"span12 typeahead\" id=\"prdcd$i\"  name=\"prdcd[]\" value=\"$prd->prdcd\"/></td>";
-					echo "<td><input readonly=readonly type=\"text\" class=\"span12 typeahead\" id=\"prdnm$i\"  name=\"prdnm[]\" value=\"$prd->prdnm\"/></td>";
-					$tabindex++;
-					echo "<td><input onkeyup=\"Stockist.calculateProduct($i)\" tabindex=\"$tabindex\" style=\"text-align:right;\" type=\"text\" class=\"span12 typeahead jumlah\" id=\"jum$i\"  name=\"jum[]\" value=\"$qty\"/></td>";
-					echo "<td><input readonly=readonly style=\"text-align:right;\" type=\"text\" class=\"span12 typeahead jumlah\" id=\"poin$i\"  name=\"poin[]\" value=\"$bv_display\"/></td>";
-					echo "<td><input readonly=readonly style=\"text-align:right;\" type=\"text\" class=\"span12 typeahead jumlah\" id=\"harga$i\"  name=\"harga[]\" value=\"$dp_display\"/></td>";
-					echo "<td><input readonly=readonly style=\"text-align:right;\" type=\"text\" class=\"span12 typeahead\" id=\"sub_tot_bv$i\"  name=\"sub_tot_bv[]\" value=\"$sub_tot_bv\"/></td>";
-					echo "<td><input readonly=readonly style=\"text-align:right;\" type=\"text\" class=\"span12 typeahead\" id=\"sub_tot_dp$i\"  name=\"sub_tot_dp[]\" value=\"$sub_tot_dp\"/></td>";
-					echo "<td align=center><a onclick=javascript:Stockist.delPayment(this) class='btn btn-mini btn-danger'><i class='icon-trash icon-white'></i></a></td>";
-					echo "</tr>";
-					$tabindex++;
-					//$jum_rec = $i;
-					$i++;
-					$tot_dp += $prd -> qtyord * $prd -> dp;
-					$tot_bv += $prd -> qtyord * $prd -> bv;
-				}
-
+				$submit_value = "Update Transaksi";
+				if($detail !== null) {
+					foreach ($detail as $prd) {
+						$qty = number_format($prd -> qtyord, 0, ",", ".");
+						$bv_display = number_format($prd -> bv, 0, ",", ".");
+						$dp_display = number_format($prd -> dp, 0, ",", ".");
+						$sub_tot_dp = number_format($prd -> TOTDP, 0, ",", ".");
+						$sub_tot_bv = number_format($prd -> TOTBV, 0, ",", ".");
+						echo "<tr>";
+						echo "<td><input onchange=\"Stockist.getProductPrice($i)\" tabindex=\"$tabindex\" type=\"text\" class=\"span12 typeahead\" id=\"prdcd$i\"  name=\"prdcd[]\" value=\"$prd->prdcd\"/></td>";
+						echo "<td><input readonly=readonly type=\"text\" class=\"span12 typeahead\" id=\"prdnm$i\"  name=\"prdnm[]\" value=\"$prd->prdnm\"/></td>";
+						$tabindex++;
+						echo "<td><input onkeyup=\"Stockist.calculateProduct($i)\" tabindex=\"$tabindex\" style=\"text-align:right;\" type=\"text\" class=\"span12 typeahead jumlah\" id=\"jum$i\"  name=\"jum[]\" value=\"$qty\"/></td>";
+						echo "<td><input readonly=readonly style=\"text-align:right;\" type=\"text\" class=\"span12 typeahead jumlah\" id=\"poin$i\"  name=\"poin[]\" value=\"$bv_display\"/></td>";
+						echo "<td><input readonly=readonly style=\"text-align:right;\" type=\"text\" class=\"span12 typeahead jumlah\" id=\"harga$i\"  name=\"harga[]\" value=\"$dp_display\"/></td>";
+						echo "<td><input readonly=readonly style=\"text-align:right;\" type=\"text\" class=\"span12 typeahead\" id=\"sub_tot_bv$i\"  name=\"sub_tot_bv[]\" value=\"$sub_tot_bv\"/></td>";
+						echo "<td><input readonly=readonly style=\"text-align:right;\" type=\"text\" class=\"span12 typeahead\" id=\"sub_tot_dp$i\"  name=\"sub_tot_dp[]\" value=\"$sub_tot_dp\"/></td>";
+						echo "<td align=center><a onclick=javascript:Stockist.delPayment(this) class='btn btn-mini btn-danger'><i class='icon-trash icon-white'></i></a></td>";
+						echo "</tr>";
+						$tabindex++;
+						//$jum_rec = $i;
+						$i++;
+						$tot_dp += $prd -> qtyord * $prd -> dp;
+						$tot_bv += $prd -> qtyord * $prd -> bv;
+					}
+			    }
 				$btnAddProdukIndex = $tabindex;
 			} else {
 				$submit_value = "Simpan Transaksi";
@@ -74,7 +75,7 @@
 		<tbody id="subTotPrd">
 			<tr>
 				<td>
-				<input type="button" tabindex="<?php echo $btnAddProdukIndex; ?>" id="addRow" class="span 20 btn btn-mini btn-warning" value="Tambah Produk"  onclick="Stockist.addNewRecordPrd()" />
+				<input type="button" tabindex="<?php echo $btnAddProdukIndex; ?>" id="addRow" class="span 20 btn btn-mini btn-info" value="Tambah Produk"  onclick="Stockist.addNewRecordPrd()" />
 				</td>
 				<td colspan="4" align="center"><b>T O T A L</b></td>
 				<td>

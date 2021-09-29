@@ -20,14 +20,7 @@ class Scan_voucher extends MY_Controller
 
         if ($this->username != null) {
             //cek apakah group adalah ADMIN atau BID06
-            if ($this->stockist == "BID06") {
-                $data['mainstk_read'] = "";
-                $data['idstkk_read'] = "";
-            } else {
-                $data['mainstk_read'] = "readonly=readonly";
-                $data['idstkk_read'] = "";
-            }
-
+            $data['userlogin'] = $this->stockist;
             $this->setTemplate($this->folderView.'getDepositForm', $data);
         } else {
             //echo sessionExpireMessage(false);
@@ -40,18 +33,27 @@ class Scan_voucher extends MY_Controller
     {
         if ($this->stockist != null) {
             $data = $this->input->post(null, true);
-            $username = $this->stockist;
+            if($this->stockist != "BID06") {
+                $username = $this->stockist;
+            } else {   
+                $username = $data['idstkk_vchdep'];
+            }    
             $data['list'] = $this->scan_voucher_model->show_deposit_list($username, $data['search']);
-            $this->load->view($this->folderView.'listScanDeposit', $data);
-        } else {
+            
+            if ($this->stockist === 'BID06') {
+                $this->load->view($this->folderView.'listScanDepositDev', $data);
+            } else {
+                $this->load->view($this->folderView.'listScanDeposit', $data);
+            }
         }
     }
 
+    //$route['scan/list/detail/voucher/(:any)'] = 'transaction/scan_voucher/getListScan/$1';
     public function getListScan($id= '')
     {
         // echo "isi : $id";
         if ($this->stockist != null) {
-            $data['user'] = $this->stockist;
+            //$data['user'] = $this->stockist;
             $data['form_action'] = " ";
             $data['header_form'] = "Scan/Klaim Voucher";
             $data['dateNow'] = date('d F Y');
@@ -68,7 +70,7 @@ class Scan_voucher extends MY_Controller
                 $data['LIST_DETAIL'] = $this->scan_voucher_model->getDataDetail($id); //for view data option select
 
                 $result = $this->scan_voucher_model->getDataEdit($id);
-                $data['edit']='readonly="yes"';
+                //$data['edit']='readonly="yes"';
                 if ($result[0]->status==0) {
                     $data['status']='readonly="yes"';
                     $data['nosave']='yes';
@@ -87,35 +89,59 @@ class Scan_voucher extends MY_Controller
             } else {
                 $data['id'] = '';
                 $data['submit'] = 'Add';
+                $data['user'] = $this->stockist;
             }
+        
             $data['label']='';
             $data['kategori']='
-                                        <tr>
-                                          <td class="form_title" >Jenis Voucher.&nbsp;</td>
-                                          <td >
+                                          <td>&nbsp;&nbsp;Jenis Voucher&nbsp;</td>
+                                          <td>
                                               <select id="kategori2" name="kategori2" class="form-control" '.$data['edit'].' required="required" onchange="locker()">
-                                                  <option value="KOSONG" ></option>';
+                                                  ';
             $data['kategori'].='
                                                   <option value="VC" selected>Voucher Cash</option>
                                               </select>
                                           </td>
-                                      </tr>
+                                     
                                         <input type="hidden"  class="span12 typeahead" id="kategori" name="kategori" value="VC" readonly="readonly"/>';
             $tipe = 'sub';
             $mscode = '';
+            
+            if($this->stockist !== "BID06") {
+                $data['user'] = $this->stockist;
+                $data['edit']='readonly="yes"';
+            } else {   
+                if ($id === '') {
+                    $data['user'] = $this->stockist;
+                    $data['edit']='';
+                } else {
+                    $data['user'] = $result[0]->createnm;
+                    $data['edit']='readonly="yes"';
+                }
+                
+            }    
+            $data['usergroup'] = $this->usergroup;
             $data['stk'] = $this->scan_voucher_model->get_stockist_info($tipe, $data['user']);
-
             /* echo '<pre>';
             print_r($data);
             echo '</pre>'; */
-            $this->load->view($this->folderView.'listDetailScan', $data);
+            //$this->load->view($this->folderView.'listDetailScan', $data);
+            //echo "s";
+            $this->load->view($this->folderView.'listDetailScanV2', $data);
             return $data['user'];
         } else {
             redirect('auth');
         }
     }
 
-    //$route['scan/list/detail/ttp/(:any)'] = 'transaction/scan_voucher/getTTPList/$1';
+    //$route['scan/vch/delete'] = 'transaction/scan_voucher/hapusVchCash';
+    public function hapusVchCash() {
+        $data = $this->input->post(NULL, TRUE);
+        $checkVch = $this->scan_voucher_model->hapusVchCash($data['voucher_key'], $data['id_member'], $data['id_deposit']);
+        echo json_encode($checkVch);    
+    }
+
+    //$route['scan/list/detail/ttp/(:any)'] = 'transaction/scan_voucher/getTTPList/$1';;
     public function getTTPList($deposit)
     {
         $data['user'] = $this->stockist;
@@ -140,7 +166,31 @@ class Scan_voucher extends MY_Controller
         $scan = $this->input->post('scan');
         $kaet = $this->input->post('kat');
         $idmemb = $this->input->post('idmemb');
-        $nilai = $this->scan_voucher_model->getVch($scan, $idmemb);
+
+        $threeDigit = substr($scan, 0, 3);
+        $this->load->model('transaction/Sales_stockist_model', 'm_sales_stk');
+        $check = $this->m_sales_stk->getTipePromoVch($threeDigit);
+        if($check['response'] === "true") {
+            $arrsx = $check['arrayData'][0];
+            $resErr = jsonFalseResponse($arrsx->keterangan);
+            echo json_encode($resErr);
+            return;
+        }
+
+        //$checkVch = $this->scan_voucher_model->checkValidVchCashSatuan($scan, $idmemb);
+
+        $checkVch = $this->scan_voucher_model->checkValidCashVoucher($idmemb, $scan, "C");
+        if($checkVch['response'] == "true" && $checkVch['arrayData'][0]->VoucherAmt <= 0) {
+            $arr = array(
+                "response" => "false",
+                "message" => "Voucher bernilai 0 tidak dapat diinput di scan voucher deposit"
+            );
+            echo json_encode($arr);
+            return;
+        }
+        echo json_encode($checkVch);
+        
+        /* $nilai = $this->scan_voucher_model->getVch($scan, $idmemb);
         $kategori= strtolower($scan[0]);
         if ($kaet=='KOSONG') {
             $arr = array("response" => "kosong", "arraydata" => "g nemu", "scan"=>$scan);
@@ -174,8 +224,8 @@ class Scan_voucher extends MY_Controller
                     }
                 }
             }
-        }
-        echo json_encode($arr);
+        } */
+        //echo json_encode($arr);
     }
 
     public function simpanScan()
@@ -203,64 +253,81 @@ class Scan_voucher extends MY_Controller
         $user = $this->session->userdata('username');
         $trxno=$this->input->post('trxno');
         $masalah=0;
+        
+        if (!empty($scan)) {          
+            /* $checkVch = $this->scan_voucher_model->checkValidVchCash($scan, $memvc);
+            
+            //print_r($checkVch);
+            if($checkVch['response'] == "false") {
+                echo json_encode($checkVch);
+                return;
+            }   */     
+            
+            for($ix = 0; $ix < count($scan); $ix++) {
+                $arr = $this->scan_voucher_model->checkValidCashVoucher($memvc[$ix], $scan[$ix], "C");
+                if($arr['response'] == "false") {
+                    echo json_encode($arr);
+                    return;
+                }
+            }    
+        }
+       
+         if ($submit=='') {
+            $POX=$this->my_counter->getCounter2($kategori, $this->uuid->v4());
+            //echo $POX;
+            $X=$this->uuid->v4();
+
+            $arr_data = array(
+                'id'=>$X,
+                'no_trx'=>$POX,
+                'loccd' => $substockistcode,
+                'total_deposit' => $total_all,
+                'total_keluar' => 0,
+                'status' => 1,
+                'is_active' => 1,
+                'createdt' => date("Y-m-d H:i:s") ,
+                'kategori' =>$kategori,
+                'createnm' => $substockistcode
+            );
+            $this->scan_voucher_model->addHeader($arr_data);
+        } else {
+            $X=$submit;
+            $POX=$trxno;
+            $arr_data = array(
+                'total_deposit' => $total_all,
+                'updatedt' => date("Y-m-d H:i:s") ,
+                'updatenm' => $substockistcode
+            );
+           /*  echo "<pre>";
+            print_r($arr_data);
+            echo "</pre>"; */
+            $this->scan_voucher_model->updateHeader($submit, $arr_data);
+        } 
         if (!empty($scan)) {
             foreach ($scan as $k=>$v) {
-                if ($this->scan_voucher_model->CekVoucherTrue($scan[$k]) ==false) {
-                    $masalah++;
-                }
-            }
-        }
-        if ($masalah==0) {
-            if ($submit=='') {
-                $POX=$this->my_counter->getCounter2($kategori, $this->uuid->v4());
-                //echo $POX;
-                $X=$this->uuid->v4();
-
-                $arr_data = array(
-                    'id'=>$X,
+                $arr_detail = array(
+                    'id'=>$this->uuid->v4(),
+                    'id_header'=>$X,
                     'no_trx'=>$POX,
-                    'loccd' => $substockistcode,
-                    'total_deposit' => $total_all,
-                    'total_keluar' => 0,
+                    'voucher_scan' => $scan[$k],
+                    'nominal' => $amt[$k],
                     'status' => 1,
                     'is_active' => 1,
-                    'createdt' => date("Y-m-d H:i:s") ,
-                    'kategori' =>$kategori,
+                    'kategori'=>$jv[$k],
+                    'dfno'=>$memvc[$k],
+                    'createdt' => date("Y-m-d") ,
                     'createnm' => $substockistcode
                 );
-                $this->scan_voucher_model->addHeader($arr_data);
-            } else {
-                $X=$submit;
-                $POX=$trxno;
-                $arr_data = array(
-                    'total_deposit' => $total_all,
-                    'updatedt' => date("Y-m-d H:i:s") ,
-                    'updatenm' => $substockistcode
-                );
-                $this->scan_voucher_model->updateHeader($submit, $arr_data);
+                $this->scan_voucher_model->addDetail($arr_detail, $scan[$k]);
+                /* echo "<pre>";
+                print_r($arr_detail);
+                echo "</pre>"; */
             }
-            if (!empty($scan)) {
-                foreach ($scan as $k=>$v) {
-                    $arr_detail = array(
-                        'id'=>$this->uuid->v4(),
-                        'id_header'=>$X,
-                        'no_trx'=>$POX,
-                        'voucher_scan' => $scan[$k],
-                        'nominal' => $amt[$k],
-                        'status' => 1,
-                        'is_active' => 1,
-                        'kategori'=>$jv[$k],
-                        'dfno'=>$memvc[$k],
-                        'createdt' => date("Y-m-d") ,
-                        'createnm' => $substockistcode
-                    );
-                    $this->scan_voucher_model->addDetail($arr_detail, $scan[$k]);
-                }
-            }
-            echo json_encode($POX) ;
-        } else {
-            echo json_encode(false) ;
         }
+        //$arrRes = array()
+        $resp = jsonTrueResponse(null, "Voucher berhasil ditambahkan ke $POX");
+        echo json_encode($resp) ;
+        
     }
 
     //$route['scan/ttp/view/(:any)/(:any)/(:any)'] = 'transaction/scan_voucher/viewTTP/$1/$2/$3';
@@ -375,7 +442,13 @@ class Scan_voucher extends MY_Controller
 			$this->load->model('transaction/Sales_stockist_model', 'm_sales_stk');
 			$data['form_action'] = "scan/ttp/save";
 			$data['currentperiod']= $this->m_sales_stk->getCurrentPeriod();
-			$data['ins'] = "1";
+            $data['ins'] = "1";
+            $data['sc_dfno'] = $this->stockist;
+            $data['sc_dfnonm'] = $this->stockistnm;
+            $data['sc_co'] = $this->stockist;
+            $data['sc_conm'] = $this->stockistnm;
+            $data['loccd'] = $this->stockist;
+            $data['loccdnm'] = $this->stockistnm;
 			$data['stockist'] = $this->stockist;
 			$data['stockistnm'] = $this->stockistnm	;
 			$data['pricecode'] = $this->pricecode;
@@ -387,8 +460,8 @@ class Scan_voucher extends MY_Controller
             $data['prd_voucher'] = 0;
             $data['head_form'] = "Input TTP Deposit Voucher";
 
-            $data['sc_dfno_readonly'] = "readonly=readonly";
-			$data['sc_co_readonly'] = "readonly=readonly";
+            $data['sc_dfno_readonly'] = "";
+			$data['sc_co_readonly'] = "";
 
 			if($data['ins'] == "1") {
 				$data['submit_value'] = "Simpan Transaksi";
@@ -530,9 +603,12 @@ class Scan_voucher extends MY_Controller
 				if($ifMemberExist == null) {
 					echo json_encode(jsonFalseResponse("ID Member tidak valid.."));
 					return;
-				}
-
-				//check valid product
+                }
+                
+                //cek apakah ada promo new member baru
+                $products = $this->m_sales_stk->getListPrdPromoNewMember();
+                //check valid product
+                //$isprdVNM = 0;
 				$sub_tot_bv = 0;
 				$sub_tot_dp = 0;
 				$total_dp = 0;
@@ -540,7 +616,12 @@ class Scan_voucher extends MY_Controller
 				$jumPrd = count($data['prdcd']);
 				for($i=0; $i<$jumPrd; $i++) {
 					$prdcd = $data['prdcd'][$i];
-					$qty = $data['jum'][$i];
+                    $qty = $data['jum'][$i];
+                    
+                    if (in_array($data['prdcd'][$i], $products, TRUE)) {
+                        echo json_encode(jsonFalseResponse("Pembelian produk promo new member tidak bisa diinput disini.."));
+                        return;          
+                    }
 
 					$prdArr = $this->m_sales_stk->showProductPrice($prdcd, $data['pricecode']);
 					if($prdArr['response'] == "false") {
@@ -560,6 +641,8 @@ class Scan_voucher extends MY_Controller
 
 				$data['total_all_bv'] = (float) $total_bv;
                 $data['total_all_dp'] = (float) $total_dp;
+
+                
 
                 //check apakah pembayaran kosong
 				if(!isset($data['payChooseType'])) {
@@ -592,10 +675,10 @@ class Scan_voucher extends MY_Controller
 
                     $checkVchDeposit = $this->scan_voucher_model->getsisaBARU($data['id_deposit']);
                     $sisa_saldo = $checkVchDeposit[0]->saldo - $checkVchDeposit[0]->payamt;
-                    if($sisa_saldo <= 0) {
+                    /*if($sisa_saldo <= 0) {
                         echo json_encode(jsonFalseResponse("Sisa saldo deposit voucher adalah : $sisa_saldo.."));
 					    return;
-                    }
+                    } */
 
                     if($sisa_saldo > $data['total_all_dp']) {
                         $data['payChooseType'][0] = "08";
@@ -654,7 +737,13 @@ class Scan_voucher extends MY_Controller
 
     //$route['scan/deposit/recalculate/(:any)'] = 'transaction/scan_voucher/recalculateDeposit/$1';
     public function recalculateDeposit($id) {
-        $res = $this->scan_voucher_model->recalculateDeposit($id);
+        $res = $this->scan_voucher_model->koreksiDepositVoucher($id);
         echo json_encode($res);
     }
+
+    //$route['scan/deposit/tescalculate/(:any)'] = 'transaction/scan_voucher/tescalculate/$1';
+    public function tescalculate($id) {
+        $res = $this->scan_voucher_model->koreksiDepositVoucher($id);
+    }    
 }
+

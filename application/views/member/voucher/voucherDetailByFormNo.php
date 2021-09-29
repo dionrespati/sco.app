@@ -14,28 +14,28 @@
 
        <tr>
             <td width="25%">Voucher No</td>
-            <td><?php echo $result[0]->formno; ?></td>
+            <td><?php cetak($result[0]->formno); ?></td>
        </tr>
        <tr>
             <td>Voucher Key</td>
-            <td><?php echo $result[0]->vchkey; ?></td>
+            <td><?php cetak($result[0]->vchkey); ?></td>
        </tr>
        <tr>
             <td>Product</td>
-            <td><?php echo $result[0]->prdcd." - ".$result[0]->prdnm; ?></td>
+            <td><?php cetak($result[0]->prdcd." - ".$result[0]->prdnm); ?></td>
        </tr>
        <tr>
             <td>MM No</td>
-            <td><?php echo $result[0]->sold_trcd; ?></td>
+            <td><?php cetak($result[0]->sold_trcd); ?></td>
        </tr>
 
        <tr>
             <td>Activate ID</td>
-            <td><?php echo $result[0]->activate_dfno.  " / ".$result[0]->nama_member_aktif; ?></td>
+            <td><?php cetak($result[0]->activate_dfno." / ".$result[0]->nama_member_aktif); ?></td>
        </tr>
        <tr>
             <td>Activate By</td>
-            <td><?php echo $result[0]->activate_by; ?></td>
+            <td><?php cetak($result[0]->activate_by); ?></td>
        </tr>
        <tr>
             <td>Status</td>

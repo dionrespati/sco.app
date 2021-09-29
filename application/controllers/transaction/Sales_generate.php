@@ -30,6 +30,7 @@ class Sales_generate extends MY_Controller
                 $data['idstkk_read'] = "";
             }
 
+            $data['stk_login'] = $this->stockist;
             $data['curr_period'] = $this->m_sales_generate->getCurrentPeriod();
             $this->setTemplate($this->folderView.'generateScoTrxForm', $data);
         } else {
@@ -43,6 +44,9 @@ class Sales_generate extends MY_Controller
     {
         if ($this->username != null) {
             $x = $this->input->post(null, true);
+           /*  echo "<pre>";
+            print_r($x);
+            echo "</pre>"; */
             /**
              * @Author: Ricky
               * @Date: 2019-08-16 09:56:38
@@ -72,8 +76,22 @@ class Sales_generate extends MY_Controller
             $x['tipe'] = $this->input->post('searchs');
             $x['tipess'] = 'ID Stockist';
             $x['idstk'] =  $this->m_sales_generate->getGenerateByStk($x);
-            $x['stockist'] = $this->stockist;
-            $this->load->view($this->folderView.'listGenSalesScoStk', $x);
+            if($this->stockist == "BID06") {
+                $x['stockist'] = $x['mainstk'];
+            } else {
+                $x['stockist'] = $this->stockist;
+            }
+
+            if($this->stockist !== "BID06") {
+                $x['idstkk'] = $this->stockist;
+                $this->load->view($this->folderView.'listGenSalesScoStk', $x);
+            } else {
+               /*  echo "<pre>";
+                print_r($x['idstk']);
+                echo "</pre>"; */
+                $x['idstkk'] = $this->stockist;
+                $this->load->view($this->folderView.'listGenSalesScoStk', $x);
+            }
         } else {
             echo sessionExpireMessage();
         }
@@ -92,8 +110,17 @@ class Sales_generate extends MY_Controller
     function previewGenerate(){
         if($this->username != NULL) {
             $data = $this->input->post(NULL, TRUE);
+            /* echo "<pre>";
+            print_r($data);
+            echo "</pre>"; */
             $x['tipeSales'] = $this->input->post('typee');
-            $username = $this->session->userdata('username');
+            if ($this->stockist == "BID06") {
+                $username = $this->session->userdata('username');
+                $x['idstkk'] = $this->input->post('scDfno');
+            } else {
+                $username = $this->session->userdata('username');
+                $x['idstkk'] = $this->input->post('idstkk');
+            }
             $x['cek'] = $this->input->post('cek');
             $x['bnsperiod'] = date('Y-m-d',strtotime($this->input->post('bnsperiod')));
             $bnsperiod = $this->input->post('bnsperiod');
@@ -104,7 +131,9 @@ class Sales_generate extends MY_Controller
             $x['tipe'] = $this->input->post('ID_KW');
             $x['dari'] = $this->input->post('from');
             $x['ke'] = $this->input->post('to');
-            $x['idstkk'] = $this->input->post('idstkk');
+
+
+
 
             $x['groupitem']= $this->m_sales_generate->getDetItem($x['dari'],$x['ke'],$x['idstkk'],$bnsperiod,$x['cek']);
 
@@ -122,8 +151,16 @@ class Sales_generate extends MY_Controller
     //$route['sales/generate/sales'] = 'transaction/sales_generate/generateSales';
     public function generateSales()
     {
+       /*  echo "<pre>";
+        print_r($this->input->post(NULL, TRUE));
+        echo "</pre>"; */
         //$username = $this->session->userdata('username');
-        $username = $this->stockist;
+        if ($this->stockist == "BID06") {
+            $username = $this->input->post('scDfno');
+        } else {
+            $username = $this->stockist;
+        }
+
         $createdt = date('Y-m-d');
         $x['head'] = 'SSR';
         $x['trcd'] = $this->input->post('trcd');
@@ -177,22 +214,71 @@ class Sales_generate extends MY_Controller
             }
 
             if ($x['tipechmlm'][$k]=="Voucher Cash (Deposit)") {
-                $lastVCD = $this->m_sales_generate->get_SSRno('stock', $x['bonusperiod'], $username, $x['scdfnomlm'][$k]);
-                $VCD++;
-                $generates=0;
-                foreach ($x['trcd'] as $d => $f) {
-                    if ($x['tipech'][$d]=="Voucher Cash (Deposit)") {
-                        foreach ($lastVCD as $row) {
+
+
+                //if($username == "BID06") {
+                    $lastVCD = $this->m_sales_generate->get_SSRno('stock', $x['bonusperiod'], $username, $x['scdfnomlm'][$k]);
+                    $VCD++;
+                    $generates=0;
+
+                    $listTrcd = "";
+                    foreach ($x['trcd'] as $d => $f) {
+                        if ($x['tipech'][$d]=="Voucher Cash (Deposit)") {
+                            foreach ($lastVCD as $row) {
+                                $new_id = $row->hasil;
+                                $x['new_id'] = $row->hasil;
+                                $listTrcd .= "'".$x['trcd'][$d]."', ";
+                                $arrayy .= "'".$new_id."', ";
+                            }
+                            $sdss=$d;
+                        }
+                    }
+
+                    $listTrcd = substr($listTrcd, 0, -2);
+                    $generates = $this->m_sales_generate->generate_sales_saveDepositV2($new_id, $listTrcd, $x['bonusperiod'], $username);
+
+                    if ($generates > 0) {
+                        $this->m_sales_generate->incoming_paymentH($new_id, $username, $x['scCOxd'][$sdss], $x['scCO'][$sdss]);
+                    }
+                /* } else {
+                    $lastVCD = $this->m_sales_generate->get_SSRno('stock', $x['bonusperiod'], $username, $x['scdfnomlm'][$k]);
+                    $VCD++;
+                    $generates=0;
+
+                    foreach ($x['trcd'] as $d => $f) {
+                        if ($x['tipech'][$d]=="Voucher Cash (Deposit)") {
+                            foreach ($lastVCD as $row) {
+                                $new_id = $row->hasil;
+                                $x['new_id'] = $row->hasil;
+                                $generates = $this->m_sales_generate->generate_sales_save2($new_id, $x['trcd'][$d], $x['bonusperiod'], $username);
+                                $arrayy .= "'".$new_id."', ";
+                            }
+                            $sdss=$d;
+                        }
+                    }
+                    if ($generates > 0) {
+                        $this->m_sales_generate->incoming_paymentH($new_id, $username, $x['scCOxd'][$sdss], $x['scCO'][$sdss]);
+                    }
+                }     */
+
+            }
+
+            if ($x['tipechmlm'][$k] == "Voucher Cash") {
+               // echo "masuk sini...";
+                $lastSSR = $this->m_sales_generate->get_SSRno('stock', $x['bonusperiod'], $username, $x['scdfnomlm'][$k]);
+                foreach ($x['trcd'] as $y => $z) {
+                    if ($x['tipech'][$y]=="Voucher Cash") {
+                        foreach ($lastSSR as $row) {
                             $new_id = $row->hasil;
                             $x['new_id'] = $row->hasil;
-                            $generates =($this->m_sales_generate->generate_sales_save2($new_id, $x['trcd'][$d], $x['bonusperiod'], $username));
+                            $generate = $this->m_sales_generate->updateSSR($new_id, $x['trcd'][$y], $x['bonusperiod'], $username);
                             $arrayy .= "'".$new_id."', ";
                         }
-                        $sdss=$d;
+                        $sdss=$y;
                     }
                 }
-                if ($generates > 0) {
-                    $this->m_sales_generate->incoming_paymentH($new_id, $username, $x['scCOxd'][$sdss], $x['scCO'][$sdss]);
+                if ($generate > 0) {
+                    $this->m_sales_generate->incomingPaymentVchCash($new_id, $username, $x['scCOxd'][$sdss], $x['scCO'][$sdss]);
                 }
             }
 
@@ -211,9 +297,7 @@ class Sales_generate extends MY_Controller
                         $sdss=$d;
                     }
                 }
-                /* if ($generates > 0) {
-                    $this->m_sales_generate->incoming_paymentV($new_id, $username, $x['scCOxd'][$sdss], $x['scCO'][$sdss]);
-                } */
+
             }
 
 
@@ -231,9 +315,7 @@ class Sales_generate extends MY_Controller
                         $sdss=$g;
                     }
                 }
-                /* if ($generatemsr > 0) {
-                    $this->m_sales_generate->incoming_paymentH($new_id, $username, $x['scCOxd'][$sdss], $x['scCO'][$sdss]);
-                }  */
+
             }
             if ($x['tipechmlm'][$k]=="SSSR") {
                 $lastsub = $this->m_sales_generate->get_SSRno('sub', $x['bonusperiod'], $username, $x['scdfnomlm'][$k]);
@@ -251,9 +333,7 @@ class Sales_generate extends MY_Controller
                     }
                 }
 
-                /* if ($generate > 0) {
-                    $this->m_sales_generate->incoming_paymentH($new_id, $username, $x['scCOxd'][$sdss], $x['scCO'][$sdss]);
-                } */
+
             }
             if ($x['tipechmlm'][$k]=="Voucher Product (Deposit)") {
                 $lastVCD = $this->m_sales_generate->get_SSRno('voucher', $x['bonusperiod'], $username, $x['scdfnomlm'][$k]);
@@ -308,6 +388,8 @@ class Sales_generate extends MY_Controller
         $this->load->view('transaction/generate/previewListTtp', $data);
 
     }
+
+    //$route['sales/search/list/checkSelisih'] = 'transaction/sales_generate/checkSelisih';
     public function checkSelisih() {
         $explode=explode("|", $this->input->post('ID_KW'));
         $tipe = $explode[0];
@@ -315,18 +397,26 @@ class Sales_generate extends MY_Controller
         $sc_co = $explode[2];
         $dari = $this->input->post('from');
         $ke = $this->input->post('to');
-        $idstkk = $this->input->post('mainstk');
+        $idstkk = $explode[3];
         $bnsperiod = $this->input->post('bnsperiod');
 
 
         $data['tipe'] = $tipe;
-        $data['result'] = $this->m_sales_generate->getDetailTrxCheckTTP($idstkk, $bnsperiod, $tipe, $sc_co, $sc_dfno);
-        /* backToMainForm();
-        echo "<pre>";
-        print_r($data['result']);
-        echo "<pre>";
-        backToMainForm(); */
+        /* if($idstkk !== "BID06") {
+            $data['result'] = $this->m_sales_generate->getDetailTrxCheckTTP($idstkk, $bnsperiod, $tipe, $sc_co, $sc_dfno);
+        } else {
+            $data['result'] = $this->m_sales_generate->getDetailTrxCheckTTPByCreateDt($idstkk, $bnsperiod, $tipe, $sc_co, $sc_dfno, $dari, $ke);
+        } */
 
+        $data['result'] = $this->m_sales_generate->getDetailTrxCheckTTPByCreateDt($idstkk, $bnsperiod, $tipe, $sc_co, $sc_dfno, $dari, $ke);
+        $data['stockist'] = $this->stockist;
+
+        $data['groupitem'] = null;
+        //if ($this->stockist == "BID06") {
+            //$data['prd'] = $this->m_sales_generate->summaryProductBySSR($idstkk, $bnsperiod, $tipe, $sc_co, $sc_dfno, $dari, $ke);
+        $data['groupitem'] = $this->m_sales_generate->getDetItemV2($dari,$ke,$sc_dfno,$idstkk,$bnsperiod,$tipe);
+        //}
+        $data['rekapProduk'] = $this->m_sales_generate->getRekapProduk($dari,$ke,$sc_dfno,$idstkk,$bnsperiod,$tipe);
         $this->load->view('transaction/generate/previewListTtpV2', $data);
     }
 
@@ -344,5 +434,28 @@ class Sales_generate extends MY_Controller
 			$data['result'] = $this->m_ssr->detailTrxByTrcd($field, $value);
 			$this->load->view('transaction/stockist_report/detailTrx', $data);
 		}
-	}
+    }
+
+    // $route['sales/generate/update-bonus-period'] = 'transaction/sales_generate/updateBonusPeriod';
+    public function updateBonusPeriod()
+    {
+      $data = $this->input->post(null, true);
+      $data['bonusperiod'] = substr($data['bonusperiod'], 0, 7);
+      $data['bonusperiod'] = $data['bonusperiod'].'-01';
+
+      if (empty($data['cek'])) {
+          echo json_encode(jsonFalseResponse('Silakan pilih nomor transaksi'));
+          return;
+      }
+
+      $trcd = $str = "'" . implode("','", $data['cek']) . "'";
+
+      $update = $this->m_sales_generate->updateBonusPeriod($trcd, $data['bonusperiod']);
+
+      if ($update) {
+        echo json_encode(jsonTrueResponse($update, 'Data berhasil diubah'));
+      } else {
+        echo json_encode(jsonFalseResponse('Gagal update bonus period'));
+      }
+    }
 }

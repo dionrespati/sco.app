@@ -74,6 +74,19 @@ class Userconfig_model extends MY_Model {
 		return $query;
 	}
 
+	function updatePreviousBnsmonth($username, $prevbns) {
+		$arrResponse = jsonFalseResponse("Setting Previous Bonus Period gagal..");
+		$arr = array(
+            'prev_period_bnsmonth' => $prevbns
+        );
+		$this->db->where('username', $username);
+        $res = $this->db->update('klink_mlm2010.dbo.ecomm_user', $arr);
+        if($res > 0) {
+            $arrResponse = jsonTrueResponse(null, "Bonus Period periode sebelum nya untuk $username sudah diaktifkan..");
+		}
+		return $arrResponse;
+	}
+
 	/*----------------
 	 * USER
 	 * --------------*/
@@ -84,7 +97,7 @@ class Userconfig_model extends MY_Model {
 				  a.password,
 				  a.departmentid,
 				  a.branchid,
-				  c.lastkitno, c.memberprefix,
+				  c.lastkitno, c.memberprefix, a.prev_period_bnsmonth,
 				  CONVERT(VARCHAR(30),a.createdt, 103) AS createdt
 				FROM
 				   ecomm_user a
@@ -105,6 +118,7 @@ class Userconfig_model extends MY_Model {
 				  dbo.ecomm_user.username,
 				  dbo.ecomm_user.departmentid,
 				  dbo.ecomm_user.branchid,
+				  dbo.ecomm_user.password,
 				  CONVERT(VARCHAR(30),dbo.ecomm_user.createdt, 103) AS createdt
 				FROM
 				  dbo.ecomm_user
@@ -134,7 +148,7 @@ class Userconfig_model extends MY_Model {
              'password' => $data['password'],
              'status' => $data['status'],
              'branchid' => $data['branchid'],
-             'departmentid' => $data['deparmentid'],
+             'departmentid' => $data['departmentid'],
              'createnm' => $this->username,
              'groupid' => $data['groupid']
          );
@@ -436,7 +450,7 @@ class Userconfig_model extends MY_Model {
 		$res = 0;
 		for($i = 0; $i < $jum; $i++) {
            if($data['menuid'][$i] != "") {
-                if(isset($data['add'][$i])) {
+                /* if(isset($data['add'][$i])) {
                 	$add = "1";
                 } else {
                 	$add = "0";
@@ -455,15 +469,16 @@ class Userconfig_model extends MY_Model {
                 	$delete = "1";
                 } else {
                 	$delete = "0";
-                }
+                } */
                 $qry2 = "INSERT INTO ecomm_scoauth (groupid, menuid, toggle_add, toggle_edit, toggle_delete, toggle_view, createnm)
-                       VALUES ('$data[grpid]', '".$data['menuid'][$i]."', '$add', '$edit', '$view', '$delete', '".$this->username."')";
+                       VALUES ('$data[grpid]', '".$data['menuid'][$i]."', '1', '1', '1', '1', '".$this->username."')";
                 $arr = array(
                     'groupid' => $data['grpid'],
                     'menuid' => $data['menuid'][$i],
-                    'toggle_add' => $add,
-                    'toggle_edit' => $edit,
-                    'toggle_delete' => $delete,
+                    'toggle_add' => "1",
+                    'toggle_edit' => "1",
+					'toggle_delete' => "1",
+					'toggle_view' => "1",
                     'createnm' => $this->username
                 );
                 $query = $this->db->insert('klink_mlm2010.dbo.ecomm_scoauth', $arr);
@@ -486,5 +501,20 @@ class Userconfig_model extends MY_Model {
 		}
 
 
+	 }
+
+	 function updatePassword($data) {
+		$arr = array(
+            'password' => $data['new_password'],
+        );
+        $this->db->where('username', $data['username']);
+        $res = $this->db->update('klink_mlm2010.dbo.ecomm_user', $arr);
+
+		$return = jsonFalseResponse("Password $data[username] gagal diubah..");
+		if($res > 0) {
+			$return = jsonTrueResponse(null, "Password $data[username] berhasil diubah..");
+		}
+
+		return $return;
 	 }
 }

@@ -46,10 +46,10 @@
 
 
 
-            <input type="hidden" id="from" name="from" value="<?php echo $from ?>">
-            <input type="hidden" id="to" name="to" value="<?php echo $to ?>">
+            <!--<input type="hidden" id="from" name="from" value="<?php echo $from ?>">
+            <input type="hidden" id="to" name="to" value="<?php echo $to ?>">-->
             <input type="hidden" id="idstkk" name="idstkk" value="<?php echo $idstkk ?>">
-            <input type="hidden" id="ke" name="ke" value="<?php echo $to ?>">
+            <!--<input type="hidden" id="ke" name="ke" value="<?php echo $to ?>">-->
 <!--            <input type="hidden" id="bnsperiod" name="bnsperiod" value="--><?php //echo $bnsperiod ?><!--">-->
             <table style="width: 100%;" class="table table-striped table-bordered bootstrap-datatable datatable" align="center">
                 <thead>
@@ -60,10 +60,10 @@
                         <th>Stockist</th>
                         <!--<th>SC CO</th>-->
                         <th>Status</th>
-                        <th width="10%">Total Penggunaan Cash</th>
-                        <th width="10%">Total Penggunaan Voucher</th>
+                        <th width="9%">Total Penggunaan Cash</th>
+                        <th width="9%">Total Penggunaan Voucher</th>
 
-                        <th width="10%">Total Pay</th>
+                        <th width="9%">Total Pay</th>
                         <th width="5%">Total BV</th>
                         <th>No IP</th>
 
@@ -75,21 +75,30 @@
                 $totalDp = 0;$totalbv=0; $i=1;$kas=0; $vkas=0;
 
                 $nox = 1;
+                $arr = array();
+                $index = 0;
+                $arr[$index]['stk'] = $idstk[0]->sc_dfno;
+                $arr[$index]['name'] = $idstk[0]->fullnm_DFNO;
+                $arr[$index]['tot_dp'] = 0;
+                $arr[$index]['tot_bv'] = 0;
+                $arr[$index]['total_ssr'] = 0;
                 foreach($idstk as $row)
                 {
-                    /* if(isset($row->batchdt) ){
-                        $ro=date("d-m-Y",strtotime($row->batchdt));
-                    }else{
-                        $ro="-";
-
-                    } */
+                    if($arr[$index]['stk'] == $row->sc_dfno) {         
+                        $arr[$index]['tot_dp'] += $row->TOTDP;
+                        $arr[$index]['tot_bv'] += $row->TOTBV;
+                        $arr[$index]['total_ssr'] += 1;
+                        //echo "isi : ".$arr[$index]['stk']. " - ";
+                    } else {
+                        $index++;
+                        $arr[$index]['stk'] = $row->sc_dfno;
+                        $arr[$index]['name'] = $row->fullnm_DFNO;
+                        $arr[$index]['tot_dp'] = $row->TOTDP;
+                        $arr[$index]['tot_bv'] = $row->TOTBV;    
+                        $arr[$index]['total_ssr'] = 1;              
+                    }
+                    
                     $ro = $row->batchdt;
-
-//                    $trxdate = date('d/m/Y', strtotime($row->etdt));
-//                    <input type=\"button\" class=\"btn btn-warning\" onClick=\"Sales_sco.getdetailCahyono($i);\" name=\"submit\" value=\"Detail\"/>
-//                    $bnsperiod = date('d/m/Y', strtotime($row->bnsperiod));
-//<td>$row->sc_co - $row->fullnm_CO</td>               
-                    //$det_url = base_url()."sales/reportstk/batchno/".$row->batchno;
                     echo "
                     <tr>
                        <td align=\"right\">".$nox."</td>
@@ -100,22 +109,22 @@
                        <td align=\"center\">".$ro."</td>
 
 
-                       <td>$row->sc_dfno - $row->fullnm_DFNO</td>
+                       <td>$row->sc_dfno - ".substrwords($row->fullnm_DFNO, 20)."</td>
                        
       <td align=\"center\">$row->x_status
                        </td>
                         ";
                     if($row->cash==0 && $row->vcash==0){
-                        echo "<td><div align=right>".number_format($row->TOTDP,0,"",",")."</div></td>";
+                        echo "<td><div align=right>".number_format($row->TOTDP,0,",",".")."</div></td>";
                     }else
                     {
-                        echo "<td><div align=right>".number_format($row->cash,0,"",",")."</div></td>";
+                        echo "<td><div align=right>".number_format($row->cash,0,",",".")."</div></td>";
                     }
                     echo "
-                       <td><div align=right>".number_format($row->vcash,0,"",",")."</div></td>
+                       <td><div align=right>".number_format($row->vcash,0,",",".")."</div></td>
 
-                       <td><div align=right>".number_format($row->TOTDP,0,"",",")."</div></td>
-                       <td><div align=right>".number_format($row->TOTBV,0,"",",")."</div></td>
+                       <td><div align=right>".number_format($row->TOTDP,0,",",".")."</div></td>
+                       <td><div align=right>".number_format($row->TOTBV,0,",",".")."</div></td>
                        <td><div align=center>".($row->trcd2)."</div></td>
 
 
@@ -129,45 +138,61 @@
                 }
                 ?>
             </table>
-            <table width="100%">    
+            <!-- <table width="100%" class="table table-striped">    
                 <tr>
                     <td style="text-align: right;">Total</td>
-                    <!--        <td style="text-align: right;">--><?php //echo number_format($kas,0,"",",");?><!--</td>-->
-                    <!--        <td style="text-align: right;">--><?php //echo number_format($vkas,0,"",",");?><!--</td>-->
-                    <td style="text-align: right;"><?php echo number_format($totalDp,0,"",",");?></td>
-                    <td style="text-align: right;"><?php echo number_format($totalbv,0,"",",");?></td>
+                    <td style="text-align: right;"><?php echo number_format($totalDp,0,",",".");?></td>
+                    <td style="text-align: right;"><?php echo number_format($totalbv,0,",",".");?></td>
                     <td>
                     </td>
                 </tr>
                     
                 </tbody>
-            </table>
-            <table>
-            <tr>
-                        <td>
-                            <form role="form" id="demo-form2" method="post" action="<?php echo $action1; ?>"   target="_blank">
-                                <input type="hidden" id="searchs" name="searchs" value="<?php echo $tipe ?>" >
-                                <input type="hidden" id="idstkk" name="idstkk" value="<?php echo $idstkk ?>" >
-                                <input type="hidden" id="from" name="from" value="<?php echo $from ?>" >
-                                <input type="hidden" id="to" name="to" value="<?php echo $to ?>" >
-                                <input type="hidden" id="statuses" name="statuses" value="<?php echo $statuses ?>" >
-                                <button type="submit" class="btn btn-warning" >Cetak PDF</button>
-                            </form>
-
+            </table> -->
+            
+            <table style="width: 100%;" class="table table-striped table-bordered" align="center">
+                <tr>
+                    <th colspan="6">Rekap Sales Stockist</th>
+                </tr>
+                <tr>
+                    <th>No</th>
+                    <th>Kode Stockist</th>
+                    <th>Nama Stockist</th>
+                    <th>Total SSR/MSR</th>
+                    <th>Total DP</th>
+                    <th>Total BV</th>
+                    
+                </tr>
+                <?php
+                if(isset($arr)) {
+                    $i=1;
+                    $total_dp_stk = 0;
+                    $total_bv_stk = 0;
+                    $total_ssr_stk = 0;
+                    foreach($arr as $dta) {
+                        echo "<tr>";
+                        echo "<td align=right>$i</td>";    
+                        echo "<td align=center>".$dta['stk']."</td>";
+                        echo "<td align=left>".$dta['name']."</td>";
+                        echo "<td align=center>".$dta['total_ssr']."</td>";
+                        echo "<td align=right>".number_format($dta['tot_dp'],0,",",".")."</td>";
+                        echo "<td align=right>".number_format($dta['tot_bv'],0,",",".")."</td>";
                         
-                        </td>
-                        <td>
-                        <form role="form" id="demo-form2" method="post" action="<?php echo $action2; ?>"   target="_blank">
-                                <input type="hidden" id="searchs" name="searchs" value="<?php echo $tipe ?>" >
-                                <input type="hidden" id="idstkk" name="idstkk" value="<?php echo $idstkk ?>" >
-                                <input type="hidden" id="from" name="from" value="<?php echo $from ?>" >
-                                <input type="hidden" id="to" name="to" value="<?php echo $to ?>" >
-                                <input type="hidden" id="statuses" name="statuses" value="<?php echo $statuses ?>" >
-                                <button type="submit" class="btn btn-success" >Cetak EXCEL</button>
-
-                            </form>
-                        </td>
-                    </tr>
+                        echo "</tr>";
+                        $i++;
+                        $total_ssr_stk += $dta['total_ssr'];
+                        $total_dp_stk += $dta['tot_dp'];
+                        $total_bv_stk += $dta['tot_bv'];
+                    }
+                }
+                ?>
+                <tr>
+                    <th colspan="3"> T O T A L</th>
+                    <td align="center"><?php echo number_format($total_ssr_stk,0,",","."); ?></td>
+                    <td align=right><?php echo number_format($total_dp_stk,0,",","."); ?></td>
+                    <td align=right><?php echo number_format($total_bv_stk,0,",","."); ?></td>
+                    
+                </tr>
             </table>
             <input type="hidden" name="typee" value="<?php echo $tipe;?>"/>
 <!--            <input type="hidden" name="bnsperiod" value="--><?php //echo $bnsperiod;?><!--"/>-->

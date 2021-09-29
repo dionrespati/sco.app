@@ -46,9 +46,9 @@ class Do_stockist extends MY_Controller {
 		$data['back_button'] = "All.back_to_form(' .nextForm1',' .mainForm')";
 		$data['no_do'] = $no_do;
 		$prefix_inv = substr($no_do, 0, 4);
-		if($prefix_inv == "GDOS") {
-			$data['result'] = $this->do_stk->getListSSRbyDO($no_do);
-		} else {
+		
+		$data['result'] = $this->do_stk->getListSSRbyDO($no_do);
+		if($data['result'] == null) {
 			$data['result'] = $this->do_stk->getListInvoicebyDO($no_do);
 		}
 		
@@ -65,7 +65,7 @@ class Do_stockist extends MY_Controller {
 		$this->load->model('transaction/Sales_stockist_report_model', 'm_ssr');
 		if($field == "batchno") {
 			$data['back_button'] = "All.back_to_form(' .nextForm2',' .nextForm1')";
-			$data['result'] = $this->m_ssr->listTtpById($field, $value);
+			$data['result'] = $this->m_ssr->listTtpByIdV2($field, $value);
 			$data['rekapPrd'] = $this->m_ssr->summaryProductBySSR($value);
 			$this->load->view('transaction/stockist_report/listTTP', $data);
 		} else if($field == "trcd") {

@@ -35,9 +35,10 @@
     $pdf->Ln();
     foreach($main as $dta2)
     {
-        $rowdates = date('d/m/Y',strtotime($dta2->datetrans));
+        $rowdates = date('d/m/Y H:i',strtotime($dta2->tgl_ambil));
 
        $pay = number_format($dta2->total_pay,0,".",",");
+       $totbvr = number_format($dta2->total_bv,0,".",",");
        $pdf->Cell($column_header,$lebarCell,"ID STOCKIST",0,0,'L',true);
        $pdf->Cell($column_data,$lebarCell,": $dta2->idstk / $dta2->nmstkk",0,0,'L',true);
        $pdf->Ln();
@@ -47,8 +48,17 @@
        $pdf->Cell($column_header,$lebarCell,"ORDER NO",0,0,'L',true);
        $pdf->Cell($column_data,$lebarCell,": $dta2->orderno",0,0,'L',true);
        $pdf->Ln();
+       $pdf->Cell($column_header,$lebarCell,"SSRE NO",0,0,'L',true);
+       $pdf->Cell($column_data,$lebarCell,": $dta2->SSRno",0,0,'L',true);
+       $pdf->Ln();
+       $pdf->Cell($column_header,$lebarCell,"KWE NO",0,0,'L',true);
+       $pdf->Cell($column_data,$lebarCell,": $dta2->KWno",0,0,'L',true);
+       $pdf->Ln();
        $pdf->Cell($column_header,$lebarCell,"TOTAL PAY",0,0,'L',true);
        $pdf->Cell($column_data,$lebarCell,": $pay",0,0,'L',true);
+       $pdf->Ln();
+       $pdf->Cell($column_header,$lebarCell,"TOTAL BV",0,0,'L',true);
+       $pdf->Cell($column_data,$lebarCell,": $totbvr",0,0,'L',true);
        $pdf->Ln();
        $pdf->Cell($column_header,$lebarCell,"BONUS MONTH",0,0,'L',true);
        $pdf->Cell($column_data,$lebarCell,": $dta2->bonusmonth",0,0,'L',true);
@@ -60,6 +70,8 @@
     //Header Product Detail
     $pdf->Cell(195,5,"KODE PRODUK : $kode_prod",0,0,'L', true);
     $pdf->Ln();
+   /*  $pdf->Cell(195,5,"PRODUK BUNDLING / PAKET : $bundling_prd",0,0,'L', true);
+    $pdf->Ln(); */
     $pdf->Cell($no_urut,$lebarCell,"No",1,0,'C',true);
     $pdf->Cell($product_id,$lebarCell,"ID Product",1,0,'C',true);
     $pdf->Cell($product_name,$lebarCell,"Product Name",1,0,'C',true);

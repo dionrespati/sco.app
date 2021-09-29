@@ -7,6 +7,22 @@ $stkname = $this->session->userdata("stockistnm");
     <form class="form-horizontal" enctype="multipart/form-data" id="formInputList">
         <fieldset>
             <div class="control-group">
+                <?php
+                if($userlogin == "BID06") {
+                ?>
+                <label class="control-label" for="typeahead">Stockist</label>
+                <div class="controls">
+                   <input type="text" id="idstkk_vchdep" name="idstkk_vchdep" value="<?php echo $userlogin; ?>" onchange="All.getFullNameByID(this.value,'db2/get/fullnm/from/mssc/loccd','#nmstk_vchdep')" />
+                   <input type="text" style="width: 300px;" readonly="readonly" id="nmstk_vchdep" name="nmstk_vchdep" value=""/>     
+                </div>
+                <div class="clearfix"></div>
+                <?php    
+                } else {
+                ?>    
+                <input type="hidden" id="idstkk_vchdep" name="idstkk_vchdep" value="<?php echo $userlogin; ?>" />    
+                <?php    
+                }
+                ?>
                 <label class="control-label" for="typeahead">Tipe Status</label>
                 <div class="controls">
                     <select class="span4 typeahead" id="search" name="search" tabindex="3">

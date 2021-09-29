@@ -38,47 +38,15 @@ class Login_model extends MY_Model {
 				   ON (a.branchid = c.loccd COLLATE SQL_Latin1_General_CP1_CS_AS)
 				LEFT OUTER JOIN klink_mlm2010.dbo.sc_users d 
 				   ON (a.branchid = d.username COLLATE SQL_Latin1_General_CP1_CS_AS)
-		        WHERE a.username = '$formData[username]' AND a.password = '$formData[password]'";
-		$res = $this->getRecordset($qry, NULL, $this->setDB(2));
+				WHERE a.username = ? AND a.password = ?";
+		$qryParam = array($formData['username'], $formData['password']);
+		$res = $this->getRecordset($qry, $qryParam, $this->setDB(2));
 		if($res == null) {
 			throw new Exception("Login failed, invalid username or password", 1);
 		}
 		return $res;
 	}
 	
-	
-	
-	/* function fetchingMenu($usertype) {
-		$dbx = $this->load->database("db_sco", TRUE);
-			$qry = "SELECT 
-					  db_sco.dbo.ecomm_scoauth.menuid as menu_id,
-					  db_sco.dbo.app_tabprg.app_menu_parent_id as parent_id,
-					  db_sco.dbo.app_tabprg.app_menu_desc as menu_desc,
-					  db_sco.dbo.app_tabprg.app_menu_url as menu_url
-					  
-					FROM
-					  db_sco.dbo.ecomm_scoauth
-					  INNER JOIN db_sco.dbo.app_tabprg ON (db_sco.dbo.ecomm_scoauth.menuid = db_sco.dbo.app_tabprg.app_menu_id)
-					WHERE
-					  (db_sco.dbo.ecomm_scoauth.groupid = '$usertype')
-					ORDER BY 
-					  db_sco.dbo.app_tabprg.app_menu_parent_id, 
-					  db_sco.dbo.app_tabprg.menu_order";
-        //echo $qry;   
-        $query = $dbx->query($qry);
-		$menu = array('items' => array(), 'parents' => array());
-
-
-		// Builds the array lists with data from the menu table
-		foreach($query->result_array() as $row)
-		{
-		// Creates entry into items array with current menu item id ie. $menu['items'][1]
-		$menu['items'][$row['menu_id']] = $row;
-		// Creates entry into parents array. Parents array contains a list of all items with children
-		$menu['parents'][$row['parent_id']][] = $row['menu_id'];
-		}
-	return $menu;
-	} */
 
 	function fetchingMenu($usertype) {
 		$dbx = $this->load->database("db_sco", TRUE);
@@ -91,12 +59,13 @@ class Login_model extends MY_Model {
 					INNER JOIN klink_mlm2010.dbo.app_tabprg 
 					  ON (klink_mlm2010.dbo.ecomm_scoauth.menuid = klink_mlm2010.dbo.app_tabprg.app_menu_id)
 					WHERE
-					  (klink_mlm2010.dbo.ecomm_scoauth.groupid = '$usertype')
+					  (klink_mlm2010.dbo.ecomm_scoauth.groupid = ?)
 					ORDER BY 
 					klink_mlm2010.dbo.app_tabprg.app_menu_parent_id, 
 					klink_mlm2010.dbo.app_tabprg.menu_order";
+		$qryParam = array($usertype);
         //echo $qry;   
-        $query = $dbx->query($qry);
+        $query = $dbx->query($qry, $qryParam);
 		$menu = array('items' => array(), 'parents' => array());
 
 
@@ -162,11 +131,12 @@ class Login_model extends MY_Model {
 					klink_mlm2010.dbo.ecomm_scoauth
 					  INNER JOIN klink_mlm2010.dbo.app_tabprg ON (klink_mlm2010.dbo.ecomm_scoauth.menuid = klink_mlm2010.dbo.app_tabprg.app_menu_id)
 					WHERE
-					  (klink_mlm2010.dbo.ecomm_scoauth.groupid = '$usertype')
+					  (klink_mlm2010.dbo.ecomm_scoauth.groupid = ?)
 					ORDER BY klink_mlm2010.dbo.app_tabprg.app_menu_parent_id, 
 					klink_mlm2010.dbo.app_tabprg.menu_order";
-        //echo $qry;   
-        $query = $dbx->query($qry);
+		//echo $qry;   
+		$qryParam = array($usertype);
+        $query = $dbx->query($qry, $qryParam);
 	    $menu = array('items' => array(), 'parents' => array());
 
         
@@ -241,8 +211,9 @@ class Login_model extends MY_Model {
 					   toggle_delete,
 					   toggle_view
                 FROM klink_mlm2010.dbo.ecomm_scoauth 
-                WHERE groupid = '".$role."' AND menuid = '".$menu_id."'";
-        //echo $qry;
-        return $this->getRecordset($qry, NULL, $this->db2);
+                WHERE groupid = ? AND menuid = ?";
+		//echo $qry;
+		$qryParam = array($role, $menu_id);
+        return $this->getRecordset($qry, $qryParam, $this->db2);
     }
 }

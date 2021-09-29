@@ -46,7 +46,7 @@ class Member_report_model extends MY_Model {
 		$slc = "SELECT a.dfno,a.fullnm,a.idno,a.addr1,a.tel_hp, a.password,a.novac,
 					a.loccd
 				FROM klink_mlm2010.dbo.msmemb a $where";
-		$result = $this->getRecordset($slc,$paramQry,$this->db2);
+		$result = $this->getRecordset($slc,null,$this->db2);
 		return $result;
 	}
 	

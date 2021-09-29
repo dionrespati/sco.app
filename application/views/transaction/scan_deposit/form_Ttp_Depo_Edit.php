@@ -1,5 +1,5 @@
 <!--<html>
-<body onLoad="document.form.value.focus()">
+<body onLoad="document.form.value.focus()"> 
 
 <body>
 
@@ -268,10 +268,10 @@
                                 </tbody>
                             </table>
                             <br />
-                            <!-- <input type="button" class="btn btn-success span14" name="submit" value="Save" id="save"/>
+                            <!-- <input type="button" class="btn btn-success span14" name="submit" value="Save" id="save"/> 
                             <input type="button" class="btn btn-warning span6" name="back" value="Kembali"
-                                onclick="All.back_to_form(' .nextForm1', ' .mainForm')" />
-                            <?php if($status==1)
+                                onclick="All.back_to_form(' .nextForm1', ' #div_isi')" />-->
+                            <?php 
                                 echo'<input type="button" class="btn btn-warning span6" name="back" value="Kembali"
                                     onclick="All.back_to_form(\' .nextForm2\',\' .nextForm1\')" />';
                                     if($status==1) {

@@ -68,7 +68,7 @@
 				<td width=8% align='right'>No TTP&nbsp;&nbsp;</td>
 				<td width=25%>$orderno</td>
 			</tr>
-			<tr><td width=12% align='right'>Distributor&nbsp;&nbsp;</td>
+			<tr><td width=12% align='right'>ID Member&nbsp;&nbsp;</td>
 				<td width=25%>$dfno - $distnm</td>
 				<td width=8% align='right'>Periode Bonus&nbsp;&nbsp;</td>
 				<td width=25%>$bnsperiod</td>
@@ -93,11 +93,7 @@
 				<td width=8% align='right'>Total BV&nbsp;&nbsp;</td>
 				<td width=25%>$tbv</td>
 			</tr>
-			<tr><td width=12% align='right'>&nbsp;&nbsp;</td>
-				<td width=25%>&nbsp;</td>
-				<td width=8% align='right'>&nbsp;&nbsp;</td>
-				<td width=25%>&nbsp;</td>
-			</tr>
+			
 			<tr>
 				<td><input type=\"button\" value=\"&lt;&lt; Kembali\" 
 									   onclick=\"$back_button\" 
@@ -184,12 +180,12 @@
 	if($result['payment'] != null) {
 		echo "<table class='table table-striped table-bordered' width='70%'>
 		  	<thead>
-		  		<tr><th colspan=8>DETAIL PAY</th></tr>
+		  		<tr><th colspan=8>Detail Data Pembayaran</th></tr>
 		  		<tr><th width=5%>No</th>
-		  			<th width=15%>Pay Type</th>
-		  			<th>Doc No</th>
-					<th>Vch Type</th>
-		  			<th width=15%>Pay amount</th>
+		  			<th >Tipe Pembayaran</th>
+		  			<th>No Voucher</th>
+					<th width=20%>Tipe Voucher</th>
+		  			<th width=15%>Nominal</th>
 		  			
 		  		</tr>
 		  	</thead>
@@ -221,8 +217,12 @@
 			  echo "<input type='button' class='btn btn-mini btn-primary' value='Recalculate Voucher Deposit' onclick=\"Stockist.recalculateDeposit('$id_deposit')\" />&nbsp;";
 			  echo "<font color=red>*Selisih pembayaran dan nilai produk $selisih_frmt</font>";
 		  } else if($tdp != $totalPay && ($head[0]->id_deposit == null || $head[0]->id_deposit == "") ){
-			echo "<input type='button' class='btn btn-mini btn-primary' value='Koreksi Data Transaksi' onclick=\"Stockist.koreksiTransaksi('$trcd')\" />&nbsp;";
-			echo "<font color=red>*Selisih pembayaran dan nilai produk $selisih_frmt</font>";
+			$trcd = $head[0]->trcd;
+			$pref_trcd = substr($trcd, 0, 2);
+			if($pref_trcd == "PV" && $totalPay < $tdp) { 
+				echo "<input type='button' class='btn btn-mini btn-primary' value='Koreksi Data Transaksi' onclick=\"Stockist.koreksiTransaksi('$trcd')\" />&nbsp;";
+				echo "<font color=red>*Selisih pembayaran dan nilai produk $selisih_frmt</font>";
+			}
 		  }
 	}	  
 ?>

@@ -3,11 +3,11 @@
         echo setErrorMessage();
     }else{
 ?>
-
+   
 	<table style="width: 100%" class="table table-striped table-bordered bootstrap-datatable">
         <tr>
         	<th colspan="4">Detail Data Member</th>
-        </tr>
+        </tr>	
         <?php
             foreach($result as $row){
                 $dfno = $row->dfno;
@@ -30,28 +30,28 @@
                 $novac = "88146-".$row->novac;
                 $userinput = $row->createnm;
                 $recruiter = $row->recruiter;
-                $recruitnm = $row->recruiternm;
+                $recruitnm = $row->recruiternm;			
           	}
-        ?>
-
-
+        ?>	
+        	
+        	
 			<tr>
                 <td style="width: 13%">ID Member</td>
                 <td style="width: 38%"><?php echo $dfno;?></td>
-
+                 
                 <td style="width: 13%">No KTP</td>
                 <td style="width: 38%"><?php echo $idno;?></td>
             </tr>
 			<tr>
                 <td>Nama Member</td>
                 <td><?php echo $fullnm;?></td>
-
+            	 
             	<td>JEnis Kelamin</td>
-                <td><?php
+                <td><?php 
                   if($sex == "M")  {
                     $kel = "Pria";
                   } else {
-                    $kel = "Wanita";
+                    $kel = "Wanita";  
                   }
                   echo $kel;
                   ?></td>
@@ -59,35 +59,35 @@
 			<tr>
                 <td valign="top">Alamat</td>
                 <td valign="top"><?php echo $addr1." ".$addr2." ".$addr3;?></td>
-
+				 
             	<td valign="top">No HP</td>
                 <td valign="top"><?php echo $tel_hp;?></td>
             </tr>
 			<tr>
                 <td>ID Sponsor</td>
                 <td><?php echo $idsp." / ".$spnm;?></td>
-
+				 
             	<td>Tgl Lahir</td>
                 <td><?php echo $birthdt;?></td>
             </tr>
 			<tr>
                 <td>ID Recruiter</td>
                 <td><?php echo $recruiter." / ".$recruitnm;?></td>
-
+                 
             	<td>Tgl Join</td>
             	<td><?php echo $join;?></td>
             </tr>
             <tr>
                 <td>No Telp</td>
                 <td><?php echo $tel_hp;?></td>
-
+                
                 <td>Negara</td>
                 <td><?php echo $country;?></td>
             </tr>
             <tr>
                 <td>Stockist Reff</td>
                 <td id="upd_loccd"><?php echo $stckst;?></td>
-
+				 
             	<td>Bonus Stt & Kartu</td>
                 <td id="upd_bnsstmt"><?php echo $row->bnsstmsc;?></td>
             </tr>
@@ -137,7 +137,7 @@
             </tr>
 </table>
 
-
+	
 <?php
     }
 ?>

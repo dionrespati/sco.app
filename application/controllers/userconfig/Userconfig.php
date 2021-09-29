@@ -147,6 +147,19 @@ class Userconfig extends MY_Controller {
 		$this->load->view($this->folderView.'getListAllUser', $data);
 	}
 
+	//$route['user/prevbns/update'] = 'backend/userconfig/updatePrevBonus';
+	public function updatePrevBonus() {
+		$data = $this->input->post(NULL, TRUE);
+		$this->load->model("userconfig/Userconfig_model", "m_userconfig");
+		$res = $this->m_userconfig->updatePreviousBnsmonth($data['username'], $data['prev_period_bnsmonth']);
+		$mdReturn = jsonFalseResponse("Setting Previous Bonus Period gagal..");
+		if($res > 0) {
+			$mdReturn = jsonTrueResponse(null, "Bonus Period periode sebelum nya untuk $data[username] sudah diaktifkan..");
+		}
+
+		echo json_encode($mdReturn);
+	}
+
 	//$route['user/param/(:any)/(:any)'] = 'userconfig/userconfig/getListAllUserByParam/$1/$2';
 	public function getListAllUserByParam($param, $branchid) {
 		$data['listUser'] = null;
@@ -493,6 +506,7 @@ class Userconfig extends MY_Controller {
               //$exist = $this->m_admuser->getListUserByRoleID($roleid, "10");
               $bt_chk = "";
 			  $bt_unchk = "";
+			   /*
                if($exist != null)
                {
 	              if($exist[0]->toggle_add == "1") {
@@ -520,12 +534,14 @@ class Userconfig extends MY_Controller {
 				  }
 
 			   } else {
+
 			   	  $bt_unchk .= "<td ><div align=center><input type=\"checkbox\" class=\"acc_add\" name=\"add[]\" value=\"0\" onclick=\"All.setValCheck(this)\" />&nbsp;Add</div></td>";
 			  	  $bt_unchk .="<td ><div align=center><input type=\"checkbox\" class=\"acc_edit\" name=\"edit[]\" value=\"0\" onclick=\"All.setValCheck(this)\" />&nbsp;Edit</div></td>";
 			  	  $bt_unchk .="<td ><div align=center><input type=\"checkbox\" class=\"acc_view\" name=\"view[]\" value=\"0\" onclick=\"All.setValCheck(this)\" />&nbsp;View</div></td>";
-			  	  $bt_unchk .="<td ><div align=center><input type=\"checkbox\" class=\"acc_delete\" name=\"delete[]\" value=\"0\" onclick=\"All.setValCheck(this)\" />&nbsp;Delete</div></td>";
+				  $bt_unchk .="<td ><div align=center><input type=\"checkbox\" class=\"acc_delete\" name=\"delete[]\" value=\"0\" onclick=\"All.setValCheck(this)\" />&nbsp;Delete</div></td>";
+					 
 			   }
-
+			   */
 
               $ss = site_url();
               //echo $exist;
@@ -536,7 +552,7 @@ class Userconfig extends MY_Controller {
                     //echo 1;
                     $html .= "<tr>";
                     $html .="<td><div align=center><input type=\"checkbox\" class=\"acc_checkmenu\" name=\"menuid[]\" value=\"".$menu['items'][$itemId]['menu_id']."\" checked=\"checked\" /></div></td><td>".$menu['items'][$itemId]['menu_desc']."</td>";
-                    $html .= $bt_chk;
+                   // $html .= $bt_chk;
                     $html .="</tr>";
 
                     //$html ."";
@@ -546,7 +562,7 @@ class Userconfig extends MY_Controller {
                     //echo 2;
                     $html .= "<tr>";
                     $html .= "<td ><div align=center><input type=\"checkbox\" class=\"acc_checkmenu\" name=\"menuid[]\" value=\"".$menu['items'][$itemId]['menu_id']."\" /></div></td><td>".$menu['items'][$itemId]['menu_desc']."</td>";
-                    $html .= $bt_unchk;
+                   //$html .= $bt_unchk;
 
                     $html .= "</tr>";
                  }
@@ -563,12 +579,12 @@ class Userconfig extends MY_Controller {
                     //echo 3;
                     $html .= "<tr bgcolor=\"lightgrey\">";
                     $html .= "<td ><div align=center><input type=\"checkbox\" class=\"acc_checkmenu\" name=\"menuid[]\" value=\"".$menu['items'][$itemId]['menu_id']."\" checked=\"checked\" /></div></td><td><strong>".$menu['items'][$itemId]['menu_desc']."</strong></td>";
-					$html .= "<td colspan=4>";
+					/* $html .= "<td colspan=4>";
 					$html .= "<input type=\"hidden\" class=\"acc_add\" name=\"add[]\" value=\"1\"  />";
 					$html .= "<input type=\"hidden\" class=\"acc_edit\" name=\"edit[]\" value=\"1\"  />";
 					$html .= "<input type=\"hidden\" class=\"acc_view\" name=\"view[]\" value=\"1\"  />";
 					$html .= "<input type=\"hidden\" class=\"acc_delete\" name=\"delete[]\" value=\1\"  />";
-					$html .= "</td>";
+					$html .= "</td>"; */
                     $html .= "</tr>";
                  }
                  else
@@ -576,12 +592,12 @@ class Userconfig extends MY_Controller {
                     $html .= "<tr bgcolor=\"lightgrey\">";
                     $html .= "<td ><div align=center><input type=\"checkbox\" class=\"acc_checkmenu\" name=\"menuid[]\" value=\"".$menu['items'][$itemId]['menu_id']."\" /></div></td><td><strong>".$menu['items'][$itemId]['menu_desc']."</strong></td>";
 
-                    $html .= "<td colspan=4>";
+                    /* $html .= "<td colspan=4>";
 					$html .= "<input type=\"hidden\" class=\"acc_add\" name=\"add[]\" value=\"1\" />";
 					$html .= "<input type=\"hidden\" class=\"acc_edit\" name=\"edit[]\" value=\"1\" />";
 					$html .= "<input type=\"hidden\" class=\"acc_view\" name=\"view[]\" value=\"1\" />";
 					$html .= "<input type=\"hidden\" class=\"acc_delete\" name=\"delete[]\" value=\"1\" />";
-					$html .= "</td>";
+					$html .= "</td>"; */
                     $html .="</tr>";
                  }
                  //$arr = array($menu['items'][$itemId]['menu_id'] => $menu['items'][$itemId]['menu_name']);
@@ -634,4 +650,31 @@ class Userconfig extends MY_Controller {
     	}
 		echo json_encode($srvReturn);
 	 }
+
+	//$route['password/change'] = 'login/changePassword';
+	public function changePassword() {
+
+		if($this->username == null) {
+			$this->setTemplate('includes/inline_login', $data);
+			return;
+		}
+
+		$data['form_header'] = "Ubah Password";
+		$data['icon'] = "icon-pencil";
+		$data['form_reload'] = 'password/change';
+		//$data['listGroupUser'] = $this->be_userconfig_service->listAllUserGroupService();
+		$data['username'] = $this->username;
+		$this->setTemplate($this->folderView.'formUpdatePwd', $data); 
+		 
+	}
+	//$route['password/change/save'] = 'login/saveChangePassword';
+	public function saveChangePassword() {
+		$data = $this->input->post(NULL, TRUE);
+		$srvReturn = $this->s_userconfig->changePassword($data);
+		if($srvReturn['response'] == "false") {
+			echo setErrorMessage($srvReturn['message']);
+		} else {
+			echo setSuccessMessage($srvReturn['message']);
+		}
+	}
 }

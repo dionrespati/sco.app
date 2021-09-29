@@ -92,7 +92,7 @@
             $action1="<button class='btn btn-sm btn-warning' title='Tambah Voucher'  onclick=$linkDetVch><i class='icon-briefcase icon-white'></i></button>";
             $action2="<button class='btn btn-sm btn-primary' title='Tambah TTP' onclick=$linkTTP><i class='icon-shopping-cart icon-white'></i></button>";
             if($row->total_keluar==0) {
-                $action3="<button class='btn btn-sm btn-danger' onClick='myFunction(this)' value='$row->id' title='Hapus TTP'><i class='icon-trash icon-white'></i></button>";
+                //$action3="<button class='btn btn-sm btn-danger' onClick='myFunction(this)' value='$row->id' title='Hapus Deposit'><i class='icon-trash icon-white'></i></button>";
             }
             $action4="<button class='btn btn-sm btn-info' onclick=\"Stockist.recalculateDeposit('$row->id')\" title='Recalculate Deposit'><i class='icon-wrench icon-white'></i></button>";
         }
@@ -106,7 +106,9 @@
             <td style=\"text-align:right\">".number_format($row->total_deposit,0,"",".")."</td>
             <td style=\"text-align:right\">".number_format($sisa,0,"",".")."</td>
             <td align=center>$statusx</td>
-            <td style=\"text-align:center\">$action1 $action2 $action3 $action4</td>
+            <td style=\"text-align:center\">
+              $action1 $action2 $action3 $action4
+            </td>
         </tr>";
         $n++;
     } ?>

@@ -64,6 +64,8 @@ $route['hq'] = 'hq/hq_login/index';
 $route['sess'] = 'login/sess';
 $route['walikan/(:any)'] = "welcome/formWalikan/$1";
 
+
+
 /*------------------------
  * API
  * ----------------------*/
@@ -98,6 +100,7 @@ $route['user/param/(:any)/(:any)'] = 'userconfig/userconfig/getListAllUserByPara
 $route['user/list/(:any)/(:any)'] = 'userconfig/userconfig/getListUser/$1/$2';
 $route['user/update'] = 'userconfig/userconfig/saveUpdateUser';
 $route['user/delete/(:any)'] = 'userconfig/userconfig/deleteUser/$1';
+$route['user/prevbns/update'] = 'userconfig/userconfig/updatePrevBonus';
 
 /*--------------------------
  * USER GROUP MAINTENANCE ADMIN
@@ -142,6 +145,9 @@ $route['menu/access'] = 'userconfig/userconfig/getInputAccessMenu';
 $route['menu/check'] = 'userconfig/userconfig/getShowListMenuByGroupID';
 $route['menu/access/save'] = 'userconfig/userconfig/saveInputAccessMenu';
 
+$route['password/change'] = 'userconfig/userconfig/changePassword';
+$route['password/change/save'] = 'userconfig/userconfig/saveChangePassword';
+
 
 /*--------------------------
  * DISTRIBUTOR TRANSACTION
@@ -167,6 +173,11 @@ $route['stockist/kodepos/(:any)'] = 'stockist/stockist/showKodepos/$1';
 $route['product/search'] = 'product/product/productSearch';
 $route['product/search/list'] = 'product/product/productSearchByParam';
 $route['product/id/(:any)/(:any)'] = 'product/product/productSearchByID/$1/$2';
+$route['product/bundling'] = 'product/product/check_kode_bundlingFrm';
+
+$route['product/bundling/checkCode'] = 'product/product/formCheckBundling';
+$route['product/bundling/list/(:any)'] = 'product/product/listDetailBundle/$1';
+$route['product/bundling/code'] = 'product/product/searchBundlingCode';
 /*------------------------------
  * MEMBER
  -------------------------------*/
@@ -177,6 +188,11 @@ $route['member/list/stk/(:any)'] = 'member/member_registration/showStockistByAre
 $route['member/reg/input/save'] = 'member/member_registration/saveInputMember';
 $route['member/reg/couple'] = 'member/member/regMemberCouple';
 $route['member/reg/id/(:any)'] = 'member/member_registration/showNewMember/$1';
+
+$route['member/sk/promo'] = 'member/member_registration/formBeliSk';
+$route['member/checkID/(:any)'] = 'member/member_registration/checkIdMember/$1';
+$route['member/checkProduct'] = 'member/member_registration/checkProduct';
+$route['member/sk/promo/save'] = 'member/member_registration/saveBeliSk';
 /*------------------------------
  * MEMBER REPORT & SEARCH
  -------------------------------*/
@@ -203,8 +219,10 @@ $route['incoming/update/save'] = 'transaction/incoming_payment/saveUpdateIncomin
 /*--------------------------------
  * SALES INPUT, GENERATE & REPORT
  * ------------------------------*/
+$route['sales/report/export'] = 'transaction/sales_stockist/reportToExcel';
 $route['sales/stk/ttp/input'] = 'transaction/sales_stockist/inputTTP';
 $route['sales/stk/input/list'] = 'transaction/sales_stockist/getListInputSalesStockist';
+$route['sales/stk/input/report'] = 'transaction/sales_stockist/reportGenerated';
 $route['sales/stk/update/(:any)/(:any)'] = 'transaction/sales_stockist/updateTrx/$1/$2';
 $route['sales/stk/input/form'] = 'transaction/sales_stockist/inputTrxForm';
 $route['sales/stk/info/(:any)'] = 'transaction/sales_stockist/getStockistInfo/$1';
@@ -218,6 +236,7 @@ $route['sales/sub/ttp/input'] = 'transaction/sales_stockist/inputTtpSub';
 //$route['sales/sub/input/list'] = 'transaction/sales_stockist/getListInputSalesStockist';
 //$route['sales/sub/update/(:any)/(:any)'] = 'transaction/sales_stockist/updateTrx/$1/$2';
 $route['sales/sub/input/form'] = 'transaction/sales_stockist/inputTrxFormSub';
+$route['sales/sub/input/formV2/(:any)/(:any)'] = 'transaction/sales_stockist/inputTrxFormSubV3/$1/$2';
 //$route['sales/sub/save'] = 'transaction/sales_stockist/saveTrxStockist';
 
 $route['sales/pvr2/input/form'] = 'transaction/sales_stockist/inputTrxPvrForm2';
@@ -236,9 +255,12 @@ $route['sales/search/list/checkSelisih'] = 'transaction/sales_generate/checkSeli
 $route['sales/detail/(:any)/(:any)/(:any)/(:any)/(:any)'] = 'transaction/sales_generate/getDetailSales/$1/$2/$3/$4/$5';
 $route['sales/generate/preview'] = 'transaction/sales_generate/previewGenerate';
 $route['sales/generate/sales'] = 'transaction/sales_generate/generateSales';
+$route['sales/generate/update-bonus-period'] = 'transaction/sales_generate/updateBonusPeriod';
+
 
 $route['sales/pvr/input'] = 'transaction/sales_stockist/inputSalesPvr';
 $route['sales/pvr/input/list'] = 'transaction/sales_stockist/getListInputPvrSalesStockist';
+$route['sales/pvr/input/report'] = 'transaction/sales_stockist/reportPvrGenerated';
 $route['sales/pvr/input/form'] = 'transaction/sales_stockist/inputTrxPvrForm';
 $route['sales/pvr/input/save'] = 'transaction/sales_stockist/saveInputSalesPvr';
 
@@ -247,8 +269,13 @@ $route['sales/correction/(:any)'] = 'transaction/sales_stockist/koreksiTransaksi
 
 $route['sales/generated/report'] = 'transaction/sales_stockist_report/formListGeneratedSales';
 $route['sales/generated/report/list'] = 'transaction/sales_stockist_report/getListGeneratedSales';
+$route['sales/generated/ssr-bonus-period'] = 'transaction/sales_trans/formSsrBonusPeriod';
+$route['sales/generated/check-ssr'] = 'transaction/sales_trans/checkSsr';
+$route['sales/generated/recover-ssr'] = 'transaction/sales_trans/recoverSsr';
+$route['sales/generated/change-bonus-period'] = 'transaction/sales_trans/changeBonusPeriod';
 $route['sales/generated/ssr/(:any)'] = 'transaction/sales_stockist_report/getDetailTrxBySSR/$1';
 $route['sales/reportstk/(:any)/(:any)'] = 'transaction/sales_stockist_report/listTTP/$1/$2';
+$route['sales/report/excel'] = 'transaction/sales_stockist_report/ssrExportExcel';
 
 $route['sales/voucher/report'] = 'transaction/sales_stockist_report/voucherReport';
 $route['sales/voucher/report/list'] = 'transaction/sales_stockist_report/voucherReportList';
@@ -258,14 +285,34 @@ $route['sales/payment'] = 'transaction/sales_payment/index';
 $route['sales/payment/list'] = 'transaction/sales_payment/getListSalesReport';
 $route['sales/payment/ssr/(:any)'] = 'transaction/sales_payment/getDetailTTPbySSRno/$1';
 $route['sales/payment/preview'] = 'transaction/sales_payment/previewSelectedSSR';
+
+$route['sales/sub/input/vcashKhusus'] = 'transaction/sales_stockist/inputVchCashKhusus';
+$route['sales/vcashKhusus/prdCheck'] = 'transaction/sales_stockist/CheckPrdVchCashKhusus';
+$route['sales/vcashKhusus/check'] = 'transaction/sales_stockist/checkValidVoucherCashKhusus';
+$route['sales/vcashKhusus/save'] = 'transaction/sales_stockist/saveVchCashKhusus';
+
+$route['sales/report/product'] = 'transaction/sales_stockist_report/rekapSalesProduct';
+$route['sales/report/product/list'] = 'transaction/sales_stockist_report/rekapSalesProductList';
+$route['sales/report/product/excell'] = 'transaction/sales_stockist_report/rekapSalesProductListExcell';
+$route['sales/report/stkssr'] = 'transaction/sales_stockist_report/stkssr';
+
+$route['sales/input/promo'] = 'transaction/sales_stockist/inputProdukPromo';
+$route['sales/input/promo/save'] = 'transaction/sales_stockist/saveInputProdukPromo';
+$route['sales/promo/check'] = 'transaction/sales_stockist/checkSalesPromo';
+$route['sales/promo/checksisa'] = 'transaction/sales_stockist/checkSisa';
+$route['sales/promo/resetpromo'] = 'transaction/sales_stockist/ulangiInputFree';
 /*---------------------
  * SALES ONLINE REDEMP
  * -------------------*/
  $route['sales/ol/redemp'] = 'transaction/sales_online/formOnlineRedemp';
  $route['sales/ol/redemp/list'] = 'transaction/sales_online/searchOnlineRedemp';
+ $route['sales/ol/redemp/report'] = 'transaction/sales_online/reportToExcel';
+ $route['sales/ol/redemp/report-product'] = 'transaction/sales_online/reportProduct';
+ $route['sales/ol/redemp/export-excel'] = 'transaction/sales_online/exportToExcel';
  $route['sales/ol/orderno/(:any)'] = 'transaction/sales_online/onlineTrxDetail/$1';
  $route['sales/ol/redemp/save'] = 'transaction/sales_online/onlineRedempSave';
  $route['sales/ol/reprint/(:any)'] = 'transaction/sales_online/reprintNote/$1';
+ $route['sales/ol/listbns/(:any)'] = 'transaction/sales_online/listBnsMonth/$1';
 
  /*---------------------
  * SALES ONLINE REPORT
@@ -275,7 +322,15 @@ $route['sales/payment/preview'] = 'transaction/sales_payment/previewSelectedSSR'
  /*------------------------------
   * STOCK BARCODE
   * ----------------------------*/
-$route['stk/barcode'] = 'transaction/stock_barcode/formStockBarcode';
+// $route['stk/barcode'] = 'transaction/stock_barcode/formStockBarcode';
+$route['stk/barcode/trace'] = 'transaction/stock_barcode/fromTraceBarcode'; // on dev retna
+$route['stock_barcode/postTraceBarcode/(:any)'] = 'transaction/stock_barcode/postTraceBarcode/$1';
+$route['stk/barcode'] = 'transaction/stock_barcode/formStockBarcode'; // on dev retna
+$route['stock_barcode/detailTransaction'] = 'transaction/stock_barcode/detailTransaction'; // on dev retna
+$route['stock_barcode/detailTransactionRange'] = 'transaction/stock_barcode/detailTransactionRange'; // on dev retna
+$route['stock_barcode/saveBarcode'] = 'transaction/stock_barcode/saveBarcode'; // on dev retna
+$route['stock_barcode/detailScaProduk/(:any)'] = 'transaction/stock_barcode/detailScaProduk/$1'; // on dev retna
+$route['stock_barcode/detailTransaction2/(:any)'] = 'transaction/stock_barcode/detailTransaction2/$1'; // on dev retna
 $route['stk/barcode/wh/list'] = 'transaction/stock_barcode/getListWH';
 $route['stk/barcode/trx/list'] = 'transaction/stock_barcode/getListTrx';
 $route['stk/barcode/trx/id/(:any)'] = 'transaction/stock_barcode/getDetailProductByTrxId/$1';
@@ -283,6 +338,9 @@ $route['stk/barcode/process/(:any)/(:any)'] = 'transaction/stock_barcode/getList
 $route['stk/barcode/save'] = 'transaction/stock_barcode/saveBarcode';
 $route['stk/barcode/prepare/pl'] = 'transaction/stock_barcode/preparePackingList';
 $route['stk/barcode/generate/pl'] = 'transaction/stock_barcode/generatePackingList';
+
+$route['stk/barcode/simpan'] = 'transaction/stock_barcode/simpanBarcode';
+$route['stk/barcode/check/(:any)/(:any)'] = 'transaction/stock_barcode/getDataFullName/$1/$2';
 /*--------------------------
  * WAREHOUSE
  * ------------------------*/
@@ -321,3 +379,22 @@ $route['scan/ttp/view/(:any)/(:any)/(:any)'] = 'transaction/scan_voucher/viewTTP
 $route['scan/ttp/delete/(:any)'] = 'transaction/scan_voucher/hapusTtpVchDeposit/$1';
 $route['scan/ttp/save'] = 'transaction/scan_voucher/saveTrxDepositVch';
 $route['scan/deposit/recalculate/(:any)'] = 'transaction/scan_voucher/recalculateDeposit/$1';
+$route['scan/vch/delete'] = 'transaction/scan_voucher/hapusVchCash';
+
+$route['scan/deposit/tescalculate/(:any)'] = 'transaction/scan_voucher/tescalculate/$1';
+
+/*----------
+  *   TAX
+  * -------*/
+$route['tax/print'] = 'stockist/tax';
+$route['tax/print/act'] = 'stockist/tax/getTaxStk';
+$route['tax/stk/print'] = 'stockist/tax/printTaxToPDF';
+
+/**
+ * Release voucher promo stockist
+ */
+$route['release/vch-stk'] = 'member/voucher/formVchStkActivate';
+$route['release/check/vch-stk'] = 'member/voucher/cekVchStk';
+
+
+$route['wa/sendtemplate/(:any)'] = 'Api_whatsapp/kirimWaTemplate/$1';

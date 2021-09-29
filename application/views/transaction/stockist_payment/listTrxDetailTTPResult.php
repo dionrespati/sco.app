@@ -2,11 +2,11 @@
 	if(isset($error)) {
 		echo $error;
 	} else {
-
+	
 ?>
 
 <table width="95%" align="center" class="table table-striped table-bordered bootstrap-datatable">
-  <tbody>
+  <tbody>	
   	<?php
   	 $res = $result;
   	?>
@@ -17,7 +17,7 @@
   	<tr>
   		<td>ID Stockist</td>
   		<td><?php echo $res[0]->sc_dfno; ?></td>
-  	</tr>
+  	</tr>	
   	<tr>
   		<td>Co. Stockist</td>
   		<td><?php echo $res[0]->sc_dfno; ?></td>
@@ -31,8 +31,8 @@
  <table width="95%" align="center" class="table table-striped table-bordered bootstrap-datatable datatable">
  	<tr>
  		<th colspan="6">Daftar TTP MSR/SSR <?php echo $res[0]->batchno; ?></th>
- 	</tr>
-	<tr>
+ 	</tr> 	
+	<tr> 
 		<th width="5%">No</th>
 		<th width="15%">Order No.</th>
 		<th width="15%">ID Member</th>
@@ -61,7 +61,7 @@
   		<td colspan="4">&nbsp;</td>
   	</tr>
   </tbody>
-</table>
+</table>  
 <?php
 }
 ?>

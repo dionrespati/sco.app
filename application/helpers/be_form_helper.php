@@ -251,21 +251,21 @@ if (!function_exists('htmlFormGroup')) {
 	function htmlFormGroup($label, $strInput, $required) {
     ?>
 		<label class="control-label" for="typeahead">
-			<?php
-			echo $label;
+			<?php 
+			echo $label; 
 			if($required != NULL) {
 						echo '&nbsp;<font color=red>*</font>';
 				 }
 			?>
 		</label>
 		<?php
-
+   
 		?>
 			<div class="controls">
-			<?php
-
-				 echo $strInput;
-
+			<?php 
+			  
+				 echo $strInput; 
+				 
 			 ?>
 			</div>
 	  <?php
@@ -284,7 +284,7 @@ if(! function_exists('ActiveSelect')) {
 		} else {
 			$ccv = strtolower($cc[0]);
 		}
-
+		
         $str = array(
 	      'label' => $label,
 	      'type' => 'select',
@@ -294,7 +294,7 @@ if(! function_exists('ActiveSelect')) {
 							array('label' => 'Inactive', 'value' => '0'),
 					 ),
 		  'defaultValue' => '1'
-
+	     
 	    );
         return $str;
     }

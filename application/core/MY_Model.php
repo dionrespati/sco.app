@@ -61,6 +61,18 @@ class MY_Model extends CI_Model {
         return $nilai;
 	}
 
+	function getRecordsetArray($qry, $qryParam = null, $choose_db = 'db_sco') {
+		$nilai = null;	
+		//if($choose_db != 'db_ecommerce')	{
+        	$this->db = $this->load->database($choose_db, true);
+		//}	
+        $query = $this->db->query($qry, $qryParam); 
+		if($query->num_rows() > 0)  {
+            $nilai = $query->result_array();   
+        } 
+        return $nilai;  
+	}
+
 
 
 	function getRecordsetPDO($qry, $qryParam = null, $choose_db = 'db_sco') {
@@ -137,6 +149,21 @@ class MY_Model extends CI_Model {
                 from klink_mlm2010.dbo.syspref a";
         $res = $this->getRecordset($qry, null, $this->db2);
 		return $res;
+	}
+	
+	function ifPrevBnsMonthStockistActive($stk) // dipake
+    {
+        $qry = "SELECT a.prev_period_bnsmonth 
+				FROM ecomm_user a 
+				WHERE a.username = '$stk' AND a.branchid = '$stk'";
+		$res = $this->getRecordset($qry, null, $this->db2);
+		$hasil = false;
+		if($res != null) {
+			if($res[0]->prev_period_bnsmonth == "1") {
+				$hasil = true;
+			} 
+		}
+		return $hasil;
     }
 
     function updateTable($table, $data, $primary) {

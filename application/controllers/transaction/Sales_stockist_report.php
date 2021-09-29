@@ -16,15 +16,21 @@ class Sales_stockist_report extends MY_Controller {
 		$data['form_reload'] = 'sales/generated/report';   		   
 		$data['sc_dfno'] = $this->stockist;		
 		$data['main_stk'] = $this->stockist;
-        if($this->username != null) {	
-           $data['from'] 	= date("Y-m-d");
-           $data['to'] 	= date("Y-m-d");
-		   $data['curr_period'] = $this->m_ssr->getCurrentPeriod();
-           $this->setTemplate($this->folderView.'formListGeneratedSales', $data); 
-        } else {
-           //echo sessionExpireMessage(false);
-		   $this->setTemplate('includes/inline_login', $data);
-        } 
+
+		if($this->username == null) {
+			$this->setTemplate('includes/inline_login', $data);
+			return;
+		}
+		
+		$data['exportExcell'] = site_url('sales/report/excel');
+		$data['from'] 	= date("Y-m-d");
+		$data['to'] 	= date("Y-m-d");
+		$data['curr_period'] = $this->m_ssr->getCurrentPeriod();
+		$data['readonly_stk'] = "";
+		if($this->stockist != "BID06") {
+			$data['readonly_stk'] = "readonly=readonly";
+		}
+		$this->setTemplate($this->folderView.'formListGeneratedSales', $data); 
 	}
 	//$route['sales/generated/report/list'] = 'transaction/sales_stockist_report/getListGeneratedSales';
 	public function getListGeneratedSales() {
@@ -34,6 +40,87 @@ class Sales_stockist_report extends MY_Controller {
 			//print_r($data['result']);
 			//$this->load->view($this->folderView.'listGeneratedSales',$data);	
 			$bns = $data['year_bns']."-".$data['month_bns']."-01";
+			if($data['searchs'] !== "ECOMMERCE") {
+				$arr = array(
+					"from" => trim($data['from']),
+					"to" => trim($data['to']),
+					"main_stk" => trim($data['main_stk']),
+					"idstkk" => trim($data['idstkk']),
+					"searchs" => trim($data['searchs']),
+					"statuses" => trim($data['statuses']),
+					"bnsperiod" => trim($bns)
+				);
+				$data['idstk'] =  $this->m_ssr->getGenerateRPTByCahyono($arr);
+				/* echo "<pre>";
+				print_r($data['idstk'][0]);
+				echo "</pre>"; */
+				$data['tipe'] = $data['searchs'];
+				$data['action1'] = site_url('sco/sales/generate/pdf');
+				$data['action2'] = site_url('sales/report/excel');
+				$this->load->view($this->folderView.'salesReport',$data);	
+		    } else {
+				$arr = array(
+					"main_stk" => trim($data['main_stk']),
+					"searchs" => trim($data['searchs']),
+					"bnsperiod" => trim($bns)
+				);
+
+				$data['result'] =  $this->m_ssr->getListKnetTrx($arr);
+				/* echo "<pre>";
+				print_r($data['result']);
+				echo "</pre>"; */
+
+				$arrTable = array(
+					"id" => "tbl1",
+					"header" => "Data List Trx K-NET Stockist $data[main_stk]",
+					"column" => array(
+						"No Trx", "ID Member", "No SSR", "Tgl Trx", "DP", "BV", "Kirim", 
+						"Tipe"
+					),
+		
+					"columnAlign" => array(
+						"center", "left", "center", "center", "right", "right", "Center", "Center"
+					),
+
+					"recordStyle" => array(
+						"","","","","money","money","",""
+					),
+
+					"record" => $data['result']['data']
+				);
+				echo generateTable($arrTable);
+
+				echo "<table id='ths' class='table table-bordered table-striped'>";
+				echo "<tr>";
+				echo "<th width='20%'>Tipe</th>";
+				echo "<th width='20%'>Jml Trx</th>";
+				echo "<th width='20%'>Total DP</th>";
+				echo "<th width='20%'>Total BV</th>";
+				echo "</tr>";
+				foreach($data['result']['rekap'] as $dtxa) {
+					echo "<tr>";
+					echo "<td>$dtxa[tipe]</td>";
+					echo "<td align=right>".number_format($dtxa['total_jum_trx'], 0, '.', ',')."</td>";
+					echo "<td align=right>".number_format($dtxa['total_dp'], 0, '.', ',')."</td>";
+					echo "<td align=right>".number_format($dtxa['total_bv'], 0, '.', ',')."</td>";
+					echo "</tr>";
+				}
+				echo "</table>";
+			}
+		} else {
+           jsAlert();
+        } 
+	}
+
+	//$route['sales/report/excel'] = 'transaction/sales_generate/ssrExportExcel';
+	public function ssrExportExcel() {
+		if($this->username != null) {
+			$data = $this->input->post(NULL, TRUE);
+			//$data['result'] = $this->m_ssr->getListGeneratedSales($data['form']);
+			//print_r($data['result']);
+			//$this->load->view($this->folderView.'listGeneratedSales',$data);	
+			$bns = $data['year_bns']."-".$data['month_bns']."-01";
+			
 			$arr = array(
 				"from" => trim($data['from']),
 				"to" => trim($data['to']),
@@ -44,13 +131,15 @@ class Sales_stockist_report extends MY_Controller {
 				"bnsperiod" => trim($bns)
 			);
 			$data['idstk'] =  $this->m_ssr->getGenerateRPTByCahyono($arr);
-			/* echo "<pre>";
-			print_r($data['idstk'][0]);
-			echo "</pre>"; */
 			$data['tipe'] = $data['searchs'];
+
+			/* echo "<pre>";
+			print_r($data['idstk']);
+			echo "</pre>"; */
+
 			$data['action1'] = site_url('sco/sales/generate/pdf');
-            $data['action2'] = site_url('sco/sales/generate/excel');
-			$this->load->view($this->folderView.'salesReport',$data);	
+            $data['action2'] = site_url('sco/sales/report/excel'); 
+			$this->load->view($this->folderView.'salesReportExcell',$data);	
 		} else {
            jsAlert();
         } 
@@ -71,15 +160,17 @@ class Sales_stockist_report extends MY_Controller {
         $data['icon'] = "icon-search";
 		$data['form_reload'] = 'sales/voucher/report';   		   
 		$data['sc_dfno'] 	= $this->stockist;		
-        if($this->username != null) {	
-           $data['from'] 	= date("Y-m-d");
-           $data['to'] 	= date("Y-m-d");
-		   $data['curr_period'] = $this->m_ssr->getCurrentPeriod();
-           $this->setTemplate($this->folderView.'voucherReport', $data); 
-        } else {
-           //echo sessionExpireMessage(false);
-		   $this->setTemplate('includes/inline_login', $data);
-        } 
+
+		if($this->username == null) {
+			$this->setTemplate('includes/inline_login', $data);
+			return;
+		}
+
+		//$data['from'] 	= date("Y-m-d");
+		//$data['to'] 	= date("Y-m-d");
+		$data['curr_period'] = $this->m_ssr->getCurrentPeriod();
+		$this->setTemplate($this->folderView.'voucherReport', $data); 
+        
 	}
 	
     //$route['sales/voucher/report/list'] = 'transaction/sales_stockist_report/voucherReportList';
@@ -96,21 +187,50 @@ class Sales_stockist_report extends MY_Controller {
                 //print_r($x['result']);
                 $this->load->view($this->folderView.'listVchReportByIdMember',$x);
 			}  */
-			if($x['kategori'] == "vc_umr") {
-				$x['result'] =  $this->m_ssr->getVoucherUmrohReport($x['memberid'], $x['voucherno'], $x['kategori']);	
+			$x['usergroup'] = $this->usergroup;
+			$x['btnBack'] = "";
+			if($x['kategori'] == "vc_umr" && $x['voucherno'] !== "") {
+				$x['result'] =  $this->m_ssr->getVoucherUmrohReport($x['memberid'], $x['voucherno'], $x['kategori'], $x['usergroup']);	
 				$this->load->view($this->folderView.'listVchReportStk',$x);
 				
-			} else if($x['kategori'] == "vc_reg") {
-				$x['result'] =  $this->m_ssr->getDetailVoucher($x['voucherno'], $x['memberid']);	
+			} else if($x['kategori'] == "vc_reg" && $x['voucherno'] !== "") {
+				$x['result'] =  $this->m_ssr->getDetailVoucher($x['voucherno'], $x['memberid'], $x['usergroup']);	
 				$this->load->view('member/voucher/voucherDetailByFormNo',$x);
 		    } else {
-				$x['result'] =  $this->m_ssr->getVoucherReportListV2($x['memberid'], $x['voucherno'], $x['kategori']);
-				$this->load->view($this->folderView.'listVchReportStk',$x);
+
+				if($x['usergroup'] == "ADMIN" && $x['voucherno'] == "") {
+					$x['result'] =  $this->m_ssr->getListVchByDist($x['memberid'], $x['kategori'], $x['usergroup']);
+					/* echo "<pre>";
+					print_r($x['result']);
+					echo "</pre>"; */
+
+					$arrTable = array(
+						"id" => "tbl1",
+						"header" => "List Voucher Memner",
+						"column" => array(
+							"No Voucher", "Nilai Vch", "Tgl Exp", "Status Klaim", "Lokasi Klaim", "Status Open", "Act"
+						),
+						"columnAlign" => array(
+							"center","right", "center", "center","center","center","center"
+						),
+			
+						"recordStyle" => array(
+							"","money","","","","",""
+						),
+						"record" => $x['result']
+					 );
+					echo generateTable($arrTable);
+				} else {
+					//echo "sds";
+					$x['result'] =  $this->m_ssr->getVoucherReportListV2($x['memberid'], $x['voucherno'], $x['kategori'], $x['usergroup']);
+					$this->load->view($this->folderView.'listVchReportStk',$x);
+				}	
+				
 			}
 			
 			
         }else{
-            echo sessionExpireMessage();
+            echo sessionExpireMessage(false);
         }
     }
 
@@ -125,7 +245,7 @@ class Sales_stockist_report extends MY_Controller {
 	
 	if($field == "batchno") {
 		$data['back_button'] = "All.back_to_form(' .nextForm1',' .mainForm')";
-		$data['result'] = $this->m_ssr->listTtpById($field, $value);
+		$data['result'] = $this->m_ssr->listTtpByIdV2($field, $value);
 		$data['rekapPrd'] = $this->m_ssr->summaryProductBySSR($value);
 		$this->load->view($this->folderView.'listTTP', $data);
 	} else if($field == "trcd") {
@@ -136,5 +256,120 @@ class Sales_stockist_report extends MY_Controller {
 	
 	
   }
+
+  //$route['sales/report/product'] = 'transaction/sales_stockist_report/rekapSalesProduct';
+	public function rekapSalesProduct() {
+		$data['form_header'] = "Stockist Product Sales Report";
+        $data['form_action'] = "sales/report/product/excell";
+        $data['icon'] = "icon-list";
+		$data['form_reload'] = 'sales/report/product';
+		$data['mainstk_read'] = $this->stockist;
+
+        if($this->username == null) {
+			$this->setTemplate('includes/inline_login', $data);
+			return;
+		}
+
+		$data['btfrom'] = date("Y-m")."-01";
+		$data['btto'] = date("Y-m-d");
+		$this->setTemplate($this->folderView.'formrekapSalesProduct',$data);
+	}
+
+	//$route['sales/report/stkssr'] = 'transaction/sales_stockist_report/stkssr';
+	public function stkssr() {
+		$form = $this->input->post(NULL, TRUE);
+		//print_r($form);
+		$data['result'] = $this->m_ssr->stkssr($form);
+		$arr = jsonFalseResponse("Data tidak ditemukan");
+		if($data['result'] !== null) {
+			$arr = jsonTrueResponse($data['result']);
+		}
+		echo json_encode($arr);
+	}
+
+	//$route['sales/report/product/list'] = 'transaction/sales_stockist_report/rekapSalesProductList';
+	public function rekapSalesProductList() {
+		$form = $this->input->post(NULL, TRUE);
+		$arr = array(
+			"from" => $form['from'], 
+			"to"   => $form['to'],
+			"tipe" => $form['stkssr'], 
+			"mainstk" => $form['mainstk'], 
+			"tipessr" => $form['searchs'],
+			"parValue" => $form['parValue'],
+			"break_bundling" => $form['bundling'],
+		);
+
+		/* echo "<pre>";
+		print_r($arr);
+		echo "</pre>"; */
+
+		 $res = $this->m_ssr->rekapProduk($arr);
+
+		$arrTable = array(
+			"id" => "tbl1",
+			"header" => "Rekap Sales Produk",
+			"column" => array(
+				"Kode Produk", "Nama Produk", "Qty"
+			),
+			"columnAlign" => array(
+				"center","left", "right"
+			),
+
+			"recordStyle" => array(
+				"","","money"
+			),
+			"record" => $res
+		 );
+		echo generateTable($arrTable);
+		
+	}
+
+	//$route['sales/report/product/excell'] = 'transaction/sales_stockist_report/rekapSalesProductListExcell';
+	public function rekapSalesProductListExcell() {
+		$form = $this->input->post(NULL, TRUE);
+		$arr = array(
+			"from" => $form['from'], 
+			"to"   => $form['to'],
+			"tipe" => $form['stkssr'], 
+			"mainstk" => $form['mainstk'], 
+			"tipessr" => $form['searchs'],
+			"parValue" => $form['parValue'],
+			"break_bundling" => $form['bundling'],
+		);
+
+		/* echo "<pre>";
+		print_r($arr);
+		echo "</pre>"; */
+
+		 $res = $this->m_ssr->rekapProduk($arr);
+
+		$arrTable = array(
+			"id" => "tbl1",
+			"header" => "Rekap Sales Produk",
+			"column" => array(
+				"Kode Produk", "Nama Produk", "Qty"
+			),
+			"columnAlign" => array(
+				"center","left", "right"
+			),
+
+			"recordStyle" => array(
+				"","","money"
+			),
+			"record" => $res,
+			"datatable" => false
+		 );
+		//echo generateExcell($arrTable);
+
+		header("Content-type: application/vnd.ms-excel; name='excel'");
+        header("Content-Disposition: Attachment; filename=reportBnsStk.xls");
+        header("Pragma: no-cache");
+        header("Expires: 0");
+		date_default_timezone_set("Asia/Jakarta"); 
+		$res = generateExcell($arrTable);
+        echo $res;
+		
+	}
 	
 }

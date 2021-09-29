@@ -8,37 +8,38 @@ class Login extends MY_Controller {
 		$this->load->service("Login_service", "s_login");
 		$this->formAction = base_url()."auth";
 	}
-	 
+
 	public function index() {
-		$data['formAction'] = $this->formAction;	
+		$data['formAction'] = $this->formAction;
 		$this->load->view('includes/adm_login', $data);
 	}
-	
+
 	//$route['auth'] = 'login/auth';
 	public function auth() {
-		//echo "ok";
-		$data['formAction'] = $this->formAction;	
+		echo "ok";
+    $data['formAction'] = $this->formAction;
+    $data['formData'] = $this->input->post(null, true);
 		try {
 		    $srvReturn = $this->s_login->getValidateLogin();
-		    //print_r($this->session->all_userdata());
+		    // print_r($this->session->all_userdata());
 			redirect('main');
 		} catch(Exception $e) {
 			$data['error_message'] = $e->getMessage();
 			$this->load->view('includes/adm_login', $data);
-		}		
+		}
 	}
-	
+
 	//$route['auth/inline'] = 'login/authInline';
 	public function authInline() {
-			
+
 		try {
 		    $srvReturn = $this->s_login->getValidateLogin();
 		    echo json_encode(jsonTrueResponse(null, "Login success"));
 		} catch(Exception $e) {
 			echo json_encode(jsonFalseResponse("Login gagal, check username dan password anda.."));
-		}		
+		}
 	}
-	
+
 	private function buildMenu2($parent, $menu, $urut)
     {
        $ss = base_url();
@@ -51,7 +52,7 @@ class Login extends MY_Controller {
               {
                 $html .= "<li><a rel=\"".$menu['items'][$itemId]['menu_id']."\" class=ss href=\"#\" id='$ss".$menu['items'][$itemId]['menu_url']."'>".$menu['items'][$itemId]['menu_desc']."</a></li>";
                 //$html .= "<li><a rel=\"".$menu['items'][$itemId]['menu_id']."\" onclick=buatTabulasi() href=\"#\" id='$ss".$menu['items'][$itemId]['url']."'>".$menu['items'][$itemId]['menu_name']."</a></li>";
-              }  
+              }
               if(isset($menu['parents'][$itemId]))
               {
                     if($urut != 0) {
@@ -63,38 +64,40 @@ class Login extends MY_Controller {
                     //$html .= "<li><a href=".$menu['items'][$itemId]['menu_name'].">".$menu['items'][$itemId]['menu_name']."</a></li>";
                     $urut++;
                     $html .= $this->buildMenu2($itemId, $menu, $urut);
-              }      
-           }     
-       } 
+              }
+           }
+       }
        return $html;
-    } 
+    }
 
    //$route['main'] = 'login/main';
    public function main() {
-   	  
+
    	  if($this->username != null) {
    	  	 $menu = $this->s_login->fetchingMenu($this->groupid);
 		 //print_r($menu);
    	     $data['menu'] = $this->buildMenu2(0, $menu, 0);
-		 $data['logout'] = base_url('logout');		
+		 $data['logout'] = base_url('logout');
    	     $this->load->view('includes/header', $data);
    	  }  else {
    	  	 //print_r($this->session->all_userdata());
-   	  	 //echo "username is null";	
+   	  	 //echo "username is null";
    	  	 redirect('');
-   	  } 
+   	  }
    }
-	
+
 	//$route['logout'] = 'login/logout';
 	public function logout() {
 		$this->session->sess_destroy();
 		redirect('');
 	}
-	
+
 	//$route['sess'] = 'login/sess';
 	public function sess() {
 		print_r($this->session->all_userdata());
 		//redirect('');
 	}
-		
+
+	
+
 }

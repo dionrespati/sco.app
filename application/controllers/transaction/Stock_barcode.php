@@ -4,27 +4,173 @@
 class Stock_barcode extends MY_Controller {
 	public function __construct() {
 	    parent::__construct();
-		$this->folderView = "transaction/stock_barcode/";
+		$this->folderView = "transaction/barcode/";
 		$this->load->model('transaction/Stock_barcode_model', 'm_stock_barcode');
 	}
 
-	//$route['stk/barcode'] = 'transaction/stock_barcode/formStockBarcode';
-	public function formStockBarcode() {
-		$data['form_header'] = "Stock Barcode";
-        $data['form_action'] = "stk/barcode/trx/list";
-        $data['icon'] = "icon-pencil";
-		$data['form_reload'] = 'stk/barcode';
+  function detailScaProduk($id)
+    {
+        $header = "header";
+        $detail = "detail";
+        $xplode = explode("-",$id);
+        $trcd = $xplode[0];
+        $prdcd = $xplode[1];
 
-        if($this->username != null) {
+        $arr = $this->m_stock_barcode->detailScaProduk($trcd,$prdcd);
+        echo json_encode($arr);
+    }
+
+	function detailTransaction2($id)
+    {
+        $header = "header";
+        $detail = "detail";
+        $arr = $this->m_stock_barcode->getInformation($id);
+        $det = $this->m_stock_barcode->getDataDetV2($id);
+		
+        $dataDet = array();
+		
+        foreach($det as $key => $value){
+			
+            $data['prdcd'] = $value['prdcd'];
+            $data['trcd'] = $value['trcd'];
+            $data['prdnm'] = $value['prdnm'];
+            $data['qtyord'] = $value['qtyord'];
+            $data['jumlah_sdh_dibarcode'] = $this->m_stock_barcode->getBarcodeV2($id,$value['prdcd']);
+            array_push($dataDet, $data);
+			// print_r($value);    
+        }
+		// print_r($dataDet);
+		// die();
+        $return['header'] = $dataDet;
+        $return['detail'] = $arr;
+        $return['response'] = 'true';
+		// die('disini');
+        echo json_encode($return);
+    }
+
+    // function detailTransaction2($id)
+    // {
+    //   // die('controller');
+    //     $header = "header";
+    //     $detail = "detail";
+    //     $arr = $this->m_stock_barcode->detailTransaction($id);
+    //     echo json_encode($arr);
+    // }
+
+  function detailTransaction()
+    {
+        $header = "header";
+        $detail = "detail";
+        $id = $this->input->post('no_ttp');
+        $trcd = $this->m_stock_barcode->cekTrcd($id);
+        if(!empty($trcd)){
+            foreach($trcd as $key => $value){
+                $id_trcd = $value->trcd;
+            }
+            $arr = $this->m_stock_barcode->detailTransaction($id_trcd);
+        }else{
+            $arr = array("response" => "false");
+        }
+        echo json_encode($arr);
+    }
+
+	function detailTransactionRange()
+    {
+        $header = "header";
+        $detail = "detail";
+		$from = $this->input->post('from');
+        $to = $this->input->post('to');
+		// $loccd = $this->input->post('loccd');
+		$username = $this->username;
+        // $username = 'BID06';
+		// print_r($to);
+		// die('disini');
+		// die($username);
+        $arr['arraydata'] = $this->m_stock_barcode->getDataDetailRange($to, $from, $username);
+        if($arr['arraydata'] == NULL){
+			$arr['response'] ='false';
+		}else{
+			$arr['response'] ='true';
+		}
+        echo json_encode($arr);
+    }
+
+	public function postTraceBarcode($barcode)
+    {
+		
+        $data['user'] = $this->username;
+		if($data['user'] == "BID06") {
+			$arr = $this->m_stock_barcode->getTraceBarcode($barcode);
+		} else{
+		    $arr = $this->m_stock_barcode->getTraceBarcode($barcode);
+		}
+        //  $arr['no']=1;
+        echo json_encode($arr);
+    }
+
+
+    public function formStockBarcode() {
+			$data['form_header'] = "Stock Barcode";
+			$data['form_action'] = "stk/barcode/trx/list";
+			$data['icon'] = "icon-pencil";
+			$data['form_reload'] = 'stk/barcode';
+			$data['username'] = $this->username;
+      if($this->username != null) {
            $data['from1'] 	= date("Y-m-d");
            $data['to1'] 	= date("Y-m-d");
            $data['from'] 	= date("Y-m-d");
            $data['to'] 	= date("Y-m-d");
+		
 		   $data['stk_barcode_opt'] = $this->m_stock_barcode->getListStkbarMenu($this->groupid);
-		   $this->setTemplate($this->folderView.'stockBarcodeForm', $data);
-        } else {
-           $this->setTemplate('includes/inline_login', $data);
-        }
+
+		   if($this->username == "BID06" || $this->username == "IDSMG81") {
+				 //echo "sd";
+			   $this->setTemplate($this->folderView.'stockBarcodeFormV2', $data);
+		   } else {
+			   //$this->setTemplate($this->folderView.'stockBarcodeForm', $data);
+				 $this->setTemplate($this->folderView.'stockBarcodeFormV2', $data);
+		   }
+			} else {
+					$this->setTemplate('includes/inline_login', $data);
+			}
+	}
+
+	
+	//$route['stk/barcode/check/(:any)/(:any)'] = 'transaction/stock_barcode/getDataFullName/$1/$2';
+	public function getDataFullName($type, $value) {
+		$res = $this->m_stock_barcode->checkMsMember($type, $value);
+		echo json_encode($res);
+	}
+
+	//$route['stk/barcode/simpan'] = 'transaction/stock_barcode/simpanBarcode';
+	public function simpanBarcode() {
+		$data = $this->input->post(NULL, TRUE);
+
+		/* echo "<pre>";
+		print_r($data);
+		echo "</pre>"; */
+
+		$res = $this->m_stock_barcode->simpanBarcodeV2($data);
+		echo json_encode($res);
+	}
+
+	public function fromTraceBarcode() {
+		$data['form_header'] = "Trace Barcode";
+		$data['form_action'] = "stk/barcode/trx/list";
+		$data['icon'] = "icon-pencil";
+		$data['form_reload'] = 'stk/barcode/trace';
+		$data['username'] = $this->username;
+		if($this->username != null) {
+			$data['from1'] 	= date("Y-m-d");
+			$data['to1'] 	= date("Y-m-d");
+			$data['from'] 	= date("Y-m-d");
+			$data['to'] 	= date("Y-m-d");
+			$data['stk_barcode_opt'] = $this->m_stock_barcode->getListStkbarMenu($this->groupid);
+			$this->setTemplate($this->folderView.'traceBarcodeForm', $data);
+		 } else {
+			$this->setTemplate('includes/inline_login', $data);
+		 }
+        
 	}
 
 	//$route['stk/barcode/wh/list'] = 'transaction/stock_barcode/getListWH';
@@ -215,14 +361,18 @@ class Stock_barcode extends MY_Controller {
 	}
 
 
+  public function saveBarcode()
+    {
+        $trcd = $trcd = $this->input->post('trcd');
+	    $arr = $this->m_stock_barcode->saveInputBarcode();
 
+    echo json_encode($arr);
+    }
 
-	//$route['stk/barcode/save'] = 'transaction/stock_barcode/saveBarcode';
-	public function saveBarcode() {
+	public function saveBarcode_bak() {
 
         $trcd = $trcd = $this->input->post('trcd');
         $arr = jsonFalseResponse("Trx No. $trcd sudah pernah di barcode..!!");
-		//trx stockist/sub stockist
 		if($this->groupid == "3" || $this->groupid == "4") {
 
 			$arr = $this->m_stock_barcode->saveInputBarcode($trcd);

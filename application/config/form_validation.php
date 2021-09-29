@@ -11,7 +11,7 @@ $config = array(
                             'label' => 'Password',
                             'rules' => 'required|trim'
                          ),
-
+                    
 				),
  'login' => array(
                     array(
@@ -28,9 +28,9 @@ $config = array(
                             'field' => 'captcha',
                             'label' => 'captcha',
                             'rules' => 'required|trim'
-                         )
+                         )          
 				),
-
+				
   'user/group' => array(
   			        array(
                             'field' => 'groupname',
@@ -38,7 +38,7 @@ $config = array(
                             'rules' => 'required|trim'
                          ),
 				),
-
+				
   'user' => array(
   			        array(
                             'field' => 'username',
@@ -56,7 +56,7 @@ $config = array(
                             'rules' => 'required|trim'
                          )
 				),
-
+  
   'app' => array(
   			        array(
                             'field' => 'app_id',
@@ -101,10 +101,10 @@ $config = array(
                             'field' => 'app_menu_url',
                             'label' => 'app_menu_url',
                             'rules' => 'required|trim'
-                         )
-
+                         ) 
+                    
 				),
-
+  
   'product/cat' => array(
   			         array(
                             'field' => 'cat_id',
@@ -115,7 +115,7 @@ $config = array(
                             'field' => 'cat_desc',
                             'label' => 'cat_desc',
                             'rules' => 'required|trim'
-                         )
+                         ) 
                 ),
   'pricecode' => array(
   				     array(
@@ -127,7 +127,7 @@ $config = array(
                             'field' => 'pricecode_desc',
                             'label' => 'pricecode_desc',
                             'rules' => 'required|trim'
-                         )
+                         ) 
                 ),
   'product' => array(
   			        array(
@@ -144,9 +144,9 @@ $config = array(
                             'field' => 'cat_id',
                             'label' => 'cat_id',
                             'rules' => 'required|trim'
-                         )
-                ),
-
+                         )      
+                ),  
+                
 	'product/price' => array(
 				     array(
                             'field' => 'cat_inv_id',
@@ -182,11 +182,11 @@ $config = array(
                             'field' => 'bv[]',
                             'label' => 'bv',
                             'rules' => 'required|trim|numeric'
-                         )	*/
-
-
+                         )	*/	     	 
+						 
+						             
 			    ),
-
+                
   'umroh' => array(
                     array(
                             'field' => 'fullnm',
@@ -202,7 +202,7 @@ $config = array(
                             'field' => 'birthplace',
                             'label' => 'Tempat Lahir',
                             'rules' => 'required|trim'
-                         ),
+                         ), 
                     array(
                             'field' => 'fathersnm',
                             'label' => 'Nama Ayah Kandung',
@@ -222,17 +222,17 @@ $config = array(
                             'field' => 'kecamatan',
                             'label' => 'Kecamatan',
                             'rules' => 'required|trim'
-                         ),
+                         ),  
                     array(
                             'field' => 'kota',
                             'label' => 'Kota',
                             'rules' => 'required|trim'
-                         ),
+                         ),  
                     array(
                             'field' => 'prov',
                             'label' => 'Provinsi',
                             'rules' => 'required|trim'
-                         ),
+                         ),  
                     array(
                             'field' => 'zipcode',
                             'label' => 'Kode Pos',
@@ -242,7 +242,7 @@ $config = array(
                             'field' => 'tel_hp',
                             'label' => 'No. HP',
                             'rules' => 'required|trim'
-                         ),*/
+                         ),*/  
                     /*array(
                             'field' => 'tel_hm',
                             'label' => 'No. Telp Rmh',
@@ -259,7 +259,7 @@ $config = array(
                             'rules' => 'required|trim'
                          )*/
 				),
-
+                
     'installments' => array(
                     array(
                             'field' => 'regnos',
@@ -284,8 +284,8 @@ $config = array(
                          )
 						  */
 				),
-
-
+				
+				
   'campaign' => array(
   			        array(
                             'field' => 'dfno',
@@ -306,9 +306,9 @@ $config = array(
                             'field' => 'pic_desc',
                             'label' => 'Picture Description',
                             'rules' => 'required|trim'
-                         ),
+                         ),  
                 ),
-
+                 
   'inv/cat' => array(
                     array(
                             'field' => 'id_cat',
@@ -321,7 +321,7 @@ $config = array(
                             'rules' => 'required|trim'
                     ),
                 ),
-
+  
   'inv/supplier' => array(
                         array(
                                 'field' => 'id_supplier',
@@ -380,7 +380,7 @@ $config = array(
                                 'rules' => 'required|trim'
                         ),
                     ),
-
+   
    'inputTtpStockist' => array(
    							array(
                                 'field' => 'dfno',
@@ -388,22 +388,22 @@ $config = array(
                                 'rules' => 'required|trim',
                                 'errors' => array('required' => 'ID Member harus diisi')
                             ),
-
+                            
 							array(
                                 'field' => 'sc_dfno',
                                 'label' => 'Stockist Code',
                                 'rules' => 'required|trim',
                                 'errors' => array('required' => 'Kode Stockist harus diisi')
                             ),
-
+                            
 							array(
                                 'field' => 'orderno',
                                 'label' => 'No TTP',
                                 'rules' => 'required|trim',
                                 'errors' => array('required' => 'No TTP harus diisi')
                             ),
-
+   
    						)
-
+  		            								
 );
-//$this->form_validation->set_rules($config);
+//$this->form_validation->set_rules($config);				 

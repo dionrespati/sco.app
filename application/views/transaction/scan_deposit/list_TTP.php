@@ -2,18 +2,25 @@
 <?php
 $linkTTP = "All.ajaxShowDetailonNextForm('scan/list/detail/ttp/$deposit')";
 echo "<div class='form-group'>";
-if($status == "1" && $sisaDeposit > 0) {
+if($status == "1") {
 echo "<input type='button' value='TTP Baru' onclick=\"All.ajaxShowDetailonNextForm2('scan/ttp/input/$deposit')\" class='btn btn-primary'>";
 }
 echo "&nbsp;<input type='button' class='btn btn-sm btn-warning' title='Refresh Halaman ini' value='Refresh' onclick=$linkTTP />";
 echo "</div>";
 
 
-if($list['total_vch'] != $list['total_deposit_out'] || $list['stt_balance'] == "1") {
+if($list['total_vch'] != $list['total_deposit_out'] || $list['stt_balance'] == "1" || $user == "BID06") {
     $total_vch = number_format($list['total_vch'], 0, ".", ".");
     $total_deposit_out = number_format($list['total_deposit_out'], 0, ".", ".");
-    echo "<div class='alert alert-danger'>Deposit Voucher tidak balance, klik tombol <input type='button' class='btn btn-mini btn-primary' value='Recalculate' onclick=\"Stockist.recalculateDeposit('$deposit')\" /></div>";
+    echo "<div class='alert alert-danger'>Deposit Voucher tidak balance, klik tombol <input type='button' class='btn btn-mini btn-primary' value='Koreksi Deposit Voucher' onclick=\"Stockist.recalculateDeposit('$deposit')\" /></div>";
 }
+
+/* if($user == "BID06") {
+    echo "Total Vch : ".$list['total_vch'];
+    echo "<br />";
+    echo "Total Deposit Out : ".$list['total_deposit_out'];
+
+} */
 
 /* echo "<pre>";
 print_r($list);
@@ -24,11 +31,11 @@ echo "</pre>"; */
     <thead>
         <tr>
             <th rowspan="2" width="4%">No</th>
-            <th rowspan="2" width="10%">No Trx</th>
-            <th rowspan="2" width="10%">No TTP</th>
+            <th rowspan="2" width="11%">No Trx</th>
+            <th rowspan="2" width="12%">No TTP</th>
             <th rowspan="2">ID Member</th>
             <th rowspan="2" width="8%">Bonus</th>
-            <th rowspan="2" width="10%">No SSR</th>
+            <th rowspan="2" width="11%">No SSR</th>
             <th rowspan="2" width="7%">Total DP</th>
             <th colspan="2" width="14%">Penggunaan</th>
             <th rowspan="2" width="4%">Aksi</th>

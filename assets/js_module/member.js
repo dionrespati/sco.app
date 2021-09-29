@@ -123,7 +123,7 @@ var Member = {
 			if(choosevoucher == "1" && (validVoucher != "1" || vchno === "" || vchkey === "")) {
 				alert("Cek No Voucher dan Voucher Key..");
 			} else {
-				if(sisaPendingVch == 0) {
+				if(choosevoucher == "0" && sisaPendingVch == 0) {
 					alert("Kuota untuk penginputan member pending voucher sudah habis..");
 				} else {
 					All.set_disable_button();

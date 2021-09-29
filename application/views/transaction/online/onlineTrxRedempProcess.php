@@ -17,13 +17,13 @@ echo "
         <td>NO KW </td>
         <td>".$main[0]->KWno."</td>
       </tr>
-
+      
       <tr>
         <td>USER LOGIN</td>
         <td>".$main[0]->usr_login. " / ".$main[0]->nmsponsor. " ( ". $main[0]->tel_hp. " ) "."</td>
         <td colspan=2>&nbsp;</td>
       </tr>
-
+      
       <tr>
         <td>NO TRANSAKSI</td>
         <td>".$main[0]->orderno."</td>
@@ -34,14 +34,14 @@ echo "
         <td>".number_format($main[0]->total_pay,0,",",".")."</td>
         <td colspan=2>&nbsp;</td>
 		  </tr>
-
+      
       <tr>
         <td>PERIODE BONUS</td>
         <td>".$main[0]->bonusmonth."</td>
 		    <td colspan=2>&nbsp;</td>
       </tr>
     </table>
-
+    
 	<table width=\"95%\" class=\"table table-striped table-bordered bootstrap-datatable datatable\" align=\"center\">
 	  <tr>
         <th colspan=8>DETAIL PEMBELANJAAN PRODUK</th>
@@ -84,17 +84,17 @@ foreach($detail as $bar)
         <td colspan=\"6\"  align=\"center\"><b>TOTAL</b></td>
         <td align=\"right\">".number_format($totalldp,0,",",",")."</td>
         <td align=\"right\">$totallbv</td>
-
+        
       </tr>
       <tr>
         <td  colspan=\"8\" align=\"center\" valign=\"center\">Security Code
         <input type=\"text\" name=\"secno\">&nbsp;
         <input type=\"button\" class=\"btn btn-mini btn-warning\" name=\"back\" value=\"<< Kembali\" onclick=\"All.back_to_form(' .nextForm1',' .mainForm')\" />
         <input type=\"submit\" class=\"btn btn-mini btn-primary\" name=\"updates\" value=\"Proses Pengambilan Barang\" />
-        <input type=\"hidden\" name=\"orderno\" value=\"".$main[0]->orderno."\"/>
+        <input type=\"hidden\" name=\"orderno\" value=\"".$main[0]->orderno."\"/> 
         </td>
       </tr>
-
+      
     </table>
 
 </form>";

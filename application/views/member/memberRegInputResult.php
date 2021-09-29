@@ -6,11 +6,11 @@
    <table width="70%" class="table table-striped table-bordered bootstrap-datatable">
         <tr>
         	<th colspan="2">Data Member</th>
-        </tr>
+        </tr>	
         <tr>
             <td width="20%">ID Member</td>
             <td><?php echo $show_new_member[0]->dfno;?></td>
-        </tr>
+        </tr>     
         <tr>
             <td width="30%">Nama Member</td>
             <td><?php echo $show_new_member[0]->fullnm;?></td>
@@ -26,7 +26,7 @@
          <tr>
             <td width="30%">Sponsor</td>
             <td><?php echo $show_new_member[0]->sponsorid." / ".$show_new_member[0]->sponsorname;?></td>
-        </tr>
+        </tr>  
 </table>
 	<p></p>
 	<div>
@@ -34,7 +34,7 @@
 		 <!--<input type="button" value="Save Changes" class="btn btn-small btn-primary" onclick="be_member.updateDataMember()" />-->
     </div>
 	<p></p>
-
+	
 <?php
     }
 ?>

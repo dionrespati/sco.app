@@ -96,7 +96,7 @@
                         $btn_class = "btn btn-mini btn-success";
                         /* echo "totpay : ".$row->totpay;
                         echo "total_pay : ".$total_pay; */
-                        if($row->totpay != $total_pay) {
+                        if($row->totpay != $total_pay || $row->createnm != $row->loccd) {
                             $readonly="disabled=disabled";
                             $font_err_depan = "<font color=red>";
                             $font_err_blkg = "</font>";
@@ -119,7 +119,7 @@
                        <td><div align=right>$font_err_depan".number_format($row->totpay,0,".",".")." $font_err_blkg</div></td>
                        <td><div align=right>$font_err_depan".number_format($row->tbv,0,".",".")." $font_err_blkg</div></td>
                        <td align=\"center\">
-                            <button type=\"button\" class=\"$btn_class\" onclick=\"$btn_list_ttp\"  value='$row->tipe|$row->sc_dfno|$row->sc_co' >  $btn_value </button>
+                            <button type=\"button\" class=\"$btn_class\" onclick=\"$btn_list_ttp\"  value='$row->tipe|$row->sc_dfno|$row->sc_co|$row->loccd' >  $btn_value </button>
                        </td>
                        </tr>";
                     }  else if($row->tipe == "PVR") {
@@ -156,7 +156,7 @@
                        <td><div align=right>$font_err_depan".number_format($row->totpay,0,".",".")."$font_err_blkg</div></td>
                        <td><div align=right>$font_err_depan".number_format($row->tbv,0,".",".")."$font_err_blkg</div></td>
                        <td align=\"center\">
-                            <button type=\"button\" class=\"$btn_class\" onclick=\"$btn_list_ttp\"  value='$row->tipe|$row->sc_dfno|$row->sc_co' > $btn_value </button>
+                            <button type=\"button\" class=\"$btn_class\" onclick=\"$btn_list_ttp\"  value='$row->tipe|$row->sc_dfno|$row->sc_co|$row->loccd' > $btn_value </button>
                        </td>
                        </tr>";    
                     }  /* else {

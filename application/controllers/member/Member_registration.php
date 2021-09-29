@@ -26,28 +26,41 @@ class Member_registration extends MY_Controller {
 	}
 	
 	//$route['member/voucher/check/(:any)/(:any)'] = 'member/member_registration/checkVoucher/$1/$2';
-	public function checkVoucher($voucherno, $voucherkey) {	
-		$vchno = trim($voucherno);	
-		$vchkey = trim($voucherkey);
-		$arr = $this->checkVoucherMemb($vchno, $vchkey);
+	public function checkVoucher($voucherno, $voucherkey) {		
+		$arr = $this->checkVoucherMemb($voucherno, $voucherkey);
 		echo json_encode($arr);
 	}
 	
 	private function checkVoucherMemb($voucherno, $voucherkey) {
 		
 		$result = $this->m_member_reg->cekValidVoucher($voucherno, $voucherkey);
-		if($result != null) {
-			if($result[0]->status == "1") {
-				$arr = jsonTrueResponse($result);
-			} else if($result[0]->status == "0") {
-				$arr = array("response" => "unreleased", "message" => "Voucher $voucherno belum di release..");
-			} else if($result[0]->status == "2") {
-				$arr = array("response" => "activated", "arrayData" => $result, "message" => "Voucher $voucherno sudah terpakai untuk : ".$result[0]->activate_dfno." / ".$result[0]->fullnm );
-			} 
-		} else {
+		if($result == null) {
 			$arr = jsonFalseResponse("Voucher No / Voucher Key salah.."); 
+			return $arr;
+		}	
+
+		$prdcdPrefix = substr($result[0]->prdcd, 0, 5);
+		if($prdcdPrefix == "SKMHS") {
+			$arr = jsonFalseResponse("Voucher ini adalah Vch Mahasiswa, hanya bisa diinput via K-NET"); 
+			return $arr;
 		}
+
+		if($result[0]->status == "0") {
+			$arr = array("response" => "unreleased", "message" => "Voucher $voucherno belum di release..");
+			return $arr;
+		}
+
+		if($result[0]->status == "2") {
+			$arr = array("response" => "activated", 
+				"arrayData" => $result, 
+				"message" => "Voucher $voucherno sudah terpakai untuk : ".$result[0]->activate_dfno." / ".$result[0]->fullnm );
+			return $arr;
+		} 
+
+		$arr = jsonTrueResponse($result);
 		return $arr;
+		
+		
 	}
 	
 	//$route['member/reg/input'] = 'member/member_registration/inputMember';
@@ -88,11 +101,9 @@ class Member_registration extends MY_Controller {
 		   $cnterr = 0;
 		   $regtype = 0;
 		   try {
-				   //Check sponsor & rekruiter
-				$sponsorid = trim(strtoupper(preg_replace("/[^\w\s]+/", "", $data['idsponsor'])));   	
-				$recruiterid = trim(strtoupper(preg_replace("/[^\w\s]+/", "", $data['idrekrut']))); 
-		   		$idsponsor = $this->m_api->checkValidIdMember($sponsorid);
-		   		$idrekruit = $this->m_api->checkValidIdMember($recruiterid);	
+		   		//Check sponsor & rekruiter	
+		   		$idsponsor = $this->m_api->checkValidIdMember($data['idsponsor']);
+		   		$idrekruit = $this->m_api->checkValidIdMember($data['idrekrut']);	
 				//Jika memilih pending voucher	
 				if($data['chosevoucher'] == "0") {
 					//Check Limit starterkit pending voucher
@@ -145,10 +156,8 @@ class Member_registration extends MY_Controller {
 		$this->load->model("be_api_model", "m_api");
 		try {
 				//Check sponsor & rekruiter	
-				$sponsorid = trim(strtoupper(preg_replace("/[^\w\s]+/", "", $data['idsponsor'])));   	
-				$recruiterid = trim(strtoupper(preg_replace("/[^\w\s]+/", "", $data['idrekrut']))); 
-				$idsponsor = $this->m_api->checkValidIdMember($sponsorid);
-				$idrekruit = $this->m_api->checkValidIdMember($recruiterid);	
+				$idsponsor = $this->m_api->checkValidIdMember($data['idsponsor']);
+				$idrekruit = $this->m_api->checkValidIdMember($data['idrekrut']);	
 				$cekNoKtp  = $this->m_api->memberCheckExistingRecordByField("idno", $data['noktp']);
 				$cekNohP  =  $this->m_api->memberCheckExistingRecordByField("tel_hp", $data['tel_hp']);
 				$cnterr = 0;  
@@ -174,7 +183,7 @@ class Member_registration extends MY_Controller {
 				}   
 			    //echo "okey";
 			  //Single member registration
-			   if($data['tipe_input'] == "1") {	
+			  if($data['tipe_input'] == "1") {	
 			      $lastkit = $this->m_member_reg->showLastkitno($this->stockist);
 				  if($lastkit != null) {
 				     //echo "dsdsd";		 
@@ -193,7 +202,7 @@ class Member_registration extends MY_Controller {
 		      //end if($data['tipe_input'] == "1")	  
 			  } else {
 			  //Couple member registration	
-			  } 
+			  }
 		} catch(Exception $e) {
 			$arr = jsonFalseResponse($e->getMessage());
 			//throw new Exception($e->getMessage());
@@ -248,6 +257,97 @@ class Member_registration extends MY_Controller {
 	public function showNewMember($idmember) {
 		$data['show_new_member'] = $this->m_member_reg->show_new_member($idmember);
 		$this->load->view($this->folderView.'memberRegInputResult', $data);
+	}
+
+	//$route['member/sk/promo'] = 'member/member_registration/formBeliSk';
+	public function formBeliSk() {
+		$data['form_header'] = "Pembelian SK Promo";
+		$data['icon'] = "icon-pencil";
+		$data['form_reload'] = 'member/sk/promo';
+		$data['form_action'] = 'member/sk/promo/save';
+		//echo "stk : ".$this->stockist;
+		   	
+		if($this->username != null) {	
+		   $pricecode = $this->pricecode;		   
+		   $data['listSK'] = $this->m_member_reg->listProdukSkPromoStk($pricecode);
+		   $this->setTemplate($this->folderView.'formSkPromo', $data); 
+        } else {
+           //echo sessionExpireMessage(false);
+		   $this->setTemplate('includes/inline_login', $data);
+        } 
+	}
+
+	//$route['member/checkID/(:any)'] = 'member/member_registration/checkIdMember/$1';
+	public function checkIdMember($idmember) {
+		$res = jsonFalseResponse("Data member $idmember tidak ditemukan..");
+		$insMemb = $this->m_member_reg->checkIdMember($idmember);
+		if($insMemb != null) {
+			$res = jsonTrueResponse($insMemb);
+		}
+		echo json_encode($res);
+	}
+
+	//$route['member/checkProduct'] = 'member/member_registration/checkProduct';
+	public function checkProduct() {
+		$data = $this->input->post(NULL, TRUE);
+		$pricecode = $this->pricecode;
+		$res = jsonFalseResponse("Kode Produk $data[product] tidak ditemukan..");
+		$hasil = $this->m_member_reg->listProdukSkPromoStk($pricecode, $data);
+		if($hasil != null) {
+			$res = jsonTrueResponse($hasil);
+		}
+		echo json_encode($res);
+	}
+
+	//$route['member/sk/promo/save'] = 'member/member_registration/saveBeliSk';
+	public function saveBeliSk() {
+		$data = $this->input->post(NULL, TRUE);
+		$checkValid = $this->checkValidInput($data);
+		if($checkValid['response'] == "false") {
+			echo json_encode($checkValid);
+			return;
+		}
+
+		$data['pricecode'] = $this->pricecode;
+		$data['usr'] = $this->stockist;
+		$simpan = $this->m_member_reg->simpanPembelianSK($data);
+
+		/* echo "<pre>";
+		print_r($data);
+		echo "</pre>"; */
+	}
+
+	public function checkValidInput($data) {
+		if(!array_key_exists("dfno", $data)) {
+			return jsonFalseResponse("Parameter dfno tidak ada..");	
+		}
+
+		if(!array_key_exists("prdcd", $data)) {
+			return jsonFalseResponse("Produk masih kosong..");	
+		}
+
+		if(count($data['prdcd']) == 0) {
+			return jsonFalseResponse("Produk masih kosong..");	
+		}
+
+		if(!array_key_exists("no_hp", $data)) {
+			return jsonFalseResponse("Parameter no_hp tidak ada..");	
+		}
+
+		if($data['dfno'] === "" || $data['dfno'] === null) {
+			return jsonFalseResponse("ID Member harus diisi..");	
+		}
+
+		$checkMember = $this->m_member_reg->checkIdMember($data['dfno']);
+		if($checkMember === null) {
+			return jsonFalseResponse("ID Member $data[dfno] tidak terdaftar..");
+		}
+
+		if($data['no_hp'] === "" || $data['no_hp'] === null) {
+			return jsonFalseResponse("No HP Member harus diisi..");	
+		}
+
+		return jsonTrueResponse(null, "ok");
 	}
 
 	

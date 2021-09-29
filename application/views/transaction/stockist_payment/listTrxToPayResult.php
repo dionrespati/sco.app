@@ -7,9 +7,9 @@ if($result != null) {
   <thead>
   	<tr>
   		<th colspan="9">Daftar Sales Stockist Report Bonus Period <?php echo $result[0]->bnsperiod; ?></th>
-  	</tr>
+  	</tr>	
 	<tr>
-		<th width="5%"><input type="checkbox" id="checkall"  name="checkall" onclick="paystk.checkUncheckAll(this)"></th>
+		<th width="5%"><input type="checkbox" id="checkall"  name="checkall" onclick="paystk.checkUncheckAll(this)"></th> 
 		<th>No</th>
 		<th>SSR No.</th>
 		<th>Stk</th>
@@ -34,18 +34,18 @@ if($result != null) {
 		echo "<td align=center>$dta->sc_co</td>";
 		echo "<td align=center>$dta->loccd</td>";
 		echo "<td align=center>$dta->etdt</td>";
-
+		
 		echo "<td align=right><input type=hidden id=pay$i class=pays value=\"$pay\" />".number_format($dta->ndp,0,".",".")."&nbsp;</td>";
 		echo "<td align=right>".number_format($dta->nbv,0,".",".")."&nbsp;</td>";
-		echo "</tr>";
+		echo "</tr>";  
 		$i++;
   	  }
   	?>
-  </tbody>
+  </tbody>	
 </table>
 <!--
 <script type="text/javascript">
-$(document).ready(function()
+$(document).ready(function() 
 {
 	$(".datatable").dataTable( {
 		"aLengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],

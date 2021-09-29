@@ -40,10 +40,17 @@
 				<option value="SSSR">SSSR</option>
 				<option value="MM">Aplikasi Member</option>
 				<option value="PVR">PVR</option>
+				<?php
+				//if($main_stk == "BID06" || $main_stk == "IDBSS01") {
+					echo "<option value=\"ECOMMERCE\">K-NET</option>";
+				//}
+				?>
 				<!--<option value="apl">Application</option>-->
 				<!--<option value="pvr">Product Voucher</option>-->
 			</select>  
-      	</div>
+			<input type="hidden" id="statuses" name="statuses"  value="ALL" />
+			<input type="hidden" id="idstkk" name="idstkk" style="width:150px" value="" />
+      	</div><!--
 		  <label class="control-label" for="typeahead">Status</label>
 			<div class="controls">
 				<select class="span3 typeahead" id="statuses"  name="statuses" tabindex="3">
@@ -52,20 +59,21 @@
 					<option value="1">Generated</option>
 					<option value="2">Approved</option>
 
-					<!--<option value="apl">Application</option>-->
-					<!--<option value="pvr">Product Voucher</option>-->
+					<option value="apl">Application</option>
+					<option value="pvr">Product Voucher</option>
 				</select>
-			</div>	
+			</div>	-->
       	<label class="control-label" for="typeahead">Main Stockist</label>                             
         <div class="controls">
-        	<input tabindex="3" readonly="readonly" type="text" id="main_stk" name="main_stk" style="width:150px" value="<?php echo $main_stk; ?>" />
+        	<input tabindex="3" <?php echo $readonly_stk; ?> type="text" id="main_stk" name="main_stk" style="width:150px" value="<?php echo $main_stk; ?>" onchange="All.getFullNameByID(this.value,'db2/get/fullnm/from/mssc/loccd','#main_stk_name')" />
 			<input readonly="readonly" type="text" id="main_stk_name" name="main_stk_name" style="width:400px" />
         </div>
+		<!--
 		<label class="control-label" for="typeahead">Stockist</label>                             
         <div class="controls">
-        	<input tabindex="3" type="text" id="idstkk" name="idstkk" style="width:150px" value="" />
+        	<input tabindex="3" type="text" id="idstkk" name="idstkk" style="width:150px" value="" onchange="All.getFullNameByID(this.value,'db2/get/fullnm/from/mssc/loccd','#idstkk_name')" />
 			<input readonly="readonly" type="text" id="idstkk_name" name="idstkk_name" style="width:400px" />
-        </div>
+        </div>-->
 		
       	<label class="control-label" for="typeahead">Tgl Generate</label>
       		<div class="controls">
@@ -77,7 +85,7 @@
         <div class="controls"  id="inp_btn">
             <input tabindex="6" type="button" id="btn_input_user" class="btn btn-primary" name="save" value="Submit" onclick="All.ajaxFormPost(this.form.id,'<?php echo $form_action ?>')" />
             <input tabindex="7"  type="reset" class="btn btn-reset" value="Reset" />
-            
+            <button type="submit" class="btn btn-success"formmethod="POST" formtarget="_blank"formaction="<?php echo $exportExcell; ?>" >Excell</button>
          </div>
         </div> <!-- end control-group -->
      </fieldset>

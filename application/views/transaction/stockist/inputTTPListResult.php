@@ -1,7 +1,7 @@
 <?php
-if($result == null) {
+/* if($result == null) {
 	echo setErrorMessage("No Result Found..");
-} else {	
+} else { */	
 ?>
 <table width="100%" class="table table-striped table-bordered bootstrap-datatable datatable">
 	<thead>
@@ -98,7 +98,7 @@ if($result == null) {
 
 <?php
 setDatatable();
-}
+//}
 ?>
 <script>
 function deleteTrx(trcd) {

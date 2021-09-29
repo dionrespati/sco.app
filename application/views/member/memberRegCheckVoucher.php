@@ -28,16 +28,17 @@
       	<div class="controls">
       		<input type="text" readonly="readonly" class="TabOnEnter span3 vch" id="voucherkey" name="voucherkey" onchange="Member.voucherCheck()" onkeyup="All.AlphaNumOnly(this)"  />	
       	</div>
+		  <label class="control-label" for="typeahead">Sponsor</label>
+      	<div class="controls">
+      		<input type="text" class="TabOnEnter idmemb_width" id="idsponsor" name="idsponsor" onchange="All.getFullNameByID(this.value,'api/member/check','#nmsponsor')" onkeyup="All.AlphaNumOnly(this)"  />
+      		<input type="text" class="TabOnEnter fullnm_width" id="nmsponsor" name="nmsponsor" readonly="readonly"  />	
+      	</div>  
       	<label class="control-label" for="typeahead">Rekruiter</label>
       	<div class="controls">
       		<input type="text" class="TabOnEnter idmemb_width" id="idrekrut" name="idrekrut" onchange="All.getFullNameByID(this.value,'api/member/check','#nmrekrut')" onkeyup="All.AlphaNumOnly(this)" />
       		<input type="text" class="TabOnEnter fullnm_width" id="nmrekrut" name="nmrekrut" readonly="readonly"  />	
       	</div>
-      	<label class="control-label" for="typeahead">Sponsor</label>
-      	<div class="controls">
-      		<input type="text" class="TabOnEnter idmemb_width" id="idsponsor" name="idsponsor" onchange="All.getFullNameByID(this.value,'api/member/check','#nmsponsor')" onkeyup="All.AlphaNumOnly(this)"  />
-      		<input type="text" class="TabOnEnter fullnm_width" id="nmsponsor" name="nmsponsor" readonly="readonly"  />	
-      	</div>
+      	
       	
       	<label class="control-label" for="typeahead">&nbsp</label>                             
         <div class="controls"  id="inp_btn">

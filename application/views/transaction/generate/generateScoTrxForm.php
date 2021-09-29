@@ -24,17 +24,20 @@ $stkname = $this -> session -> userdata("stockistnm");
 				<div class="controls">
 					<select id="bnsperiod"  name="bnsperiod" class="span3 typeahead" tabindex="2">
 						<?php
-						  /* if($stk_login == "BID06") {
+						/* if($stk_login == "BID06") {
 							  
 							  $curr_bns = date('m/Y', strtotime($curr_period[0] -> lastperiod));
 							  $explode_bns = explode("/", $curr_bns);
-							  $kurang = $explode_bns[0] - 1; 
-							  echo $kurang;
+							  $kurang = $explode_bns[0] - 2; 
+							  //echo $kurang;
 							  //echo "<option value='" . date('m/Y', strtotime($prev_bns)) . "'>" . date('M Y', strtotime($prev_bns)) . "</option>";
+							  echo "<option value='" . $curr_bns . "'>" . date('M Y', strtotime($curr_period[0] -> lastperiod)) . "</option>";
+							  echo "<option value='" . date('m/Y', strtotime($curr_period[0] -> nextperiod)) . "'>" . date('M Y', strtotime($curr_period[0] -> nextperiod)) . "</option>"; 
 						  }
-						  echo "<option value='" . $curr_bns . "'>" . date('M Y', strtotime($curr_period[0] -> lastperiod)) . "</option>";
-						  echo "<option value='" . date('m/Y', strtotime($curr_period[0] -> nextperiod)) . "'>" . date('M Y', strtotime($curr_period[0] -> nextperiod)) . "</option>"; */
+						 
+						  else { */
 						  echo showBnsPeriod($stk_login, $curr_period);
+						  //}
 						?>
 					</select>
 				</div>

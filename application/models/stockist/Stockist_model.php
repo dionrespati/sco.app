@@ -40,17 +40,17 @@ class Stockist_model extends MY_Model {
 	
 	function updateAddressStockist($data) {
 		$arr = jsonFalseResponse("Update Data Stockist gagal..");
-		$addr1 = trim(strtoupper($data['addr1']));
-		$addr2 = trim(strtoupper($data['addr2']));
-		$addr3 = trim(strtoupper($data['addr3']));
-		$tel_hp = trim(strtoupper(preg_replace("/[^0-9]+/", "", $data['tel_hp'])));
-		$tel_hm = trim(strtoupper(preg_replace("/[^0-9]+/", "", $data['tel_hm'])));
-		$tel_of = trim(strtoupper(preg_replace("/[^0-9]+/", "", $data['tel_of'])));
+		$addr1 = cleanAddress($data['addr1']);
+		$addr2 = cleanAddress($data['addr2']);
+		$addr3 = cleanAddress($data['addr3']);
+		$tel_hp = onlyNumeric($data['tel_hp']);
+		$tel_hm = onlyNumeric($data['tel_hm']);
+		$tel_of = onlyNumeric($data['tel_of']);
 		$kabupaten = trim($data['kabupaten']);
 		$kecamatan = trim($data['kecamatan']);
 		$kelurahan = trim($data['kelurahan']);
-		$postcd = trim(strtoupper(preg_replace("/[^a-zA-Z0-9]+/", "", $data['postcd'])));
-		$loccd = trim(strtoupper(preg_replace("/[^a-zA-Z0-9]+/", "", $data['loccd'])));
+		$postcd = onlyAlphaNum($data['postcd']);
+		$loccd = onlyAlphaNum($data['loccd']);
 		
 		$arr = array(
 			"addr1" => $addr1,
@@ -65,6 +65,9 @@ class Stockist_model extends MY_Model {
 			"kelurahan" => $kelurahan,
 			"postcd" => $postcd
 		);
+		/* echo "<pre>";
+		print_r($arr);
+		echo "</pre>"; */
 		$this->db->where('loccd', $loccd);
 		$res = $this->db->update('klink_mlm2010.dbo.mssc', $arr);
 		if($res > 0) {
@@ -97,6 +100,7 @@ class Stockist_model extends MY_Model {
 				WHERE A.kode_kec_JNE IS NOT NULL and c.kode_provinsi = ?
 				GROUP BY C.kode_provinsi, C.provinsi, A.kode_kabupaten, B.kabupaten
 				ORDER BY C.provinsi, B.kabupaten";
+	    $province = trim(strtoupper($province));
 		$paramQry = array($province);
 		$res = $this->getRecordset($qry, $paramQry, $this->setDB(2));
 		return $res; 
@@ -109,9 +113,12 @@ class Stockist_model extends MY_Model {
 				FROM db_ecommerce.dbo.master_wil_kecamatan A
 				INNER JOIN db_ecommerce.dbo.master_wil_kabupaten B ON A.kode_kabupaten=B.kode_kabupaten
 				WHERE A.kode_kec_JNE IS NOT NULL and a.kode_kabupaten = ?
-				GROUP BY A.kode_kabupaten, A.kode_kab_JNE, A.kode_kecamatan, a.kode_kec_JNE, a.kec_JNE, a.kecamatan
-				ORDER BY  a.kec_JNE, A.kode_kabupaten, A.kode_kab_JNE, A.kode_kecamatan, a.kode_kec_JNE, a.kecamatan";
+				GROUP BY A.kode_kabupaten, A.kode_kab_JNE, A.kode_kecamatan, 
+						a.kode_kec_JNE, a.kec_JNE, a.kecamatan
+				ORDER BY  a.kec_JNE, A.kode_kabupaten, A.kode_kab_JNE, A.kode_kecamatan, 
+						a.kode_kec_JNE, a.kecamatan";
 		//echo $qry;
+		$kabupaten = trim(strtoupper($kabupaten));
 		$paramQry = array($kabupaten);
 		$res = $this->getRecordset($qry, $paramQry, $this->setDB(2));
 		return $res; 
@@ -126,6 +133,7 @@ class Stockist_model extends MY_Model {
 				WHERE A.kode_kec_JNE IS NOT NULL and a.kode_kec_JNE = ?
 				GROUP BY C.kode_kelurahan, C.kelurahan, C.kodepos
 				ORDER BY  C.kode_kelurahan, C.kelurahan, C.kodepos";
+		$kecamatan = trim(strtoupper($kecamatan));
 	    $paramQry = array($kecamatan);
 		$res = $this->getRecordset($qry, $paramQry, $this->setDB(2));
 		return $res; 
@@ -136,8 +144,36 @@ class Stockist_model extends MY_Model {
         $qry = "SELECT top 1 C.kode_kelurahan as kode, C.kelurahan as nama, C.kodepos
 				FROM db_ecommerce.dbo.master_wil_kelurahan C 
 				WHERE C.kode_kelurahan = ?";
+		$kelurahan = trim(strtoupper($kelurahan));
 		$paramQry = array($kelurahan);
 		$res = $this->getRecordset($qry, $paramQry, $this->setDB(2));
+		return $res;
+	}
+
+	function getTaxStk($idstk, $year){
+
+		$qry = "SELECT a.Nomor_Bukti_Potong, a.Kode_Pajak, a.NPWP_Pemotong, a.Nama_Pemotong,
+				a.Tanggal_Bukti_Potong, a.Bulan_Bonus, a.IDMEMBER, a.KDSTOCKIST 
+				FROM [dbo].[DATA_PAJAK_JOIN_STK] a  
+				where a.KDSTOCKIST = '$idstk' and (a.IDMEMBER is null OR a.IDMEMBER = '')
+				and Tanggal_Bukti_Potong like '%$year%'
+				UNION
+				SELECT a.Nomor_Bukti_Potong, a.Kode_Pajak, a.NPWP_Pemotong, a.Nama_Pemotong,
+				a.Tanggal_Bukti_Potong, a.Bulan_Bonus, a.IDMEMBER, a.KDSTOCKIST 
+				FROM [dbo].[DATA_PAJAK_JOIN_STK] a  
+				where a.IDMEMBER = '$idstk' AND (a.KDSTOCKIST IS NULL OR a.KDSTOCKIST = '')
+				and Tanggal_Bukti_Potong like '%$year%'
+				ORDER BY a.Bulan_Bonus DESC";
+		$res = $this->getRecordset($qry, null, $this->setDB(2));
+		return $res;
+	}
+
+	function getDetTaxStk($no){
+
+		$qry = "select *
+				from v_hilal_pajak_detail
+				where Nomor_Bukti_Potong like '%$no%'";
+		$res = $this->getRecordset($qry, null, $this->setDB(2));
 		return $res;
 	}
 	

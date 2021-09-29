@@ -56,6 +56,10 @@ if ( ! function_exists('randomNumber'))
 if ( ! function_exists('substrwords'))
 {
 	function substrwords($text, $maxchar, $end=' ...') {
+		if($text === null || $text === "") {
+            $output = "..";
+			return $output;
+		}
 	    if (strlen($text) > $maxchar || $text == '') {
 	        $words = preg_split('/\s/', $text);      
 	        $output = '';
@@ -527,6 +531,36 @@ if(! function_exists('showBnsPeriod')) {
 		$html .= "<option value='" . $prev_period . "'>" . date('M Y', strtotime($curr_period[0] -> prevperiod)) . "</option>";
 	  }	
 	  $html .= "<option value='" . $cur_period . "' selected='selected'>" . date('M Y', strtotime($curr_period[0] -> lastperiod)) . "</option>";
+	  $html .= "<option value='" . $next_period . "'>" . date('M Y', strtotime($curr_period[0] -> nextperiod)) . "</option>";
+
+	  return $html;
+    }
+}  
+
+if(! function_exists('showBnsPeriodV2')) {
+    function showBnsPeriodV2($stk, $curr_period) {
+	  $html = "";	
+	  $prev_period = date('m/Y', strtotime($curr_period[0] -> prevperiod));
+	  //echo $curr_period[0] -> lastperiod;
+	  $cur_period = date('m/Y', strtotime($curr_period[0] -> lastperiod));
+	  $next_period = date('m/Y', strtotime($curr_period[0] -> nextperiod));
+	  $ifTrue = false;
+	  
+		$CI = & get_instance();
+		$CI->load->model("transaction/Sales_stockist_model", "m_sales_stk");
+		$ifTrue = $CI->m_sales_stk->ifPrevBnsMonthStockistActive($stk);
+		if($ifTrue) {
+			$html .= "<option value='" . $prev_period . "' selected='selected'>" . date('M Y', strtotime($curr_period[0] -> prevperiod)) . "</option>";
+		} 
+			
+	
+	  
+	  if($ifTrue) {
+		$html .= "<option value='" . $cur_period . "'>" . date('M Y', strtotime($curr_period[0] -> lastperiod)) . "</option>";
+	  } else {
+		$html .= "<option value='" . $cur_period . "' selected='selected'>" . date('M Y', strtotime($curr_period[0] -> lastperiod)) . "</option>";
+	  }
+	  
 	  $html .= "<option value='" . $next_period . "'>" . date('M Y', strtotime($curr_period[0] -> nextperiod)) . "</option>";
 
 	  return $html;
@@ -1623,3 +1657,226 @@ if(! function_exists('set_list_array_to_stringCart')) {
 		
 		$str .= "</table>";
 	}
+
+	function cetak($str){
+		echo htmlentities($str, ENT_QUOTES, 'UTF-8');
+	}
+
+	function cleanAddress($str) {
+		return trim(strtoupper(preg_replace("/[^a-zA-Z0-9\s\d_-]/", "", $str)));
+	}
+
+	function onlyNumeric($str) {
+		return trim(strtoupper(preg_replace("/[^0-9]+/", "", $str)));
+	}
+
+	function onlyLetters($str) {
+		return trim(strtoupper(preg_replace("/[^a-zA-Z]+/", "", $str)));
+	}
+
+	function onlyAlphaNum($str) {
+		return trim(strtoupper(preg_replace("/[^a-zA-Z0-9]+/", "", $str)));
+	}
+
+	function generateTable($arrParam) {
+		$id = array_key_exists('id', $arrParam) ? $arrParam['id'] : "tableX";
+		$class = array_key_exists('class', $arrParam) ? $arrParam['class'] : "table table-striped table-bordered bootstrap-datatable datatable";
+		$width = array_key_exists('width', $arrParam) ? $arrParam['width'] : "100%";
+
+		if($arrParam['record'] == null) {
+			echo setErrorMessage("No record found..");
+			return;
+		}
+
+		$field = array_keys($arrParam['record'][0]);
+		$jum_field = count($field);
+		$properties = null;
+
+		$str = "<table id='$id' class='$class' width='$width'>";
+		$str .= "<thead>";
+
+		if(array_key_exists('header', $arrParam)) {    
+			$str .= "<tr><th colspan='$jum_field'>$arrParam[header]</th></tr>";
+		}	
+		
+		if(!array_key_exists('column', $arrParam)) {
+			//$properties = get_object_vars($arrParam['record'][0]);
+			$properties = $field;
+			$str .= "<tr>";
+			foreach($properties as $dta) {
+				$str .= "<th>$dta</th>";
+			}
+			$str .= "</tr>";
+		} else {
+			$str .= "<tr>";
+			foreach($arrParam['column'] as $dta) {
+				$str .= "<th>$dta</th>";
+			}
+			$str .= "</tr>";
+		}
+
+		$str .= "</thead>";
+		$str .= "<tbody>";
+		if(array_key_exists('record', $arrParam)) {
+			
+			$jmsx = 0;
+			if(array_key_exists('columnAlign', $arrParam)) {
+				$jmsx = count($arrParam['columnAlign']);
+			}
+
+			$jmst = 0;
+			if(array_key_exists('recordStyle', $arrParam)) {
+				$jmst = count($arrParam['recordStyle']);
+			}
+			if($arrParam['record'] !== null) {
+				
+				//print_r($properties2);
+				foreach($arrParam['record'] as $dta) {
+					$alignNumber = 0;
+					$str .= "<tr>";
+					//$rec = 0;
+					foreach($field as $paramx) {
+						$align = "";
+						if($jmsx > 0) {
+							$align = "align=".$arrParam['columnAlign'][$alignNumber];
+						}
+						$str .= "<td $align>";
+						
+						if($jmst > 0) {
+							if($arrParam['recordStyle'][$alignNumber] == "") {
+								$str .= $dta[$paramx];
+							} else if($arrParam['recordStyle'][$alignNumber] == "money") {
+								$str .= number_format($dta[$paramx], 0, '.', ',');
+							}	
+						} else {
+							$str .= $dta[$paramx];
+						}
+						$str .= "</td>";
+						$alignNumber++;
+						//$rec++;
+					} 
+					$str .= "</tr>";
+				}
+			}
+		}    
+		$str .= "</tbody>";
+		$str .= "</table>";
+
+		$str .= "
+		<script type='text/javascript'>
+		$(document).ready(function() 
+		{
+			$(All.get_active_tab() + ' .datatable').dataTable( {
+				'aLengthMenu': [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
+				'sPaginationType': 'bootstrap',
+				'oLanguage': {
+				},
+				'bDestroy': true
+			});
+			$(All.get_active_tab() + ' .datatable').removeAttr('style');
+		});
+
+		</script>
+		";
+
+		return $str;
+	}
+
+	function generateExcell($arrParam) {
+        $id = array_key_exists('id', $arrParam) ? $arrParam['id'] : "";
+        $class = array_key_exists('class', $arrParam) ? $arrParam['class'] : "";
+        $width = array_key_exists('width', $arrParam) ? $arrParam['width'] : "100%";
+
+        if($arrParam['record'] == null) {
+            echo "No record found..";
+            return;
+        }
+
+        $field = array_keys($arrParam['record'][0]);
+        $jum_field = count($field);
+        $properties = null;
+
+        $str = "<table id='$id' class='$class' width='$width'>";
+        $str .= "<thead>";
+
+        if(array_key_exists('header', $arrParam)) {    
+            $str .= "<tr><th colspan='$jum_field'>$arrParam[header]</th></tr>";
+        }	
+        
+        if(!array_key_exists('column', $arrParam)) {
+            //$properties = get_object_vars($arrParam['record'][0]);
+            $properties = $field;
+            $str .= "<tr>";
+            foreach($properties as $dta) {
+                $str .= "<th>$dta</th>";
+            }
+            $str .= "</tr>";
+        } else {
+            $str .= "<tr>";
+            foreach($arrParam['column'] as $dta) {
+                $str .= "<th>$dta</th>";
+            }
+            $str .= "</tr>";
+        }
+
+        $str .= "</thead>";
+        $str .= "<tbody>";
+        if(array_key_exists('record', $arrParam)) {
+            
+            $jmsx = 0;
+            if(array_key_exists('columnAlign', $arrParam)) {
+                $jmsx = count($arrParam['columnAlign']);
+            }
+
+            $jmst = 0;
+            if(array_key_exists('recordStyle', $arrParam)) {
+                $jmst = count($arrParam['recordStyle']);
+            }
+            if($arrParam['record'] !== null) {
+                
+                //print_r($properties2);
+                foreach($arrParam['record'] as $dta) {
+                    $alignNumber = 0;
+                    $str .= "<tr>";
+                    //$rec = 0;
+                    foreach($field as $paramx) {
+                        $align = "";
+                        if($jmsx > 0) {
+                            $align = "align=".$arrParam['columnAlign'][$alignNumber];
+                        }
+                        $str .= "<td $align>";
+                        
+                        if($jmst > 0) {
+                            if($arrParam['recordStyle'][$alignNumber] == "") {
+                                $str .= $dta[$paramx];
+                            } else if($arrParam['recordStyle'][$alignNumber] == "money") {
+                                $str .= number_format($dta[$paramx], 0, ',', '.');
+                            } 	
+                        } else {
+                            $str .= $dta[$paramx];
+                        }
+                        $str .= "</td>";
+                        $alignNumber++;
+                        //$rec++;
+                    } 
+                    $str .= "</tr>";
+                }
+            }
+        }    
+        $str .= "</tbody>";
+        $str .= "</table>";
+        return $str;
+    }
+
+	function noHpConvert($hp) {
+		$nohp = preg_replace("/[^A-Za-z0-9]/", "",$hp);
+		$out = ltrim($nohp, "0");
+		if(substr($out, 0, 2) == "62") {
+			$no_hp2 = $out;
+		} else {
+			$no_hp2 = "62".$out;
+		}
+
+		return $no_hp2;
+	}
+

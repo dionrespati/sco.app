@@ -197,7 +197,7 @@
                           $dtprice = $data->pricecode;
                       }
                       ?>
-                            <table width="100%">
+                            <table width="100%" border="1">
                                 <tr>
                                     <td width="50%">
                                         <table width="100%">

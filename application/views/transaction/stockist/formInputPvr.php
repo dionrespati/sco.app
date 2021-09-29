@@ -51,48 +51,8 @@
                           <td>
                             <select tabindex="2" id="bnsperiod" name="bnsperiod" class="span5 typeahead">
                               <?php
-                    					$opts = 2;
-
-                    					////Array of months
-                    					$m = array("Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember");
-
-                    					////Get starting year and month
-                    					$sm = date('n', strtotime("-1 Months"));
-                    					$sy = date('Y', strtotime("-1 Months"));
-                    					foreach($currentperiod as $dt)
-                    					{
-                                  $lastmonth = date('n', strtotime($dt->lastperiod));
-                                  $last_display_month = date('m', strtotime($dt->lastperiod));
-                                  $lastyear = date('Y', strtotime($dt->lastperiod));
-
-                        					$nextmonth = date('n', strtotime($dt->nextperiod));
-                                  $next_display_month = date('m', strtotime($dt->nextperiod));
-                        					$nextyear = date('Y', strtotime($dt->nextperiod));
-                        					for($i=0;$i < $opts;$i++)
-                        					{
-                            					$test = $sm - 1;
-                            					////Check for current month and year so we can select it
-                            					if($lastmonth == $sm)
-                            					{
-                            						echo "<option value='".$last_display_month."/".$lastyear."' selected='selected'>".$m[$lastmonth - 1]." ".$lastyear."</option>\n";
-                            					}
-                            					else
-                            					{
-                            						echo "<option value='".$next_display_month."/".$nextyear."' >".$m[$nextmonth - 1]." ".$nextyear."</option>\n";
-                            					}
-                        					//// Fix counts when we span years
-                            					if($sm == 12)
-                            					{
-                            						$sm = 1;
-                            						$sy++;
-                            					}
-                            					else
-                            					{
-                            						$sm++;
-                            					}
-                    					   }
-                    					}
-                					?>
+                    					  echo showBnsPeriodV2($stockist, $currentperiod);
+                					    ?>
                             </select>
                           </td>
                         </tr>
@@ -177,7 +137,7 @@
                   </tbody>
                   <tbody id="SS">
                     <tr>
-                      <td align="right"><input type="button" class="btn btn-warning span20" name="new_record" id="new_record"
+                      <td align="right"><input type="button" class="btn btn-info span20" name="new_record" id="new_record"
                           value="Tambah Produk" onclick="Stockist.add_new_sales_row()" /></td>
                       <td colspan="3" align="right">T O T A L</td>
                       <td>
@@ -323,8 +283,8 @@
         if(hasil.response == "true") {
           var datax =hasil.data;
           alert("Transaksi PVR berhasil, no transaksi : " +datax.trcd);
-          All.back_to_form(" .nextForm1", " .mainForm");
-
+          //All.back_to_form(" .nextForm1", " .mainForm");
+          All.ajaxShowDetailonNextForm('sales/pvr2/input/form')
         } else {
           alert(hasil.message);
         }
