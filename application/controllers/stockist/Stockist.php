@@ -3,7 +3,7 @@
 
 class Stockist extends MY_Controller {
 	public function __construct() {
-	    parent::__construct();
+	  parent::__construct();
 		$this->folderView = "stockist/";
 		$this->load->model('stockist/Stockist_model', 'm_stockist');
 	}
@@ -14,18 +14,19 @@ class Stockist extends MY_Controller {
 		$data['form_reload'] = 'stockist/addr';
 		$data['form_header'] = "Update Address Stockist";  
 		$data['form_action'] = base_url('stockist/addr/update'); 		
-        if($this->username != null) {	           
+    if($this->username != null) {	           
 		   //cek apakah group adalah ADMIN atau BID06
-		   if($this->stockist == "BID06") {
-		   	  $data['onchange'] = "onchange=Stockist.getStockistInfo(this.value)"; 
-			  $data['loccd_read'] = "";
-		   } else {
-		   	  $data['onchange'] = "";
-		      $data['loccd_read'] = "readonly=readonly";
-		   }
-		   $data['idstk'] = $this->stockist;
-		   $data['result'] = $this->m_stockist->getStockistInfo($this->stockist);
-		   if($data['result'] !== null) {
+			if($this->stockist == "BID06") {
+				$data['onchange'] = "onchange=Stockist.getStockistInfo(this.value)"; 
+				$data['loccd_read'] = "";
+			} else {
+				$data['onchange'] = "";
+				$data['loccd_read'] = "readonly=readonly";
+			}
+			$data['idstk'] = $this->stockist;
+			$data['result'] = $this->m_stockist->getStockistInfo($this->stockist);
+
+			if($data['result'] !== null) {
 				$kelurahan = $data['result'][0]->kelurahan;
 				$propinsi = $data['result'][0]->kode_provinsi;
 				$kabupaten = $data['result'][0]->kode_kabupaten;
@@ -45,27 +46,27 @@ class Stockist extends MY_Controller {
 				if($kecamatan !== null && $kecamatan !== "") {
 					$data['listKelurahan'] = $this->m_stockist->listKelurahannByKecamatan($kecamatan);	
 				}
-		   }
-           $this->setTemplate($this->folderView.'stockistUpdateAddr', $data); 
-        } else {
-           $this->setTemplate('includes/inline_login', $data);
-        } 
+			}
+      $this->setTemplate($this->folderView.'stockistUpdateAddr', $data); 
+    } else {
+			$this->setTemplate('includes/inline_login', $data);
+		} 
 	}
 	
 	//$route['stockist/info'] = 'stockist/stockist/formStockistInfo';
 	public function formStockistInfo() {
 		$data['form_header'] = "Branch / Stockist Information";
-        $data['form_action'] = base_url('stockist/addr/update');
-        $data['icon'] = "icon-search";
-	    $data['form_reload'] = 'stockist/info';
-	    $data['result'] = $this->m_stockist->getStockistInfo($this->stockist);
+		$data['form_action'] = base_url('stockist/addr/update');
+		$data['icon'] = "icon-search";
+		$data['form_reload'] = 'stockist/info';
+		$data['result'] = $this->m_stockist->getStockistInfo($this->stockist);
            
 		if($this->username != null) {	
-           $this->setTemplate($this->folderView.'stockistInfo', $data); 
-        } else {
-           //echo sessionExpireMessage(false);
-           $this->setTemplate('includes/inline_login', $data);
-        } 
+			$this->setTemplate($this->folderView.'stockistInfo', $data); 
+		} else {
+			//echo sessionExpireMessage(false);
+			$this->setTemplate('includes/inline_login', $data);
+		} 
 	}
 
 	//$route['stockist/id'] = 'stockist/stockist/getDetailStockistByID/$1';
@@ -82,16 +83,16 @@ class Stockist extends MY_Controller {
 	//$route['stockist/addr/update'] = 'stockist/stockist/saveUpdateAddrStk';
 	public function saveUpdateAddrStk() {
 		if($this->username != null) {
-		   $data = $this->input->post(NULL, TRUE);	
-		   $res = $this->m_stockist->updateAddressStockist($data);
+			$data = $this->input->post(NULL, TRUE);	
+			$res = $this->m_stockist->updateAddressStockist($data);
 			if($res['response'] == "true") {
 				echo setSuccessMessage($res['message']);
 			} else {
 				echo setErrorMessage($res['message']);
 			}	
 		} else {
-           echo sessionExpireMessage(false);
-        }		
+			echo sessionExpireMessage(false);
+		}		
 	}
 
 	//$route['stockist/kabupaten/list/(:any)'] = 'stockist/stockist/listKabupatenByProvince/$1';
@@ -137,5 +138,4 @@ class Stockist extends MY_Controller {
 		}
 		echo json_encode($arr);
 	}
-
 }

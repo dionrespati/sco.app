@@ -3,7 +3,7 @@
 
 class Lbc extends MY_Controller {
 	public function __construct() {
-	    parent::__construct();
+	  parent::__construct();
 		$this->folderView = "member/";
 		$this->load->model('member/Lbc_model', 'm_lbc');
 	}
@@ -16,8 +16,8 @@ class Lbc extends MY_Controller {
 		$data['form_action'] = 'lbc/save';	   
 		
 		if($this->username == null) {	
-		   $this->setTemplate('includes/inline_login', $data);
-		   return;
+		  $this->setTemplate('includes/inline_login', $data);
+		  return;
 		} 
 		$this->setTemplate($this->folderView.'lbc', $data); 
 	}

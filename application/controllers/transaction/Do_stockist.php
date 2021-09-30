@@ -3,27 +3,27 @@
 
 class Do_stockist extends MY_Controller {
 	public function __construct() {
-	    parent::__construct();
+	  parent::__construct();
 		$this->folderView = "transaction/do/";
-        //$this->load->model('transaction/m_incoming_payment', 'incoming_payment');
-    }
+		//$this->load->model('transaction/m_incoming_payment', 'incoming_payment');
+	}
 
 	//$route['do/stk'] = 'transaction/do_stockist/formGetListDO';  
 	public function formGetListDO() {
 		$data['form_header'] = "DO Stockist";
-        $data['form_action'] = "do/stk/list";
-        $data['icon'] = "icon-search";
+		$data['form_action'] = "do/stk/list";
+		$data['icon'] = "icon-search";
 		$data['form_reload'] = 'do/stk';   		   
 		   		
-        if($this->username != null) {
-           $data['from'] 	= date("Y-m-d");
-           $data['to'] 	= date("Y-m-d");
-		   $data['sc_dfno'] 	= $this->stockist;			
+    if($this->username != null) {
+			$data['from'] 	= date("Y-m-d");
+			$data['to'] 	= date("Y-m-d");
+			$data['sc_dfno'] 	= $this->stockist;			
 		  // $data['stk_barcode_opt'] = $this->m_stock_barcode->getListStkbarMenu($this->groupid);   
-		   $this->setTemplate($this->folderView.'formDoStockist', $data); 
-        } else {
-           $this->setTemplate('includes/inline_login', $data);
-        } 
+		  $this->setTemplate($this->folderView.'formDoStockist', $data); 
+		} else {
+			$this->setTemplate('includes/inline_login', $data);
+		} 
 	}
 
 	//$route['do/stk/list'] = 'transaction/do_stockist/getListDOStk';
@@ -32,10 +32,6 @@ class Do_stockist extends MY_Controller {
 		$this->load->model('transaction/do_stockist_model', 'do_stk');
 		if($data['searchby'] == "") {
 			$data['result'] = $this->do_stk->getListDOStkByData($data['from'], $data['to'], $data['loccd']);
-			/* echo "<pre>";
-			print_r($data['result']);
-			echo "</pre>"; */
-			 //$data['sc_dfno'] 	= $this->stockist;
 			$this->load->view($this->folderView.'listDoStkByDate',$data);	
 		}
 	}

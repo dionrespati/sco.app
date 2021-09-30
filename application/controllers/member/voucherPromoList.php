@@ -1,4 +1,5 @@
-<?php if($result['response'] == "false") { ?>
+<?php 
+if($result['response'] == "false") { ?>
   <div class='alert alert-error'><?= $result['message'] ?></div>
 <?php } else { ?>
   <table class='table table-bordered bootstrap-datatable datatable' width="100%">
@@ -35,12 +36,9 @@
 
 <script>
 $(document).ready(function() {
-  $('.datatable').dataTable( {
-
+  $('.datatable').dataTable({
     "sPaginationType": "bootstrap",
-    "oLanguage": {
-
-    }
+    "oLanguage": {}
   });
 })
 </script>

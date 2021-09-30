@@ -1,17 +1,16 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-
 class Incoming_payment extends MY_Controller {
 	public function __construct() {
-	    parent::__construct();
+		parent::__construct();
 		$this->folderView = "transaction/";
-        $this->load->model('transaction/m_incoming_payment', 'incoming_payment');
+    $this->load->model('transaction/m_incoming_payment', 'incoming_payment');
 	}
 	
 	//$route['incoming/update'] = 'transaction/incoming_payment/formUpdateIncomingPayment';
-    public function formUpdateIncomingPayment() {
+  public function formUpdateIncomingPayment() {
 		$data['form_header'] = "Update Incoming Payment";
-        $data['icon'] = "icon-pencil";
+    $data['icon'] = "icon-pencil";
 		$data['form_reload'] = 'be/klink/incoming/update';
 		try {			
 			$this->checkSessionBE();		
@@ -47,6 +46,5 @@ class Incoming_payment extends MY_Controller {
 		} catch(Exception $e) {
 			echo setErrorMessage($e->getMessage());
 		}
-		
 	}
 }

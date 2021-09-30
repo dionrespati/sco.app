@@ -3,7 +3,7 @@
 
 class Voucher extends MY_Controller {
 	public function __construct() {
-	    parent::__construct();
+	  parent::__construct();
 		$this->folderView = "member/voucher/";
 		$this->load->model('member/Voucher_model', 'm_voucher');
 	}
@@ -12,14 +12,14 @@ class Voucher extends MY_Controller {
 	public function voucherSearchForm() {
 		$data['form_header'] = "Voucher Search & Release";
 		$data['icon'] = "icon-search";
-        $data['form_action'] = 'voucher/search/list';
+    $data['form_action'] = 'voucher/search/list';
 		$data['form_reload'] = 'voucher/search';
 
 		if($this->username != null) {
-           $this->setTemplate($this->folderView.'voucherSearchForm', $data);
-        } else {
-		   $this->setTemplate('includes/inline_login', $data);
-        }
+			$this->setTemplate($this->folderView.'voucherSearchForm', $data);
+		} else {
+			$this->setTemplate('includes/inline_login', $data);
+		}
 	}
 
 	//$route['voucher/search/list'] = 'warehouse/voucher/voucherSearchResult';
@@ -31,8 +31,7 @@ class Voucher extends MY_Controller {
 			$from = trim($dt['trx_from']);
 			$to = trim($dt['trx_to']);
 
-	 		if(($searchby == 'trcd'|| $searchby == 'receiptno') &&
-	 			($paramValue != null && $paramValue != "")) {
+	 		if(($searchby == 'trcd'|| $searchby == 'receiptno') && ($paramValue != null && $paramValue != "")) {
 	 			$data['result'] = $this->m_voucher->getListVcrByParam(0, $paramValue, $from, $to, $searchby);
 				$this->load->view($this->folderView.'voucherSearchResult', $data);
 			} else if($searchby == 'vcno' && $paramValue != "") {
@@ -45,7 +44,6 @@ class Voucher extends MY_Controller {
 				redirect('backend', 'refresh');
 			}
 			//var_dump($data);
-
 		} else {
 			echo sessionExpireMessage(false);
 		}
@@ -66,10 +64,8 @@ class Voucher extends MY_Controller {
 				$data['trdt'] = $param[2];
 				$data['receiptdt'] = $param[3];
 				$data['stockist'] = $param[4];
-
 				$data['result'] = $this->m_voucher->getListProductForSK($data['trcd']);
 				//$data['voucherno'] = $this->s_warehouse->getStarterkitBrOrderno($data['trcd']);
-
 			}
 
 			if($data['result'] == null) {
@@ -110,55 +106,42 @@ class Voucher extends MY_Controller {
 			} else {
 				$res = jsonFalseResponse("Pastikan data terisi dengan lengkap dan benar..");
 			}
-
 			echo json_encode($res);
 		} catch(Exception $e) {
 			$data['err_msg'] = $e->getMessage();
 			$res = jsonFalseResponse($e->getMessage());
 			echo json_encode($res);
 		}
+	}
 
-    }
+  function formVchStkActivate()
+	{
+		if($this->username != null)
+		{
+			$data['user'] = $this->username;
+			$data['dateNow'] = date('d F Y');
+			$data['form_header'] = "Release Voucher Stockist";
+			$data['icon'] = "icon-search";
+			$data['form_action'] = 'voucher/search/list';
+			$data['form_reload'] = 'release/vch-stk';
+			//$this->load->view('includes/header',$data);
+			$this->setTemplate($this->folderView.'formActivateSkStkPromoV2', $data);
+		} else {
+			redirect('auth');
+		}
 
-    function formVchStkActivate()
-    {
-        if($this->username != null)
-        {
-            $data['user'] = $this->username;
-            $data['dateNow'] = date('d F Y');
-            $data['form_header'] = "Release Voucher Stockist";
-            $data['icon'] = "icon-search";
-            $data['form_action'] = 'voucher/search/list';
-            $data['form_reload'] = 'release/vch-stk';
+	}
 
-            //$this->load->view('includes/header',$data);
-            $this->setTemplate($this->folderView.'formActivateSkStkPromoV2', $data);
+	function cekVchStk() {
+		$datax = $this->input->post();
+		$data['user'] = $this->username;
+		if ($datax['type'] === 'voucher-status') {
+			$data['result'] = $this->m_voucher->checkVchStk($datax['voucherno'], $datax['voucherkey'], $data['user']);
+			$this->load->view($this->folderView.'cekVchStk',$data);
+		} else {
+			$data['result'] = $this->m_voucher->listVoucherPromo($data['user'], $datax['status']);
+			$this->load->view($this->folderView.'voucherPromoList', $data);
+		}
 
-        } else {
-            redirect('auth');
-        }
-
-    }
-
-    function cekVchStk() {
-        $datax = $this->input->post();
-
-        $data['user'] = $this->username;
-
-        if ($datax['type'] === 'voucher-status') {
-            $data['result'] = $this->m_voucher
-                                   ->checkVchStk(
-                                       $datax['voucherno'],
-                                       $datax['voucherkey'],
-                                       $data['user']
-                                   );
-
-            $this->load->view($this->folderView.'cekVchStk',$data);
-        } else {
-            $data['result'] = $this->m_voucher->listVoucherPromo($data['user'], $datax['status']);
-
-            $this->load->view($this->folderView.'voucherPromoList', $data);
-        }
-
-    }
+	}
 }
