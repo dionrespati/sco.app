@@ -33,7 +33,7 @@ if($result['arraydata'] !== null) {
 
 <?php
 	if($result['response'] == "true") {
-			echo "<input type='button' class='btn btn-mini btn-primary' value='Release Voucher' name='releasebtn' onclick=releaseVch('$arr->formno','$arr->vchkey','$user') />";
+		echo "<input type='button' class='btn btn-mini btn-primary' value='Release Voucher' name='releasebtn' onclick=releaseVch('$arr->formno','$arr->vchkey','$user') />";
 	}    
 }
 ?>

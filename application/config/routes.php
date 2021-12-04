@@ -264,6 +264,10 @@ $route['sales/pvr/input/report'] = 'transaction/sales_stockist/reportPvrGenerate
 $route['sales/pvr/input/form'] = 'transaction/sales_stockist/inputTrxPvrForm';
 $route['sales/pvr/input/save'] = 'transaction/sales_stockist/saveInputSalesPvr';
 
+$route['sales/pvr/updatestk'] = 'transaction/sales_stockist/updatePvrStk';
+$route['sales/pvr/updatestk/get/(:any)'] = 'transaction/sales_stockist/getInfoPvrStk/$1';
+$route['sales/pvr/updatestk/save'] = 'transaction/sales_stockist/saveNewStkPvr';
+
 $route['sales/preview/(:any)/(:any)'] = 'transaction/sales_generate/listTTPbySSR/$1/$2';
 $route['sales/correction/(:any)'] = 'transaction/sales_stockist/koreksiTransaksi/$1';
 
@@ -276,6 +280,10 @@ $route['sales/generated/change-bonus-period'] = 'transaction/sales_trans/changeB
 $route['sales/generated/ssr/(:any)'] = 'transaction/sales_stockist_report/getDetailTrxBySSR/$1';
 $route['sales/reportstk/(:any)/(:any)'] = 'transaction/sales_stockist_report/listTTP/$1/$2';
 $route['sales/report/excel'] = 'transaction/sales_stockist_report/ssrExportExcel';
+
+$route['sales/pending/report'] = 'transaction/sales_stockist_report/pendingStk';
+$route['sales/pending/report/list'] = 'transaction/sales_stockist_report/pendingStkList';
+
 
 $route['sales/voucher/report'] = 'transaction/sales_stockist_report/voucherReport';
 $route['sales/voucher/report/list'] = 'transaction/sales_stockist_report/voucherReportList';

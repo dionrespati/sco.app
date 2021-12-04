@@ -1479,9 +1479,9 @@ class Sales_stockist extends MY_Controller {
   }
 
   //$route['sales/input/promo/save'] = 'transaction/sales_stockist/saveInputProdukPromo';
-  public function saveInputProdukPromo() {
+  /* public function saveInputProdukPromo() {
     
-  }
+  } */
 
   //$route['sales/promo/checksisa'] = 'transaction/sales_stockist/checkSisa';
   function checkSisa() {
@@ -1518,6 +1518,215 @@ class Sales_stockist extends MY_Controller {
       }            
     }
     echo json_encode($arr);  
+  }
+
+  //$route['sales/input/promo/save'] = 'transaction/sales_stockist/saveInputProdukPromo';
+  public function saveInputProdukPromo() {
+    if ($this->username == null) {
+      jsAlert();
+      return;
+    }
+
+    $this->load->library('form_validation');
+    $data = $this->input->post(NULL, TRUE);
+
+    if ($this->form_validation->run('inputTtpStockist') === FALSE) {
+      $this->form_validation->set_error_delimiters("", "");
+      echo json_encode(jsonFalseResponse(validation_errors()));
+      return;
+    }
+
+    //check apakah produk ada yang kosong
+    $jum = count($data['prdcd']);
+    if ($jum == 0) {
+      echo json_encode(jsonFalseResponse("Produk tidak boleh kosong.."));
+      return;
+    }
+
+    $this->load->model('transaction/Sales_stockist_model', 'm_sales_stk');
+    $products = $this->m_sales_stk->getListPrdPromoNewMember();
+
+    /* array(
+      'CSVD01NM',
+      'CSVD02NM',
+      'CSVD03NM',
+      'CSVD04NM',
+      'CSVD05NM',
+      'CSVD06NM',
+      'CSVD07NM',
+      'CSVD08NM',
+      'CSVD09NM',
+      'CSVD10NM',
+      'CSVDTESNM'
+    ); */
+
+    //check valid product
+
+    $sub_tot_bv = 0;
+    $sub_tot_dp = 0;
+    $total_dp = 0;
+    $total_bv = 0;
+    $jumPrd = count($data['prdcd']);
+
+    $listPrdYgBoleh = array(
+      "PRKP8BG", "PRKP8BM", "PRKP8BR", "PRKP8TC", "PRKP8WM"
+    );
+
+    for ($i = 0; $i < $jumPrd; $i++) {
+      $prdcd = $data['prdcd'][$i];
+      $qty = $data['jum'][$i];
+
+      if(!in_array($data['prdcd'][$i], $listPrdYgBoleh)) {
+        $err = jsonFalseResponse("Hanya boleh input kode produk Pre Order Premium 8");
+        echo json_encode($err);
+        return;
+      }
+
+      if ($data['prdcd'][$i] == "" || $data['prdcd'][$i] == " ") {
+        echo json_encode(jsonFalseResponse("Ada field produk yang kosong,silahkan isi kode produk atau hapus field produk bila tidak terpakai"));
+        return;
+      }
+
+      if (in_array($data['prdcd'][$i], $products, TRUE)) {
+        echo json_encode(jsonFalseResponse("Pembelian produk promo new member ".$data['prdcd'][$i]." tidak bisa diinput disini.."));
+        return;
+      }
+
+      $prdArr = $this->m_sales_stk->showProductPrice($prdcd, $data['pricecode']);
+      if ($prdArr['response'] == "false") {
+        echo json_encode($prdArr);
+        return;
+      }
+
+      $resPrd = $prdArr['arraydata'][0];
+      $data['harga'][$i] = $resPrd->dp;
+      $data['poin'][$i] = $resPrd->bv;
+
+      $data['sub_tot_bv'][$i] = $qty * $resPrd->bv;
+      $data['sub_tot_dp'][$i] = $qty * $resPrd->dp;
+
+      $total_dp += $qty * $resPrd->dp;
+      $total_bv += $qty * $resPrd->bv;
+    }
+
+    $data['total_all_bv'] = (float) $total_bv;
+    $data['total_all_dp'] = (float) $total_dp;
+
+    //check apakah pembayaran kosong
+    if (!isset($data['payChooseType'])) {
+      /* echo json_encode(jsonFalseResponse("Pembayaran tidak boleh kosong.."));
+      return;  */
+      $data['payChooseType'][0] = "01";
+      $data['payChooseValue'][0] = $data['total_all_dp'];
+      $data['payReff'][0] = "/";
+
+    } else {
+        $jumPay = count($data['payReff']);
+        $total_bayar_vch = 0;
+
+        for ($i = 0; $i < $jumPay; $i++) {
+          if ($data['payChooseType'][$i] == "01") {
+            $data['payChooseValue'][$i] = floatval(str_replace('.', '', $data['payChooseValue'][$i]));
+          } else {
+            if ($data['payChooseType'][$i] == "10") {
+              $typeVchx = "P";
+            } else if ($data['payChooseType'][$i] == "08") {
+              $typeVchx = "C";
+            }
+
+            $arr = $this->m_sales_stk->checkValidCashVoucher($data['dfno'], $data['payReff'][$i], $typeVchx);
+            if ($arr['response'] == "false") {
+              echo json_encode($arr);
+              return;
+            } else {
+              $datax = $arr['arrayData'][0];
+              $data['payChooseValue'][$i] = $datax->VoucherAmt;
+              $total_bayar_vch += $datax->VoucherAmt;
+            }
+          }
+        }
+
+        $j = $i;
+        if ($data['total_all_dp'] > $total_bayar_vch) {
+          $sisa_cash = $data['total_all_dp'] - $total_bayar_vch;
+          $data['payChooseType'][$j] = "01";
+          $data['payChooseValue'][$j] = $sisa_cash;
+          $data['payReff'][$j] = "/";
+        }
+    }
+
+    //check apakah distributor valid
+
+    $ifMemberExist = $this->m_sales_stk->getValidDistributor($data['dfno']);
+    if ($ifMemberExist == null) {
+      echo json_encode(jsonFalseResponse("ID Member tidak valid.."));
+      return;
+    }
+
+    $arr = array("table" => "sc_newtrh",
+      "param" => "orderno",
+      "value" => $data['orderno'],
+      "db" => "klink_mlm2010",
+    );
+
+    if ($data['ins'] == "1") {
+      $checkOrderno = $this->m_sales_stk->checkExistingRecord($arr);
+      //CHECK apakah ORDERNO double
+      if ($checkOrderno != null) {
+        echo jsonFalseResponse("No TTP sudah ada di database..");
+        return;
+      }
+    }
+
+
+    $data['no_deposit'] = "";
+    $data['id_deposit'] = "";
+
+    echo "<pre>";
+    print_r($data);
+    echo "</pre>";
+  }
+
+  //$route['sales/pvr/updatestk'] = 'transaction/sales_stockist/updatePvrStk';
+  public function updatePvrStk() {
+    $data['form_header'] = "Update Kode Stockist PVR";
+    $data['form_action'] = "sales/pvr/updatestk/save";
+    $data['icon'] = "icon-pencil";
+    $data['form_reload'] = 'sales/pvr/updatestk';
+
+    if ($this->username == null) {
+        $this->setTemplate('includes/inline_login', $data);
+        return;
+    }
+
+    $data['from'] = date("Y-m-d");
+    $data['to'] = date("Y-m-d");
+    $data['sc_dfno'] = $this->stockist;
+    // $data['stk_barcode_opt'] = $this->m_stock_barcode->getListStkbarMenu($this->groupid);
+    $this->setTemplate($this->folderView.'updatePvrStk', $data);
+  }
+  //$route['sales/pvr/updatestk/get/(:any)'] = 'transaction/sales_stockist/getInfoPvrStk/$1';
+  public function getInfoPvrStk($pvr) {
+    $this->load->model('transaction/Sales_stockist_model', 'm_sales_stk');
+    $res = $this->m_sales_stk->getPVRStkInfo($pvr);
+    echo json_encode($res);
+  }
+  //$route['sales/pvr/updatestk/save'] = 'transaction/sales_stockist/saveNewStkPvr';
+  public function saveNewStkPvr() {
+    $data = $this->input->post(NULL, TRUE);
+    if($data['pvr'] === null || $data['pvr'] === "") {
+      echo json_encode(jsonFalseResponse("PVR tidak boleh kosong"));
+      return;
+    }
+
+    if($data['kode_stockist'] === null || $data['kode_stockist'] === "") {
+      echo json_encode(jsonFalseResponse("Stockist tidak boleh kosong"));
+      return;
+    }
+
+    $this->load->model('transaction/Sales_stockist_model', 'm_sales_stk');
+    $res = $this->m_sales_stk->updatePVR($data['pvr'], $data['kode_stockist']);
+    echo json_encode($res);
   }
 
 }

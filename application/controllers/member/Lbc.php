@@ -32,7 +32,7 @@ class Lbc extends MY_Controller {
 		$arr = array("response" => "false",  "message" => "Member tidak terdaftar / TERMINATION..");
 		//Cek apakah ID valid / Tidak termination / Member bukan laki-laki
 		$check = $this->m_lbc->checkValidID($id);
-	    if($check == null) {
+	  if($check == null) {
 			$arr = array("response" => "false",  "message" => "Member tidak terdaftar / TERMINATION..");
 			return $arr;
 		}

@@ -302,6 +302,54 @@ class Sales_online_model extends MY_Model {
       $del = $this->executeQuery($del, $this->db2);
     }
 
+    function logstkV2($secno, $orderno)
+    {
+        //$this->db = $this->load->database('alternate', true);
+
+        date_default_timezone_set("Asia/Jakarta");
+        $tgl_updt = date("Y-m-d H:i:s ");
+        $cek = $this->input->post('check');
+        //$orderno = $this->input->post('orderno');
+        $jumlah=count($cek);
+
+        $cek = "SELECT orderno,secno,status,idstk FROM webol_trans_ok
+                WHERE secno = '$secno' and orderno = '$orderno'";
+        //echo $cek;
+        $res = $this->getRecordset($cek, null, $this->db2);
+        //print_r($res);
+        if($res != null)
+        {
+            //$rows = $query->row();
+            $secnum = $res[0]->secno;
+            $statuss = $res[0]->status;
+            $stk = $res[0]->idstk;
+            //echo "Secnum : ".$secnum. " secno : ".$secno;
+            if($secnum !== $secno)
+            {
+                echo "<script>alert('Kode Security Salah')</script>";
+            }
+            elseif($statuss == '1')
+            {
+                echo "<script>alert('Data Sudah Di Cetak')</script>";
+            }
+            else
+            {
+
+                $insert = "insert into webol_logs_stockist (orderno,userlogin,tgl_ambil)
+                            values('$orderno','$stk','$tgl_updt')";
+                //echo $insert;
+                $query = $this->executeQuery($insert, $this->db2);
+
+                $update = "update webol_trans_ok set status = 1
+                            WHERE orderno = '$orderno'";
+				//echo $update;
+                $query = $this->executeQuery($update, $this->db2);
+            }
+            return $res;
+        }
+
+    }
+
 	function logstk($secno, $orderno)
     {
         //$this->db = $this->load->database('alternate', true);

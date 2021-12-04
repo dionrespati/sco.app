@@ -50,7 +50,7 @@
                         style="display: none;"
                         tabindex="5"
                         type="button"
-                        class="btn btn-primary"
+                        class="btn btn-primary btn-upd-period"
                         name="change" value="Ubah Periode"
                         onclick="changeBonusPeriod()"/>
                 </div>
@@ -65,7 +65,7 @@
                     <input
                         tabindex="5"
                         type="button"
-                        class="btn btn-success"
+                        class="btn btn-success boleh_klik"
                         name="save" value="Recover"
                         onclick="recoverSsr()"/>
                 </div>
@@ -98,9 +98,12 @@ const formatter = (num, type = '') => {
   }
 }
 function checkSsr(param) {
-  prefix = param.slice(0, 3);
-    $.ajax({
-        url: 'http://sco-api.k-link.me/find-ssr',
+  /*prefix = param.slice(0, 3);
+  if (prefix === 'PVR') {
+    getPvrIp(param);
+  } else {
+    
+    url: 'http://sco-api.k-link.me/find-ssr',
         type: 'POST',
         data: {
             batchno: param
@@ -108,68 +111,53 @@ function checkSsr(param) {
         headers: {
           'App-Key': 'k-linkmember'
         },
-        dataType: 'json',
-        success: result => {
-            $(':input','#formInputList')
-              .not(':button, :submit, :reset, :hidden, #ssr')
-              .val('')
-            if (result.status === 'failed') {
-              alert(result.message)
-            } else {
-
-              // convert voucher deposit cash into string
-              const vc = result.data.map(el => {
-                if (el.no_deposit !== null && el.no_deposit !== undefined) {
-                  return `'${el.no_deposit}'`
-                }
-              })
-              .filter(el => el !== undefined)
-
-              $('#kode_stockist').val(result.data[0].loccd)
-              $('#tgl_ssr').val(result.data[0].batchdate)
-
-              $('#v_deposit').val(vc)
-
-              $('#total_dp').val(formatter(
-                result.data[result.data.length-1].total_dp
-              ))
-
-              $('#total_bv').val(formatter(
-                result.data[result.data.length-1].total_bv
-              ))
-
-              $('#bonus_period').val(result.data[0].bnsperiod)
-
-              if (result.data[0].trcd2) {
-                $('#ipno').val(result.data[0].trcd2)
-              } else {
-                $('#ipno').val(result.data[0].trcd2)
-              }
-
-              if (result.data[0].csno) {
-                $('#cn_no').val(result.data[0].csno)
-                $('input[name=change]').hide()
-                $('input[name=save]').prop('disabled', true)
-                alert(result.message)
-              } else {
-                $('#total_dp').val(formatter(
-                  result.data[result.data.length-1].total_dp
-                ))
-                $('#total_bv').val(formatter(
-                  result.data[result.data.length-1].total_bv
-                ))
-                $('#cn_no').val('')
-                $('input[name=change]').show()
-                $('#bonus_period').prop('readonly', false)
-                $('input[name=save]').prop('disabled', false)
-              }
-            }
+    */
+    All.set_disable_button();
+    $.ajax({
+        url: 'sales/generated/check-ssr',
+        type: 'POST',
+        data: {
+            batchno: param
         },
-        error: function(xhr, ajaxOptions, thrownError) {
-            alert(thrownError + ':' +xhr.status);
+        dataType: 'json',
+        success: function(data) {
+          All.set_enable_button();
+				  const { response } = data;
+          if(response === 'true') {
+            const { arrayData } = data;
+            const { 
+              loccd, total_dp, total_bv, bnsperiod, trcd2, no_deposit, batchdate, csno 
+            } = arrayData[0];
+
+            $(All.get_active_tab() + "#ipno").val(trcd2);
+            $(All.get_active_tab() + "#bonus_period").val(bnsperiod);
+            $(All.get_active_tab() + "#total_bv").val(All.num(parseInt(total_bv)));
+            $(All.get_active_tab() + "#total_dp").val(All.num(parseInt(total_dp)));
+            $(All.get_active_tab() + "#tgl_ssr").val(batchdate);
+            $(All.get_active_tab() + "#v_deposit").val(no_deposit);
+            $(All.get_active_tab() + "#kode_stockist").val(loccd);
+            $(All.get_active_tab() + "#cn_no").val(csno);
+
+            if(csno !== null && csno !== '') {
+              alert(`Laporan sudah diproses menjadi ${csno}`);
+              $(All.get_active_tab() + " .boleh_klik").attr("disabled", "disabled");
+              $(All.get_active_tab() + "#bonus_period").attr("readonly", "readonly");
+              $(All.get_active_tab() + ".btn-upd-period").css("display", "none");
+            } else {
+              $(All.get_active_tab() + ".boleh_klik").removeAttr("disabled");
+              $(All.get_active_tab() + "#bonus_period").removeAttr("readonly");
+              $(All.get_active_tab() + ".btn-upd-period").css("display", "block");
+            }
+          } else {
+            alert(data.message);
+          }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+          alert(thrownError + ':' +xhr.status);
+				  All.set_enable_button();
         }
-    })
-    if (prefix === 'PVR') getPvrIp(param);
+    });
+    
 }
 
 function recoverSsr() {

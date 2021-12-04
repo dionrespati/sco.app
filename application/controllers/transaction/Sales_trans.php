@@ -24,8 +24,8 @@ class Sales_trans extends MY_Controller {
     // $route['sales/generated/check-ssr'] = 'transaction/sales_trans/checkSsr';
     public function checkSsr() {
         $data = $this->input->post(null, true);
-        $getSsr = $this->Sales_trans_model->checkSSR($data['ssr']);
-        $getSum = $this->Sales_trans_model->getSumDP($data['ssr']);
+        /* $getSsr = $this->Sales_trans_model->checkSSR($data['batchno']);
+        $getSum = $this->Sales_trans_model->getSumDP($data['batchno']);
         $result = jsonTrueResponse($getSsr);
         if ($getSsr && $getSum) {
           array_push($getSsr, $getSum[0]);
@@ -37,7 +37,20 @@ class Sales_trans extends MY_Controller {
         } else {
           $result = jsonFalseResponse('Invalid SSR...');
         }
-        echo json_encode($result);
+        echo json_encode($result); */
+
+        $getSsr = $this->Sales_trans_model->checkSsrMsr($data['batchno']);
+        if($getSsr === null) {
+          $res = jsonFalseResponse('Invalid SSR...');
+          echo json_encode($res);
+          return;
+        }
+
+        if($getSsr[0]->csno !== null || $getSsr[0]->csno !== '') {
+          $result = jsonTrueResponse($getSsr, 'Generated');
+          echo json_encode($result);
+          return;
+        }
     }
 
     public function getPvrIp() {

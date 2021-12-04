@@ -110,6 +110,8 @@ class Sales_online extends MY_Controller {
         $updates = $this->input->post('updates');
         $this->load->helper('fpdf');
 
+        
+
             if($secno == '' || $secno == '0')
             {
                 echo "<script>alert('Kode Security Anda Tidak Boleh Kosong')</script>";
@@ -155,11 +157,13 @@ class Sales_online extends MY_Controller {
                         $data['kode_prod'] = substr($data['kode_prod'], 0 , -2);
                         $data['hasil'] = $this->m_sales_online->show_grouping_product_promo($ins, $unik_no,$orderno);
                         $delete = $this->m_sales_online->delete_temp_WEB_SIS_TEMP_STOCKIST($unik_no);
-                        $this->load->view('printPDF1',$data);
+                        //$this->load->view('printPDF1',$data);
+                        $data['user'] = $this->stockist;
+                        $this->load->view($this->folderView.'printPDF1',$data);
                     }
                 //}
                }
-
+              
 	}
 
 	//$route['sales/ol/reprint/(:any)'] = 'transaction/sales_online/reprintNote/$1';

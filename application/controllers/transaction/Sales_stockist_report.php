@@ -371,5 +371,50 @@ class Sales_stockist_report extends MY_Controller {
         echo $res;
 		
 	}
+
+	//$route['sales/pending/report'] = 'transaction/sales_stockist_report/pendingStk';
+	public function pendingStk() {
+		$data['form_header'] = "Stockist SSR/MSR Pending";
+		$data['form_action'] = "sales/report/product/excell";
+		$data['icon'] = "icon-list";
+		$data['form_reload'] = 'sales/pending/report';
+		$data['mainstk_read'] = $this->stockist;
+
+    if($this->username == null) {
+			$this->setTemplate('includes/inline_login', $data);
+			return;
+		}
+
+		$data['from'] = date("Y-m")."-01";
+		$data['to'] = date("Y-m-d");
+		$data['bns'] = date("m/Y");
+		$this->setTemplate($this->folderView.'stkPending',$data);
+	}
+
+	//$route['sales/pending/report/list'] = 'transaction/sales_stockist_report/pendingStkList';
+	public function pendingStkList() {
+		$data = $this->input->post(NULL, TRUE);
+		if($data['bns'] === "") {
+			echo setErrorMessage("Bonus period harus diisi..");
+			return;
+		}
+
+		if($data['from'] === "" || $data['to'] === "") {
+			echo setErrorMessage("Tgl Generate harus diisi lengkap");
+			return;
+		}
+
+		$bnsx = explode("/", $data['bns']);
+		$bln = sprintf("%02s", $bnsx[0]);
+		$bns = $bnsx[1]."-".$bln."-01";
+		$data['res'] = $this->m_ssr->stkPendingApprove($data['from'], $data['to'], $bns);
+		if($data['res'] === null) {
+			echo setErrorMessage("Data tidak ditemukan");
+		} else {
+			$this->load->view($this->folderView.'stkPendingList',$data);
+		}
+		
+
+	}
 	
 }

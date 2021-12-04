@@ -20,6 +20,7 @@ class Sales_generate extends MY_Controller
 			if ($this->stockist == "BID06") {
 					$data['mainstk_read'] = "";
 					$data['idstkk_read'] = "";
+					$data['nowbln'] = date("m/Y");
 			} else {
 					$data['mainstk_read'] = "readonly=readonly";
 					$data['idstkk_read'] = "";

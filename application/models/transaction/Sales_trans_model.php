@@ -43,6 +43,20 @@ class Sales_trans_model extends MY_Model {
       }
     }
 
+    function checkSsrMsr($ssr) {
+      $qry = "SELECT a.loccd, SUM(a.tdp) as total_dp, SUM(a.tbv) as total_bv,
+                CONVERT(VARCHAR(10), a.bnsperiod, 120) as bnsperiod,
+                a.batchno, a.csno, CONVERT(VARCHAR(10), a.batchdt, 120) as batchdate,
+                a.no_deposit, a.id_deposit, SUM(b.payamt) as jum_vch, b.trcd2
+              FROM klink_mlm2010.dbo.sc_newtrh a
+              LEFT OUTER JOIN klink_mlm2010.dbo.sc_newtrp_vc_det b ON (a.batchno = b.trcd AND b.paytype = '08')
+              WHERE a.batchno = ?
+              GROUP BY a.loccd, CONVERT(VARCHAR(10), a.bnsperiod, 120),
+              a.batchno, a.csno, CONVERT(VARCHAR(10), a.batchdt, 120),
+              a.no_deposit, a.id_deposit,b.trcd2";
+      return $this->getRecordset($qry, $ssr, $this->db2);
+    }
+
     function checkCvch($no_ssr) {
       $checkVoucher = "SELECT a.trcd, a.dfno, a.docno,
                             SUM(a.amount) as total_voucher
@@ -103,7 +117,7 @@ class Sales_trans_model extends MY_Model {
         $exeSql1 = $db_qryx->query($sql1);
 
         if ($vch != '') {
-          $sql2 = "UPDATE klink_mlm2010.dbo.deposit_H SET status='1' WHERE no_trx IN ($vch)";
+          $sql2 = "UPDATE klink_mlm2010.dbo.deposit_H SET status='1' WHERE no_trx = '$vch'";
           $exeSql2 = $db_qryx->query($sql2);
         }
 

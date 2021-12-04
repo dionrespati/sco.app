@@ -1254,4 +1254,38 @@ class Sales_stockist_model extends MY_Model
 			}
 			return $arrPush;
 	}
+
+    function getPVRStkInfo($pvr) {
+        $qry = "SELECT a.batchno, a.loccd, b.fullnm, a.csno,
+                    SUM(a.tdp) AS total_dp, SUM(a.tbv) as total_bv
+                FROM klink_mlm2010.dbo.sc_newtrh a
+                LEFT OUTER JOIN klink_mlm2010.dbo.mssc b ON (a.loccd = b.loccd)
+                WHERE a.batchno = '$pvr' and LEFT (a.batchno, 3) = 'PVR'
+                GROUP BY a.batchno, a.loccd, b.fullnm, a.csno";
+        $hasil = $this->getRecordset($qry, null, $this->db2);
+        if($hasil === null) {
+            return jsonFalseResponse("PVR tidak ditemukan atau jenis transaksi bukan PVR");
+        }
+
+        if($hasil[0]->csno !== null && $hasil[0]->csno !== "") {
+            $csno = $hasil[0]->csno;
+            return jsonFalseResponse("PVR sudah diproses dengan no : $csno");
+        }
+        return jsonTrueResponse($hasil);
+    }
+
+    function updatePVR($pvr, $kode_stk) {
+        //$user = $this->username;
+        $qry = "UPDATE a 
+                SET a.sc_dfno = '$kode_stk', a.sc_co = '$kode_stk', a.loccd = '$kode_stk', a.createnm = '$kode_stk' 
+                FROM klink_mlm2010.dbo.sc_newtrh a
+                WHERE a.batchno = '$pvr'";
+        //echo $qry;
+        $res = $this->db->query($qry);
+        if($res > 0) {
+            return jsonTrueResponse(null, "$pvr berhasil di update ke Stockist $kode_stk");
+        } else {
+            return jsonFalseResponse("$pvr gagal di update");
+        }
+    }
 }

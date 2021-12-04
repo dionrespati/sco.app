@@ -1054,6 +1054,25 @@ class Sales_stockist_report_model extends MY_Model {
 		return $res;
 	}
 
+	function stkPendingApprove($from, $to, $bns) {
+		$qry = "SELECT a.loccd , b.fullnm , a.batchno , SUM(a.tdp) as total_dp, SUM(a.tbv) as total_bv,
+							CONVERT(VARCHAR(10), a.batchdt , 120) AS batchdt ,
+							CONVERT(VARCHAR(10), a.bnsperiod , 120) as bnsperiod 
+						FROM klink_mlm2010.dbo.sc_newtrh a
+						LEFT OUTER JOIN klink_mlm2010.dbo.mssc b ON (a.loccd = b.loccd )
+						WHERE CONVERT(VARCHAR(10), a.etdt, 120) BETWEEN '$from' AND '$to'
+						AND CONVERT(VARCHAR(10), a.bnsperiod , 120) = '$bns' 
+						AND (a.batchno is not null and a.batchno <> '') --and a.loccd NOT IN ('BID06')
+						AND (a.csno is null OR a.csno = '')
+						GROUP BY a.loccd , b.fullnm, a.batchno, 
+						CONVERT(VARCHAR(10), a.batchdt , 120),
+						CONVERT(VARCHAR(10), a.bnsperiod , 120)
+						ORDER BY a.loccd";
+		//echo $qry;
+		$res = $this->getRecordset($qry, null, $this->db2);
+		return $res;
+	}
+
 	
 
 	
