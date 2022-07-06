@@ -907,6 +907,59 @@ class Sales_stockist_report_model extends MY_Model {
 		return $hasil1;
 	}
 
+	function listTTPbyIDV3($field, $value) {
+		$qry = "SELECT a.trcd, a.orderno, a.pricecode,
+								a.dfno, a1.fullnm, a.totpay, a.tdp,a.tbv, a.sc_dfno, 
+								a.loccd, (CONVERT(VARCHAR(10), a.bnsperiod, 120)) as bnsperiod,
+								SUM(b.qtyord * c.dp) as total_dp,
+								SUM(b.qtyord * c.bv) as total_bv	
+						FROM klink_mlm2010.dbo.sc_newtrh a
+						LEFT OUTER JOIN msmemb a1 ON (a.dfno = a1.dfno)
+						LEFT OUTER JOIN klink_mlm2010.dbo.sc_newtrd b 
+							ON (a.trcd = b.trcd)
+						LEFT OUTER JOIN klink_mlm2010.dbo.pricetab c 
+							ON (b.prdcd = c.prdcd AND a.pricecode = c.pricecode)
+						WHERE a.$field = ?
+						GROUP BY a.trcd, a.orderno,a.pricecode,
+								a.dfno, a1.fullnm, a.totpay, a.tdp, a.tbv, a.sc_dfno, 
+								a.loccd, (CONVERT(VARCHAR(10), a.bnsperiod, 120))   --, c.dp, c.bv
+						ORDER BY trcd ASC";
+
+		/* $qry = "SELECT
+							x.trcd,
+							x.orderno,
+							x.pricecode,
+							x.dfno,
+							x.fullnm,
+							x.totpay,
+							x.tdp,
+							x.tbv,
+							x.sc_dfno,
+							x.loccd,
+							x.bnsperiod,
+							ISNULL(SUM(b.qtyord * c.dp), 0) as total_dp,
+							ISNULL(SUM(b.qtyord * c.bv), 0) as total_bv	
+						FROM
+						(  
+							SELECT a.trcd, a.orderno, a.pricecode,
+									a.dfno, a1.fullnm, a.totpay, a.tdp, a.tbv, 
+									a.sc_dfno, 
+									a.loccd, CONVERT(VARCHAR(10), a.bnsperiod, 120) as bnsperiod
+							FROM klink_mlm2010.dbo.sc_newtrh a
+							LEFT OUTER JOIN msmemb a1 ON (a.dfno = a1.dfno)
+								WHERE a.$field = ?
+						) x
+						LEFT OUTER JOIN klink_mlm2010.dbo.sc_newtrd b ON (x.trcd = b.trcd)
+						LEFT OUTER JOIN klink_mlm2010.dbo.pricetab c ON
+							(b.prdcd = c.prdcd AND x.pricecode = c.pricecode)
+						GROUP BY x.trcd, x.orderno, x.pricecode,
+							x.dfno, x.fullnm, x.totpay, x.tdp, x.tbv, x.sc_dfno, 
+							x.loccd, x.bnsperiod"; */				
+		$qryParam = array($value);
+		$hasil1 = $this->getRecordset($qry, $qryParam, $this->db2);
+		return $hasil1;
+	}
+
 	function detailTrxByTrcd($field, $value) {
 		$header = $this->getHeaderSsr($field, $value);
 		if($header == null) {

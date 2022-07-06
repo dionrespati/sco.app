@@ -55,7 +55,7 @@
 		 echo selectFlagActive("Prev Bonus Period", "prev_period_bnsmonth");
 		 
          $input  = "All.inputFormData('user/save', 'formInputUser')";
-		 $update = "All.updateFormData('user/update', 'formInputUser', 'user/list')";
+		 $update = "All.updateFormDataNoShowList('user/update', 'formInputUser', 'user/list')";
 		 $view   = $btnViewAct;
          echo button_set($input, $update, $view);
 		 ?>    

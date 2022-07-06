@@ -15,6 +15,8 @@
   <tbody>
     <?php
       $i = 1;
+      $total_dp = 0;
+      $total_bv = 0;
       foreach($res as $dta) {
         echo "<tr>";
         echo "<td align=right>$i</td>";
@@ -25,8 +27,17 @@
         echo "<td align=right>".number_format($dta->total_bv, 0, ",",".")."</td>";
         echo "</tr>";
         $i++;
+        $total_dp += $dta->total_dp;
+        $total_bv += $dta->total_bv;
       }
     ?>
+    <tr>
+      <td colspan="4">Total</td>
+      <?php
+      echo "<td align=right>".number_format($total_dp, 0, ",",".")."</td>";
+      echo "<td align=right>".number_format($total_bv, 0, ",",".")."</td>";
+      ?>
+    </tr>
   </tbody>
 </table>
 <?php

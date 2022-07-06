@@ -798,6 +798,24 @@ var Stockist = {
         });
     },
 
+    generate_sales_sco3: function() {
+        All.set_disable_button();
+        $(".mainForm").hide();
+        $(".mainForm").html();
+        $(".nextForm1").hide();
+        $(".nextForm1").html();
+        $(".nextForm2").hide();
+        $.post(All.get_url("sales/generate/salesV2"), $("#generatesubs").serialize(), function (hasil) {
+            All.set_enable_button();
+            $(".nextForm3").show();
+            $(".nextForm3").html(null);
+            $(".nextForm3").html(hasil);
+        }).fail(function () {
+            alert("Error requesting page");
+            $("#nextForm3").html(null)
+        });
+    },
+
     back_frm_generate_awal: function () {
         All.set_enable_button();
         $(".mainForm").show();

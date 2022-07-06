@@ -278,7 +278,11 @@ class Scan_voucher_model extends MY_Model {
 
         $hitungUlang = $this->hitungTotalVchCash($iddeposit);
         //print_r($hitungUlang);
-        $jumDeposit = $hitungUlang[0]->jumlah_deposit;
+        if($hitungUlang === null) {
+            $jumDeposit = 0;
+        } else {
+            $jumDeposit = $hitungUlang[0]->jumlah_deposit;
+        }
 
         $updDeposit = "UPDATE a 
                           SET a.total_deposit = '$jumDeposit'

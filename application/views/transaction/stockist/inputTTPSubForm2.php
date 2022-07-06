@@ -37,6 +37,7 @@ if ($ins == "2") {
 ?>
 <form id="salesSubStockist" class="formSales">
 	<div id="firstForm" style="display:block;">
+	  <font color="red">Untuk Pembelanjaan MS, kode MS diisi di field "Stockists"</font>
 		<table width="100%" class="table table-striped table-bordered bootstrap-datatable datatable">
 			<tr>
 				<th colspan="5"><?php echo strtoupper($head_form); ?></th>

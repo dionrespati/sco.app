@@ -9,7 +9,7 @@
 		//if($form['searchby'] == "sc_dfno" ||) {
 		?>	
 			<tr bgcolor=#f4f4f4>
-				<th colspan="10">List Transaksi Stockist <?php echo $form['paramValue']; ?></th>
+				<th colspan="11">List Transaksi Stockist <?php echo $form['paramValue']; ?></th>
 			</tr>
 			<tr bgcolor=#f4f4f4>
 				<th width="5%">No</th>
@@ -17,6 +17,7 @@
 				<th width="8%">Stockist</th>
 				<th width="13%">No TTP</th>
 				<th width="10%">Tgl Trx</th>
+				<th width="10%">Bns Period</th>
 				<th>Nama Member</th>
 				<th width="10%">DP</th>
 				<th width="6%">BV</th>
@@ -51,6 +52,9 @@
 				</td>
 				<td align=\"center\">
 				    $dta->etdt
+				</td>
+				<td align=\"center\">
+				    $dta->bnsperiod
 				</td>
 				<td>
 				    ".substrwords($dta->fullnm,20)."

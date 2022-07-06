@@ -54,8 +54,8 @@
 					
 					<input tabindex="7" type="button" class="btn btn-primary" value="Input TTP Baru"
 							onclick="javascript:All.ajaxShowDetailonNextForm('sales/sub/input/form')" />
-					<input tabindex="7" type="button" class="btn btn-primary" value="Input Voucher Cash"
-							onclick="javascript:All.ajaxShowDetailonNextForm('sales/sub/input/vcash')" />
+					<!-- <input tabindex="7" type="button" class="btn btn-primary" value="Input Voucher Cash"
+							onclick="javascript:All.ajaxShowDetailonNextForm('sales/sub/input/vcash')" /> -->
 					<?php } ?>	
 						<!--<input tabindex="5" type="button" id="btn_input_user" class="btn btn-success" name="report" value="Report Excel" onclick="All.ajaxFormPost(this.form.id,'sales/stk/input/report')" />-->
 				</div>

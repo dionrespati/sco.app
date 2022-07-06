@@ -30,10 +30,16 @@
       <?php } ?>
     </tbody>
   </table>
-<?php } ?>
+<?php 
+
+} 
+
+setDatatable();
+    
+?>
 
 
-<script>
+<!-- <script>
 $(document).ready(function() {
   $('.datatable').dataTable( {
 
@@ -43,4 +49,4 @@ $(document).ready(function() {
     }
   });
 })
-</script>
+</script> -->

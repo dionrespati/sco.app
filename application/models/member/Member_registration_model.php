@@ -122,7 +122,7 @@ class Member_registration_model extends MY_Model {
         
         $this->db->trans_begin();
  
-        $tbl = "SEQ_MEMB"."$y1"."$m";
+        $tbl = "SEQ_"."$y1"."$m";
         
         $cek = "select * from $tbl";
         
@@ -159,7 +159,7 @@ class Member_registration_model extends MY_Model {
         
         $this->db->trans_begin();
  
-        $tbl = "SEQ_MEMB"."$y1"."$m";
+        $tbl = "SEQ_"."$y1"."$m";
         $qry = "SELECT * FROM $tbl 
            		 WHERE SeqID = ( SELECT MAX(SeqID) FROM $tbl )";
         
@@ -299,7 +299,11 @@ class Member_registration_model extends MY_Model {
             $pricecode = $test[0]->pricecode;
             //echo "door ".$regtype."<br>";
         } else {
-            $test = $this->showKitPrdcdV($usr,$data['regtype']);
+            if($usr == "IDRIS") {
+                $test = $this->showKitPrdcdV2($data['regtype']);
+            } else {
+                $test = $this->showKitPrdcdV($usr,$data['regtype']);
+            }    
             $regtype = $test[0]->prdcd;
             $totdp = $test[0]->dp;
             $totbv = $test[0]->bv;
@@ -783,6 +787,18 @@ class Member_registration_model extends MY_Model {
                   ON (a.pricecode = c.pricecode COLLATE SQL_Latin1_General_CP1_CS_AS)
                 WHERE a.loccd = ? AND c.prdcd = ?";
         $paramQry = array($username, $prdcd);
+        $result = $this->getRecordset($sql,$paramQry,$this->db2);
+        return $result;
+    }
+
+    public function showKitPrdcdV2($prdcd)
+    {
+        $this->db = $this->load->database($this->db2, true);
+        
+        $sql = "SELECT C.pricecode,c.prdcd,c.bv,c.dp
+                FROM klink_mlm2010.dbo.pricetab c 
+                WHERE c.prdcd = ? AND c.pricecode = '12W4'";
+        $paramQry = array($prdcd);
         $result = $this->getRecordset($sql,$paramQry,$this->db2);
         return $result;
     }

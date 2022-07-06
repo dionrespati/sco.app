@@ -78,7 +78,7 @@ class Sales_stockist_model extends MY_Model
                   a.trcd,
                   a.pricecode,
                   CONVERT(char(10), a.etdt,126) as etdt,
-                  a.bnsperiod,
+                  CONVERT(char(10), a.bnsperiod,126) as bnsperiod,
                   a.dfno,
                   b.fullnm,
                   a.loccd,
@@ -705,7 +705,7 @@ class Sales_stockist_model extends MY_Model
 
         $ttptype = "SC";
         //SUBSC = untuk sub / mobile stockist, SC = untuk stockist
-        if ($datax['sctype'] == "3") {
+        if ($datax['sctype'] == "3" || $datax['sctype'] == "5" ) {
             $ttptype = "SUBSC";
         }
 
@@ -929,7 +929,7 @@ class Sales_stockist_model extends MY_Model
     public function showProductPriceForPvr($productcode, $pricecode, $jenis, $jenis_promo = "reguler")
     {
         $qry = "SELECT  b.prdcd,b.prdnm, b.webstatus, b.scstatus, b.status,
-                    c.bv,c.dp, d.cat_inv_id_parent as bundling, b1.pvr_exclude_status
+                    c.bv,c.dp, c.cp, d.cat_inv_id_parent as bundling, b1.pvr_exclude_status
                 from klink_mlm2010.dbo.pricetab c
                 LEFT OUTER JOIN klink_mlm2010.dbo.msprd b
                     on c.prdcd=b.prdcd
@@ -975,9 +975,11 @@ class Sales_stockist_model extends MY_Model
 
         //jika produk status nya sudah
         if($jenis_promo == "reguler") {
-            if ($hasil[0]->scstatus !== "1" || $hasil[0]->webstatus !== "1" || $hasil[0]->status !== "1") {
-                $arr = array("response" => "false", "message" => "Produk $productcode / $produkname tidak dapat diinput untuk stokis..");
-                return $arr;
+            if($jenis !== "bo") {
+                if ($hasil[0]->scstatus !== "1" || $hasil[0]->webstatus !== "1" || $hasil[0]->status !== "1") {
+                    $arr = array("response" => "false", "message" => "Produk $productcode / $produkname tidak dapat diinput untuk stokis..");
+                    return $arr;
+                }
             }
         }
 

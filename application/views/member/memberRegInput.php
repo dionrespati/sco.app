@@ -45,7 +45,7 @@
 				<tr>
 					<td>&nbsp;No Aplikasi</td>
 					<td>
-					<input tabindex="1" type="text" name="noapl" autofocus="autofocus" onkeyup="All.upperCaseValue(this)"  id="noapl" class="span12" placeholder="Wajib Isi" onchange="Member.checkDoubleInputMemb('api/member/double/','dfnotemp',this.value)" />
+					<input tabindex="1" type="text" name="noapl" autofocus="autofocus" onkeyup="All.upperCaseValue(this)"  id="noapl" class="span12" placeholder="" />
 					</td>
 					<td>&nbsp;&nbsp;Alamat</td>
 					<td>

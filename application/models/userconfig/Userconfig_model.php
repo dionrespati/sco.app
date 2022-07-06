@@ -166,7 +166,8 @@ class Userconfig_model extends MY_Model {
             'status' => $data['status'],
             'branchid' => $data['branchid'],
             'departmentid' => $data['departmentid'],
-            'groupid' => $data['groupid']
+            'groupid' => $data['groupid'],
+						'prev_period_bnsmonth' => $data['prev_period_bnsmonth']
         );
         $this->db->where('username', $data['username']);
         $res = $this->db->update('klink_mlm2010.dbo.ecomm_user', $arr);

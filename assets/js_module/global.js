@@ -543,6 +543,26 @@ var All = {
         });
     },
 
+    updateFormDataNoShowList: function(url, formid, nextToLoad) {
+    	All.set_disable_button();
+		All.get_wait_message();
+		$.post(All.get_url(url) , $(All.get_active_tab() + "#" +formid).serialize(), function(data)
+        {
+            All.set_enable_button();
+			alert(data.message);
+			if(data.response == "true") {
+                	All.reset_all_input();
+                	All.cancelUpdateForm();
+                	//All.getListData(nextToLoad);
+	            }
+
+
+        }, "json").fail(function() {
+            alert("Error requesting page");
+            All.set_enable_button();
+        });
+    },
+
     deleteFormData: function(url, param, nextToLoad) {
     	if (confirm('Anda yakin akan menghapus data ini ?')) {
 		    	All.set_disable_button();

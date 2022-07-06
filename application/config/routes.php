@@ -255,6 +255,7 @@ $route['sales/search/list/checkSelisih'] = 'transaction/sales_generate/checkSeli
 $route['sales/detail/(:any)/(:any)/(:any)/(:any)/(:any)'] = 'transaction/sales_generate/getDetailSales/$1/$2/$3/$4/$5';
 $route['sales/generate/preview'] = 'transaction/sales_generate/previewGenerate';
 $route['sales/generate/sales'] = 'transaction/sales_generate/generateSales';
+$route['sales/generate/salesV2'] = 'transaction/sales_generate/generateSalesV2';
 $route['sales/generate/update-bonus-period'] = 'transaction/sales_generate/updateBonusPeriod';
 
 
@@ -406,3 +407,74 @@ $route['release/check/vch-stk'] = 'member/voucher/cekVchStk';
 
 
 $route['wa/sendtemplate/(:any)'] = 'Api_whatsapp/kirimWaTemplate/$1';
+
+$route['reseller'] = 'transaction/reseller/inputTrxReseller';
+$route['reseller/newregister'] = 'transaction/reseller/formNewRegister';
+$route['reseller/id/(:any)'] = 'transaction/reseller/getDataReseller/$1';
+$route['reseller/saveregister'] = 'transaction/reseller/saveRegister';
+$route['reseller/search'] = 'transaction/reseller/cariTrxReseller';
+$route['reseller/updateInv/(:any)'] = 'transaction/reseller/updateInv/$1';
+$route['reseller/listInv/(:any)'] = 'transaction/reseller/listInv/$1';
+$route['reseller/listIncPay/(:any)'] = 'transaction/reseller/listIncPay/$1';
+$route['reseller/listIncPayV2'] = 'transaction/reseller/listIncPayV2';
+$route['reseller/previewInvReseller'] = 'transaction/reseller/previewInvReseller';
+$route['reseller/saveInvReseller'] = 'transaction/reseller/saveInvReseller';
+$route['reseller/inv/print'] = 'transaction/reseller/printInv';
+$route['reseller/product/pvr/check'] = 'transaction/reseller/showProductPriceForPvr';
+$route['reseller/produk'] = 'transaction/reseller/listPrd';
+$route['reseller/produk/list'] = 'transaction/reseller/listPrdAct';
+$route['reseller/produk/all'] = 'transaction/reseller/listAllPrd';
+$route['reseller/name/all'] = 'transaction/reseller/listAllReseller';
+$route['reseller/name/list'] = 'transaction/reseller/listResellerAct';
+
+$route['payment/receipt'] = 'transaction/payment_receipt/index';
+$route['payment/receipt/findregister'] = 'transaction/payment_receipt/findRegister';
+$route['payment/receipt/findIncPayByInv'] = 'transaction/payment_receipt/findIncPayByInv';
+$route['payment/receipt/save'] = 'transaction/payment_receipt/simpanKW';
+$route['payment/print'] = 'transaction/payment_receipt/printKw';
+
+$route['payment/receipt/report'] = 'transaction/payment_receipt/form_report';
+$route['payment/receipt/finddata'] = 'transaction/payment_receipt/findData';
+$route['payment/receipt/detail/(:any)'] = 'transaction/payment_receipt/getDetailIncPayVc/$1';
+$route['payment/receipt/cn/(:any)'] = 'transaction/payment_receipt/getTransByCNno/$1';
+
+$route['payment/receipt/cancel'] = 'transaction/payment_receipt/formCancelPayReceipt';
+$route['payment/receipt/cancel/save'] = 'transaction/payment_receipt/saveCancelPayReceipt';
+
+
+/*--------------------------
+ * INCOMING PAYMENT B/0
+ * -------------------------*/
+$route['inc/pay'] = 'finance/incoming/formIncPayment';
+$route['inc/pay/list'] = 'finance/incoming/listIncPay';
+$route['inc/pay/save'] = 'finance/incoming/saveIncPay';
+$route['inc/pay/update'] = 'finance/incoming/updateIncPay';
+$route['inc/pay/id'] = 'finance/incoming/listIncPayById';
+$route['inc/pay/form'] = 'finance/incoming/createIncPay';
+
+/*--------------
+CN / MS
+---------------*/
+$route['bo/cnmsn/register'] = 'finance/cnms/formRegister';
+$route['bo/cnmsn/list'] = 'finance/cnms/listTrx';
+$route['bo/cnmsn/register/save'] = 'finance/cnms/saveRegister';
+$route['bo/cnmsn/newregister'] = 'finance/cnms/newregister';
+$route['bo/cnmsn/updateInv/(:any)'] = 'finance/cnms/updateInv/$1';
+$route['bo/cnmsn/rekapcn/(:any)/(:any)'] = 'finance/cnms/rekapCN/$1/$2';
+$route['bo/cnmsn/listIncPayV2'] = 'finance/cnms/listIncPayV2';
+$route['bo/cnmsn/incById'] = 'finance/cnms/getIncPayById';
+$route['bo/cnmsn/cn/save'] = 'finance/cnms/saveCN';
+$route['bo/cnmsn/listInv/(:any)'] = 'finance/cnms/listInv/$1';
+$route['bo/cnmsn/id/(:any)'] = 'finance/cnms/viewCn/$1';
+$route['bo/cnmsn/edit/(:any)'] = 'finance/cnms/viewCnWithEdit/$1';
+$route['bo/cnmsn/formedit/(:any)'] = 'finance/cnms/editTtpManual/$1';
+$route['bo/cnmsn/print'] = 'finance/cnms/printCnV';
+$route['bo/cnmsn/printv/(:any)'] = 'finance/cnms/printCn/$1';
+$route['bo/cnmsn/pvr/approve'] = 'finance/cnms/pvrApprove';
+
+$route['bo/cnmsn/manual'] = 'finance/cnms/cnmsManual';
+$route['bo/cnmsn/manual/check/(:any)'] = 'finance/cnms/checkCnManual/$1';
+$route['bo/cnms/product/check'] = 'finance/cnms/checkProdukCNManual';
+$route['bo/cnmsn/manual/save'] = 'finance/cnms/saveCnMsManual';
+$route['bo/cnmsn/manual/update'] = 'finance/cnms/updateCnMSManual';
+$route['bo/cnmsn/manual/hapus/(:any)'] = 'finance/cnms/hapusTtpManual';

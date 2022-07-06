@@ -132,7 +132,9 @@ class Sales_generate_model extends MY_Model
                 GROUP BY X.sc_dfno, X.sc_co, X.scdfno, 
                         X.loccd, X.createnm, X.scco, X.tipe, X.bnsperiod";
         if($this->username == "BID06") {
-        //echo $slc;
+            /* echo "<pre>";
+            echo $slc;
+            echo "</pre>"; */
         }
         $dari = $froms." 00:00:00";
         $ke = $tos." 23:59:59";
@@ -504,6 +506,19 @@ class Sales_generate_model extends MY_Model
              batchdt = '".$createdt."',flag_batch='1',
              updatenm = '".$username."',updatedt = '".$updatedt."'
             WHERE trcd = '".$trcd."' AND bnsperiod = '".$bonusperiod."' AND flag_batch='0'";
+        //echo $updte."</br>";
+        $query = $this->db->query($updte);
+        return $query;
+    }
+
+    public function updateSSRV3($newid, $trcd, $bonusperiod, $username) {
+        $createdt = date('Y-m-d');
+        $updatedt = date('Y-m-d H:i:s');
+
+        $updte = "UPDATE klink_mlm2010.dbo.sc_newtrh SET batchno = '".$newid."',
+             batchdt = '".$createdt."',flag_batch='1',
+             updatenm = '".$username."',updatedt = '".$updatedt."'
+            WHERE bnsperiod = '".$bonusperiod."' AND flag_batch='0' AND trcd IN ($trcd)"; 
         //echo $updte."</br>";
         $query = $this->db->query($updte);
         return $query;

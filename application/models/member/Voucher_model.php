@@ -207,17 +207,17 @@ class Voucher_model extends MY_Model {
                         WHEN a.status = '2' THEN 'SDH DIPAKAI'
                         END AS 'status' , a.sold_trcd as no_mm,
                     a.activate_dfno, a.activate_by
-                    FROM klink_mlm2010.dbo.starterkit a
-                    LEFT OUTER JOIN klink_mlm2010.dbo.msprd b ON (a.prdcd = b.prdcd)
-                    WHERE a.loccd = '$stockist'
-                    AND a.status = '$vch_status'
-                        AND a.prdcd IN (
-                        SELECT a.prdcd
-                        FROM msprd a WHERE a.sk_stockist = '1'
-                        OR
-                        a.prdcd IN ('SKBJ01', 'SKBJ02', 'SKCL01',
-                        'SKLIP-1F','SKLIP-2F','SKLIP-3F','SKLIP-4F')
-                    )";
+									FROM klink_mlm2010.dbo.starterkit a
+									LEFT OUTER JOIN klink_mlm2010.dbo.msprd b ON (a.prdcd = b.prdcd)
+									WHERE a.loccd = '$stockist'
+									AND a.status = '$vch_status'
+											AND a.prdcd IN (
+											SELECT a.prdcd
+											FROM msprd a WHERE a.sk_stockist = '1'
+											OR
+											a.prdcd IN ('SKBJ01', 'SKBJ02', 'SKCL01',
+											'SKLIP-1F','SKLIP-2F','SKLIP-3F','SKLIP-4F')
+									)";
 
         $hasil = $this->_get_data_json_result1($query);
 

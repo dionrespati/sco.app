@@ -89,12 +89,12 @@
             /* $action1='<button class="btn btn-sm btn-warning" title="Tambah Voucher"  onclick="Stockist.detailVoucher(\'scan/list/detail/voucher/'.$row->id.'\')"><i class="icon-briefcase icon-white"></i></button>';
             $action2='<button class="btn btn-sm btn-primary" title="Tambah TTP" onclick="Stockist.detailTtp(\'scan/list/detail/ttp/'.$row->id.'\')"><i class="icon-shopping-cart icon-white"></i></button>'; */
 
-            $action1="<button class='btn btn-sm btn-warning' title='Tambah Voucher'  onclick=$linkDetVch><i class='icon-briefcase icon-white'></i></button>";
-            $action2="<button class='btn btn-sm btn-primary' title='Tambah TTP' onclick=$linkTTP><i class='icon-shopping-cart icon-white'></i></button>";
+            $action1="<button class='btn btn-sm btn-warning' title='Tambah Voucher'  onclick=$linkDetVch>Tambah Voucher</button>";
+            $action2="<button class='btn btn-sm btn-primary' title='Tambah TTP' onclick=$linkTTP>Tambah TTP</button>";
             if($row->total_keluar==0) {
                 //$action3="<button class='btn btn-sm btn-danger' onClick='myFunction(this)' value='$row->id' title='Hapus Deposit'><i class='icon-trash icon-white'></i></button>";
             }
-            $action4="<button class='btn btn-sm btn-info' onclick=\"Stockist.recalculateDeposit('$row->id')\" title='Recalculate Deposit'><i class='icon-wrench icon-white'></i></button>";
+            $action4="<button class='btn btn-sm btn-info' onclick=\"Stockist.recalculateDeposit('$row->id')\" title='Recalculate Deposit'>Recalculate</button>";
         }
         echo "
         <tr class =\"record\" id=\"$n\">

@@ -125,6 +125,7 @@ class Sales_generate extends MY_Controller
 			$x['tipe'] = $this->input->post('ID_KW');
 			$x['dari'] = $this->input->post('from');
 			$x['ke'] = $this->input->post('to');
+			$x['username'] = $this->session->userdata('user_scoapp');
 
 			$x['groupitem']= $this->m_sales_generate->getDetItem($x['dari'],$x['ke'],$x['idstkk'],$bnsperiod,$x['cek']);
 			$x['groupprod']= $this->m_sales_generate->getDetItem2($x['dari'],$x['ke'],$x['idstkk'],$bnsperiod,$x['cek']);
@@ -136,6 +137,240 @@ class Sales_generate extends MY_Controller
 		} else {
 			redirect('auth');
 		}
+	}
+
+	//$route['sales/generate/salesV2'] = 'transaction/sales_generate/generateSalesV2';
+	public function generateSalesV2() {
+		if ($this->stockist == "BID06") {
+			$username = $this->input->post('scDfno');
+		} else {
+			$username = $this->stockist;
+		}
+
+		$createdt = date('Y-m-d');
+		$x['head'] = 'SSR';
+		$x['trcd'] = $this->input->post('trcd');
+		$x['tipechmlm'] = $this->input->post('tipechmlm');
+		$x['scdfnomlm'] = $this->input->post('scdfnomlm');
+		$x['tipech'] = $this->input->post('tipech');
+		//$bnsx = explode('/', $this->input->post('bonusperiod'));
+		$x['bonusperiod'] = $this->input->post('bonusperiod');
+		$x['scCO']=$this->input->post('scCO');
+		$x['sccomlm']=$this->input->post('sccomlm');
+		$x['scCOxd']=$this->input->post('scCOxd');
+		$SSR=0;
+		$Application=0;
+		$VCD=0;
+		$MSR=0;
+		$SSSR=0;
+		$generates=0;
+		$VPD=0;
+		//ini menentukan apa yg mau di generate
+
+		$arrayy = "";
+
+		foreach ($x['tipechmlm'] as $k=>$v) {
+			if ($x['tipechmlm'][$k]=="SSR") {
+				$listTrcd = "";
+				$lastSSR = $this->m_sales_generate->get_SSRno('stock', $x['bonusperiod'], $username, $x['scdfnomlm'][$k]);
+				foreach ($x['trcd'] as $y => $z) {
+					if ($x['tipech'][$y]=="SSR") {
+						foreach ($lastSSR as $row) {
+							$new_id = $row->hasil;
+							$x['new_id'] = $row->hasil;
+							$arrayy .= "'".$new_id."', ";
+						}
+					}
+					$listTrcd .= "'".$x['trcd'][$y]."', ";	
+					
+				}
+				$listTrcd = substr($listTrcd, 0, -2);
+				$generate = $this->m_sales_generate->updateSSRV3($new_id, $listTrcd, $x['bonusperiod'], $username);
+			}
+				
+			if ($x['tipechmlm'][$k]=="Application") {
+				$listTrcd = "";
+				$lastApl = $this->m_sales_generate->get_SSRno('apl', $x['bonusperiod'], $username, $x['scdfnomlm'][$k]);
+				foreach ($x['trcd'] as $a => $s) {
+					if ($x['tipech'][$a]=="Application") {
+						foreach ($lastApl as $row) {
+							$new_id = $row->hasil;
+							$x['new_id'] = $row->hasil;
+							//$generate = $this->m_sales_generate->generate_sales_save2($new_id, $x['trcd'][$a], $x['bonusperiod'], $username);
+							//$generate = $this->m_sales_generate->updateSSR($new_id, $x['trcd'][$a], $x['bonusperiod'], $username);
+							$arrayy .= "'".$new_id."', ";
+						}
+					}
+					$listTrcd .= "'".$x['trcd'][$a]."', ";	
+				}
+
+				$listTrcd = substr($listTrcd, 0, -2);
+				$generate = $this->m_sales_generate->updateSSRV3($new_id, $listTrcd, $x['bonusperiod'], $username);
+			}
+
+			if ($x['tipechmlm'][$k]=="Voucher Cash (Deposit)") {
+				//if($username == "BID06") {
+				$lastVCD = $this->m_sales_generate->get_SSRno('stock', $x['bonusperiod'], $username, $x['scdfnomlm'][$k]);
+				$VCD++;
+				$generates=0;
+
+				$listTrcd = "";
+				foreach ($x['trcd'] as $d => $f) {
+					if ($x['tipech'][$d]=="Voucher Cash (Deposit)") {
+						foreach ($lastVCD as $row) {
+							$new_id = $row->hasil;
+							$x['new_id'] = $row->hasil;
+							$listTrcd .= "'".$x['trcd'][$d]."', ";
+							$arrayy .= "'".$new_id."', ";
+						}
+						$sdss=$d;
+					}
+				}
+
+				$listTrcd = substr($listTrcd, 0, -2);
+				$generates = $this->m_sales_generate->generate_sales_saveDepositV2($new_id, $listTrcd, $x['bonusperiod'], $username);
+
+				if ($generates > 0) {
+						$this->m_sales_generate->incoming_paymentH($new_id, $username, $x['scCOxd'][$sdss], $x['scCO'][$sdss]);
+				}
+					/* } else {
+							$lastVCD = $this->m_sales_generate->get_SSRno('stock', $x['bonusperiod'], $username, $x['scdfnomlm'][$k]);
+							$VCD++;
+							$generates=0;
+
+							foreach ($x['trcd'] as $d => $f) {
+									if ($x['tipech'][$d]=="Voucher Cash (Deposit)") {
+											foreach ($lastVCD as $row) {
+													$new_id = $row->hasil;
+													$x['new_id'] = $row->hasil;
+													$generates = $this->m_sales_generate->generate_sales_save2($new_id, $x['trcd'][$d], $x['bonusperiod'], $username);
+													$arrayy .= "'".$new_id."', ";
+											}
+											$sdss=$d;
+									}
+							}
+							if ($generates > 0) {
+									$this->m_sales_generate->incoming_paymentH($new_id, $username, $x['scCOxd'][$sdss], $x['scCO'][$sdss]);
+							}
+					}     */
+
+			}
+
+			if ($x['tipechmlm'][$k] == "Voucher Cash") {
+				// echo "masuk sini...";
+				$listTrcd = "";
+				$lastSSR = $this->m_sales_generate->get_SSRno('stock', $x['bonusperiod'], $username, $x['scdfnomlm'][$k]);
+				foreach ($x['trcd'] as $y => $z) {
+					if ($x['tipech'][$y]=="Voucher Cash") {
+						foreach ($lastSSR as $row) {
+							$new_id = $row->hasil;
+							$x['new_id'] = $row->hasil;
+							//$generate = $this->m_sales_generate->updateSSR($new_id, $x['trcd'][$y], $x['bonusperiod'], $username);
+							$arrayy .= "'".$new_id."', ";
+						}
+						$sdss=$y;
+					}
+					$listTrcd .= "'".$x['trcd'][$y]."', ";
+				}
+
+				$listTrcd = substr($listTrcd, 0, -2);
+				$generate = $this->m_sales_generate->updateSSRV3($new_id, $listTrcd, $x['bonusperiod'], $username);
+				if ($generate > 0) {
+					$this->m_sales_generate->incomingPaymentVchCash($new_id, $username, $x['scCOxd'][$sdss], $x['scCO'][$sdss]);
+				}
+			}
+
+			if ($x['tipechmlm'][$k]=="PVR") {
+				$listTrcd = "";
+				$lastVCD = $this->m_sales_generate->get_SSRno('pvr', $x['bonusperiod'], $username, $x['scdfnomlm'][$k]);
+				$VCD++;
+				foreach ($x['trcd'] as $d => $f) {
+					if ($x['tipech'][$d]=="PVR") {
+						foreach ($lastVCD as $row) {
+							$new_id = $row->hasil;
+							$x['new_id'] = $row->hasil;
+							//$generates = $this->m_sales_generate->generate_sales_save2($new_id, $x['trcd'][$d], $x['bonusperiod'], $username);
+							//$generates = $this->m_sales_generate->updateSSR($new_id, $x['trcd'][$d], $x['bonusperiod'], $username);
+							$arrayy .= "'".$new_id."', ";
+						}
+						$sdss=$d;
+					}
+
+					$listTrcd .= "'".$x['trcd'][$d]."', ";
+				}
+				$listTrcd = substr($listTrcd, 0, -2);
+				$generate = $this->m_sales_generate->updateSSRV3($new_id, $listTrcd, $x['bonusperiod'], $username);
+			}
+
+
+			if ($x['tipechmlm'][$k]=="MSR") {
+				$listTrcd = "";
+				$lastms = $this->m_sales_generate->get_SSRno('ms', $x['bonusperiod'], $username, $x['scdfnomlm'][$k]);
+				foreach ($x['trcd'] as $g => $h) {
+					if ($x['tipech'][$g]=="MSR"&& $x['scCO'][$g]==$x['scdfnomlm'][$k]&& $x['scCOxd'][$g]==$x['sccomlm'][$k]) {
+						foreach ($lastms as $row) {
+							$new_id = $row->hasil;
+							$arrayy .= "'".$new_id."', ";
+							$x['new_id'] = $row->hasil;
+							//$generatemsr = $this->m_sales_generate->generate_sales_saveMS2($new_id, $x['trcd'][$g], $x['bonusperiod'], $username);
+							//$generatemsr = $this->m_sales_generate->updateSSR($new_id, $x['trcd'][$g], $x['bonusperiod'], $username);
+						}
+						$sdss=$g;
+					}
+
+					$listTrcd .= "'".$x['trcd'][$g]."', ";
+				}
+
+				$listTrcd = substr($listTrcd, 0, -2);
+				$generatemsr = $this->m_sales_generate->updateSSRV3($new_id, $listTrcd, $x['bonusperiod'], $username);
+			}
+				
+			if ($x['tipechmlm'][$k]=="SSSR") {
+				$listTrcd = "";
+				$lastsub = $this->m_sales_generate->get_SSRno('sub', $x['bonusperiod'], $username, $x['scdfnomlm'][$k]);
+				foreach ($x['trcd'] as $j => $u) {
+					if ($x['tipech'][$j]=="SSSR") {
+						foreach ($lastsub as $row) {
+							$new_id = $row->hasil;
+							$x['new_id'] = $row->hasil;
+							//$generate = $this->m_sales_generate->generate_sales_saveSub2($new_id, $x['trcd'][$j], $x['bonusperiod'], $username);
+							//$generate = $this->m_sales_generate->updateSSR($new_id, $x['trcd'][$j], $x['bonusperiod'], $username);
+							$arrayy .= "'".$new_id."', ";
+						}
+						$sdss=$j;
+					}
+					$listTrcd .= "'".$x['trcd'][$j]."', ";
+				}
+
+				$listTrcd = substr($listTrcd, 0, -2);
+				$generate = $this->m_sales_generate->updateSSRV3($new_id, $listTrcd, $x['bonusperiod'], $username);
+			}
+			if ($x['tipechmlm'][$k]=="Voucher Product (Deposit)") {
+				$lastVCD = $this->m_sales_generate->get_SSRno('voucher', $x['bonusperiod'], $username, $x['scdfnomlm'][$k]);
+				$VPD++;
+				foreach ($x['trcd'] as $r => $t) {
+					if ($x['tipech'][$r]=="Voucher Product (Deposit)") {
+						foreach ($lastVCD as $row) {
+							$new_id = $row->hasil;
+							$x['new_id'] = $row->hasil;
+							$generates = $this->m_sales_generate->generate_sales_save2($new_id, $x['trcd'][$r], $x['bonusperiod'], $username);
+							$arrayy .= "'".$new_id."', ";
+						}
+						$sds=$r;
+					}
+				}
+				if ($generates > 0) {
+					$this->m_sales_generate->incoming_paymentH($new_id, $username, $x['scCOxd'][$sds], $x['scCO'][$sds]);
+				}
+			}
+		}
+		$arrayy = substr($arrayy, 0, -2);
+		if (isset($generatemsr)) {
+		
+		}
+		//ini generate nomor SSR
+		$x['generateRes4']=$this->m_sales_generate->get_data_GenerateStk($arrayy, $x['bonusperiod'], $username);
+		$this->load->view('transaction/generate/genResult', $x);
 	}
 
 	//$route['sales/generate/sales'] = 'transaction/sales_generate/generateSales';
